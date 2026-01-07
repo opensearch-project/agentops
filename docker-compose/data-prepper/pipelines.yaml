@@ -1,0 +1,99 @@
+# Data Prepper Pipeline Configuration
+# Processes and transforms logs and traces before writing to OpenSearch
+
+# Main OTLP pipeline - receives all telemetry and routes by type
+otlp-pipeline:
+  delay: 10
+  source:
+    # OTLP source receives logs and traces via OpenTelemetry Protocol
+    otlp:
+      # Listen on port 21890 for gRPC connections from OpenTelemetry Collector
+      port: 21890
+      # Disable SSL for development
+      ssl: false
+  # Route telemetry by signal type
+  route:
+    - logs: "getEventType() == \"LOG\""
+    - traces: "getEventType() == \"TRACE\""
+  # Send to appropriate sub-pipelines
+  sink:
+    - pipeline:
+        name: "otel-logs-pipeline"
+        routes:
+          - "logs"
+    - pipeline:
+        name: "otel-traces-pipeline"
+        routes:
+          - "traces"
+
+# Log processing pipeline
+# Receives logs from main pipeline and writes to OpenSearch
+otel-logs-pipeline:
+  workers: 5
+  delay: 10
+  source:
+    pipeline:
+      name: "otlp-pipeline"
+  buffer:
+    bounded_blocking:
+  # Write processed logs to OpenSearch
+  sink:
+    - opensearch:
+        hosts: ["https://opensearch:9200"]
+        username: admin
+        password: "My_password_123!@#"
+        # Disable SSL verification for development
+        insecure: true
+        # Use log analytics index type for automatic index management
+        index_type: log-analytics-plain
+
+# Trace processing pipeline
+# Receives traces from main pipeline and distributes to raw and service map pipelines
+otel-traces-pipeline:
+  delay: 100
+  source:
+    pipeline:
+      name: "otlp-pipeline"
+  # Send traces to both raw storage and service map generation
+  sink:
+    - pipeline:
+        name: "traces-raw-pipeline"
+    - pipeline:
+        name: "service-map-pipeline"
+
+# Raw trace storage pipeline
+# Stores individual trace spans in OpenSearch
+traces-raw-pipeline:
+  source:
+    pipeline:
+      name: "otel-traces-pipeline"
+  processor:
+    # Process raw trace data for OpenSearch storage
+    - otel_trace_raw:
+  sink:
+    - opensearch:
+        hosts: ["https://opensearch:9200"]
+        username: admin
+        password: "My_password_123!@#"
+        insecure: true
+        # Use trace analytics index type for automatic index management
+        index_type: trace-analytics-plain-raw
+
+# Service map generation pipeline
+# Builds service dependency maps from trace relationships
+service-map-pipeline:
+  delay: 100
+  source:
+    pipeline:
+      name: "otel-traces-pipeline"
+  processor:
+    # Generate service map from trace spans
+    - service_map_stateful:
+  sink:
+    - opensearch:
+        hosts: ["https://opensearch:9200"]
+        username: admin
+        password: "My_password_123!@#"
+        insecure: true
+        # Use service map index type for automatic index management
+        index_type: trace-analytics-service-map

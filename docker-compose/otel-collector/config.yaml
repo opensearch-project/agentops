@@ -1,0 +1,116 @@
+# OpenTelemetry Collector Configuration
+# Receives telemetry data via OTLP and routes to appropriate backends
+
+receivers:
+  # OTLP receiver accepts logs, traces, and metrics via OpenTelemetry Protocol
+  otlp:
+    protocols:
+      # gRPC endpoint - high-performance binary protocol preferred for production
+      grpc:
+        endpoint: 0.0.0.0:4317
+      # HTTP endpoint - easier debugging, browser compatibility, and REST-based clients
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          # Allow all origins for development - restrict in production
+          allowed_origins:
+            - "http://*"
+            - "https://*"
+
+processors:
+  # Memory limiter prevents OOM by dropping data when memory usage is high
+  # Critical for stability under load
+  memory_limiter:
+    check_interval: 5s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+
+  # Batch processor groups telemetry data for efficient transmission
+  # Reduces network overhead and improves throughput
+  batch:
+    # Send batch after 10 seconds even if not full
+    timeout: 10s
+    # Send batch when it reaches 1024 items
+    send_batch_size: 1024
+
+  # Resource detection adds environment context to telemetry
+  resourcedetection:
+    detectors: [env, system]
+
+  # Transform processor handles data transformations
+  transform:
+    error_mode: ignore
+    trace_statements:
+      - context: span
+        statements:
+          # Workaround for OpenSearch mapping conflicts with nested dotted keys
+          # Flatten nested attribute keys to prevent mapping issues
+          - set(attributes["db_system_name"], attributes["db.system.name"]) where attributes["db.system.name"] != nil
+          - delete_key(attributes, "db.system.name")
+          - set(attributes["code_function_name"], attributes["code.function.name"]) where attributes["code.function.name"] != nil
+          - delete_key(attributes, "code.function.name")
+          - set(attributes["user_agent_original"], attributes["user_agent.original"]) where attributes["user_agent.original"] != nil
+          - delete_key(attributes, "user_agent.original")
+          - set(attributes["error_type"], attributes["error.type"]) where attributes["error.type"] != nil
+          - delete_key(attributes, "error.type")
+          - set(attributes["upstream_cluster"], attributes["upstream_cluster"]) where attributes["upstream_cluster"] != nil
+          - delete_key(attributes, "upstream_cluster")
+    log_statements:
+      - context: log
+        statements:
+          # Handle structured log bodies (maps/objects) that cause parse errors in OpenSearch
+          # Flatten nested structures first, then convert to key=value string format
+          - flatten(body) where IsMap(body)
+          - set(body, ToKeyValueString(body)) where IsMap(body)
+
+exporters:
+  # Debug exporter for troubleshooting - outputs to collector logs
+  debug:
+    verbosity: detailed
+
+  # OTLP exporter sends logs and traces to Data Prepper
+  otlp/opensearch:
+    endpoint: "data-prepper:21890"
+    tls:
+      insecure: true
+      insecure_skip_verify: true
+
+  # Prometheus OTLP HTTP exporter sends metrics to Prometheus
+  otlphttp/prometheus:
+    endpoint: "http://prometheus:9090/api/v1/otlp"
+    tls:
+      insecure: true
+
+service:
+  # Pipelines define the flow: receivers -> processors -> exporters
+  pipelines:
+    # Traces pipeline: OTLP -> processing -> Data Prepper
+    traces:
+      receivers: [otlp]
+      processors: [resourcedetection, memory_limiter, transform, batch]
+      exporters: [otlp/opensearch, debug]
+
+    # Metrics pipeline: OTLP -> processing -> Prometheus
+    metrics:
+      receivers: [otlp]
+      processors: [resourcedetection, memory_limiter, batch]
+      exporters: [otlphttp/prometheus, debug]
+
+    # Logs pipeline: OTLP -> processing -> Data Prepper
+    logs:
+      receivers: [otlp]
+      processors: [resourcedetection, memory_limiter, transform, batch]
+      exporters: [otlp/opensearch, debug]
+
+  # Telemetry configuration for collector self-monitoring
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      # Expose collector metrics on port 8888
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: 0.0.0.0
+                port: 8888

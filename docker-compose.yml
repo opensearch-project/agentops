@@ -1,0 +1,220 @@
+# AgentOps
+# Docker Compose configuration for local development
+# WARNING: This configuration is for development/testing only - not production-ready
+
+include:
+  - path: ${INCLUDE_COMPOSE_EXAMPLES:-docker-compose/util/docker-compose.empty.yml}
+  - path: ${INCLUDE_COMPOSE_OTEL_DEMO:-docker-compose/util/docker-compose.empty.yml}
+
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+    tag: "{{.Name}}"
+
+networks:
+  agentops-network:
+    name: agentops-network
+    driver: bridge
+
+volumes:
+  opensearch-data:
+    driver: local
+  prometheus-data:
+    driver: local
+
+services:
+  # OpenTelemetry Collector - Receives telemetry data via OTLP protocol
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:${OTEL_COLLECTOR_VERSION}
+    container_name: otel-collector
+    command: ["--config=/etc/otelcol-config.yml"]
+    volumes:
+      - ./docker-compose/otel-collector/config.yaml:/etc/otelcol-config.yml
+    ports:
+      # OTLP gRPC receiver - high-performance binary protocol
+      - "${OTEL_COLLECTOR_PORT_GRPC}:4317"
+      # OTLP HTTP receiver - easier debugging and browser compatibility
+      - "${OTEL_COLLECTOR_PORT_HTTP}:4318"
+      # Metrics endpoint for collector self-monitoring
+      - "${OTEL_COLLECTOR_METRICS_PORT}:8888"
+    networks:
+      - agentops-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${OTEL_COLLECTOR_MEMORY_LIMIT}
+    environment:
+      - OTEL_COLLECTOR_HOST=${OTEL_COLLECTOR_HOST}
+      - OTEL_COLLECTOR_PORT_GRPC=${OTEL_COLLECTOR_PORT_GRPC}
+      - OTEL_COLLECTOR_PORT_HTTP=${OTEL_COLLECTOR_PORT_HTTP}
+      - OPENSEARCH_HOST=${OPENSEARCH_HOST}
+      - OPENSEARCH_PORT=${OPENSEARCH_PORT}
+      - GOMEMLIMIT=160MiB
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    logging: *logging
+
+  # Data Prepper - Transforms and enriches logs/traces before OpenSearch ingestion
+  data-prepper:
+    image: opensearchproject/data-prepper:${DATA_PREPPER_VERSION}
+    container_name: data-prepper
+    platform: linux/amd64
+    volumes:
+      - ./docker-compose/data-prepper/pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
+      - ./docker-compose/data-prepper/data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
+    ports:
+      # OTLP gRPC receiver from OpenTelemetry Collector
+      - "${DATA_PREPPER_OTLP_PORT}:21890"
+      # OTLP HTTP receiver
+      - "${DATA_PREPPER_HTTP_PORT}:21892"
+    environment:
+      - OPENSEARCH_HOST=${OPENSEARCH_HOST}
+      - OPENSEARCH_PORT=${OPENSEARCH_PORT}
+      - OPENSEARCH_USER=${OPENSEARCH_USER}
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    networks:
+      - agentops-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${DATA_PREPPER_MEMORY_LIMIT}
+    logging: *logging
+
+  # OpenSearch - Stores and indexes logs and traces for search and analysis
+  opensearch:
+    image: ${OPENSEARCH_DOCKER_REPO}/opensearch:${OPENSEARCH_VERSION}
+    container_name: opensearch
+    environment:
+      # Single-node cluster for development
+      - cluster.name=agentops-cluster
+      - node.name=agentops-node
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      # Set heap size (adjust based on available memory)
+      - OPENSEARCH_JAVA_OPTS=${OPENSEARCH_JAVA_OPTS}
+      # Initial admin password (required for OpenSearch 2.12+)
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASSWORD}
+      - plugins.query.datasources.encryption.masterkey=BTqK4Ytdz67La1kShIKV3Pu9
+    volumes:
+      # Persist data across container restarts
+      - opensearch-data:/usr/share/opensearch/data
+    ports:
+      # REST API endpoint
+      - "${OPENSEARCH_PORT}:9200"
+      # Performance analyzer
+      - "9600:9600"
+    networks:
+      - agentops-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${OPENSEARCH_MEMORY_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: curl -s -k -u ${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD} https://localhost:9200/_cluster/health | grep -E '"status":"(green|yellow)"'
+      start_period: 120s
+      interval: 5s
+      timeout: 10s
+      retries: 30
+    logging: *logging
+
+  # Prometheus - Time-series database for metrics storage
+  prometheus:
+    image: prom/prometheus:${PROMETHEUS_VERSION}
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      # Retention period from environment variable
+      - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION}'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      # Enable remote write receiver for OpenTelemetry Collector
+      - '--web.enable-remote-write-receiver'
+      - '--web.enable-lifecycle'
+      - '--web.route-prefix=/'
+      - '--enable-feature=exemplar-storage'
+      - '--web.enable-otlp-receiver'
+    volumes:
+      - ./docker-compose/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      # Persist metrics data across container restarts
+      - prometheus-data:/prometheus
+    ports:
+      # Web UI and API endpoint
+      - "${PROMETHEUS_PORT}:9090"
+    networks:
+      - agentops-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${PROMETHEUS_MEMORY_LIMIT}
+    logging: *logging
+
+  # OpenSearch Dashboards - Web UI for visualizing logs and traces
+  opensearch-dashboards:
+    image: ${OPENSEARCH_DOCKER_REPO}/opensearch-dashboards:${OPENSEARCH_DASHBOARDS_VERSION}
+    container_name: opensearch-dashboards
+    environment:
+      - OPENSEARCH_HOSTS=["https://${OPENSEARCH_HOST}:${OPENSEARCH_PORT}"]
+      - OPENSEARCH_DASHBOARD_PORT=${OPENSEARCH_DASHBOARDS_PORT}
+      - OPENSEARCH_USER=${OPENSEARCH_USER}
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+    volumes:
+      - ./docker-compose/opensearch-dashboards/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
+    ports:
+      # Web UI endpoint
+      - "${OPENSEARCH_DASHBOARDS_PORT}:5601"
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    networks:
+      - agentops-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${DASHBOARDS_MEMORY_LIMIT}
+    healthcheck:
+      test: curl -f -u ${OPENSEARCH_USER}:'${OPENSEARCH_PASSWORD}' http://localhost:5601/api/status || exit 1
+      start_period: 60s
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    logging: *logging
+
+  # OpenSearch Dashboards Initialization - Creates workspace and index patterns
+  opensearch-dashboards-init:
+    image: python:3.11-alpine
+    container_name: opensearch-dashboards-init
+    command: sh -c "pip install requests pyyaml && python /init.py"
+    depends_on:
+      opensearch-dashboards:
+        condition: service_healthy
+    environment:
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+      - PROMETHEUS_HOST=${PROMETHEUS_HOST}
+      - PROMETHEUS_PORT=${PROMETHEUS_PORT}
+    volumes:
+      - ./docker-compose/opensearch-dashboards/init/init-opensearch-dashboards.py:/init.py
+      - ./docker-compose/opensearch-dashboards/saved-queries-traces.yaml:/config/saved-queries-traces.yaml
+      - ./docker-compose/opensearch-dashboards/saved-queries-metrics.yaml:/config/saved-queries-metrics.yaml
+    networks:
+      - agentops-network
+    restart: "no"
+    logging: *logging

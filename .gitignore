@@ -1,0 +1,10 @@
+.vscode
+.kiro
+*.code-workspace
+__pycache__
+.dev
+.venv
+venv
+node_modules
+dist
+build

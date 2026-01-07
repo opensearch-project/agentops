@@ -1,0 +1,107 @@
+# AgentOps Example Services
+# Docker Compose configuration for example instrumented agents
+# 
+# ⚠️  This is NOT a standalone Docker Compose file!
+# This file is included by docker-compose.yml via the 'include:' directive.
+# It depends on networks and services defined in the main docker-compose.yml.
+#
+# To use: Set INCLUDE_COMPOSE_FILES=docker-compose.examples.yml in .env
+# Then run: docker compose up -d
+#
+
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+    tag: "{{.Name}}"
+
+services:
+  # Weather Agent API Server - Example instrumented agent
+  example-weather-agent:
+    build:
+      context: ./examples/plain-agents/weather-agent
+      dockerfile: Dockerfile
+    container_name: weather-agent
+    ports:
+      # FastAPI server endpoint
+      - "${WEATHER_AGENT_PORT}:8000"
+    environment:
+      # Override OTLP endpoint to use docker network
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
+    depends_on:
+      - otel-collector
+    networks:
+      - agentops-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${WEATHER_AGENT_MEMORY_LIMIT}
+    logging: *logging
+
+  # Canary Service - Periodically invokes travel-planner for testing
+  example-canary:
+    build:
+      context: ./docker-compose/canary
+      dockerfile: Dockerfile
+    container_name: canary
+    environment:
+      - TRAVEL_PLANNER_URL=http://travel-planner:8000
+      - CANARY_INTERVAL=${CANARY_INTERVAL}
+    depends_on:
+      - example-travel-planner
+    networks:
+      - agentops-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${CANARY_MEMORY_LIMIT}
+    logging: *logging
+
+  # Multi-Agent Planner: Travel Planner (Orchestrator)
+  example-travel-planner:
+    build:
+      context: ./examples/plain-agents/multi-agent-planner/orchestrator
+      dockerfile: Dockerfile
+    container_name: travel-planner
+    ports:
+      - "8003:8000"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
+      - WEATHER_AGENT_URL=http://weather-agent:8000
+      - EVENTS_AGENT_URL=http://events-agent:8002
+    depends_on:
+      - otel-collector
+      - example-weather-agent
+      - example-events-agent
+    networks:
+      - agentops-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    logging: *logging
+
+  # Multi-Agent Planner: Events Agent
+  example-events-agent:
+    build:
+      context: ./examples/plain-agents/multi-agent-planner/events-agent
+      dockerfile: Dockerfile
+    container_name: events-agent
+    ports:
+      - "8002:8002"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
+    depends_on:
+      - otel-collector
+    networks:
+      - agentops-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    logging: *logging

@@ -1,0 +1,56 @@
+# Docker/Container Configuration
+# This configuration is optimized for running the canary inside Docker Compose
+# Uses service names instead of localhost for inter-container communication
+
+# Mode: mock or real
+mode: mock
+
+# Agent configuration
+agent:
+  agent_id: canary_docker_001
+  agent_name: Docker Canary Agent
+
+# Mock LLM provider settings
+mock_settings:
+  # Simulated latency for LLM calls (milliseconds)
+  llm_latency_ms: 100
+  
+  # Simulated latency for tool execution (milliseconds)
+  tool_latency_ms: 50
+  
+  # Tool failure rate (0.0 = never fail, 1.0 = always fail)
+  # Set to 0.0 for normal operation, increase to test error handling
+  tool_failure_rate: 0.0
+
+# OpenTelemetry configuration
+otlp:
+  # OTLP collector endpoint - use service name in Docker
+  endpoint: http://otel-collector:4317
+  
+  # Whether to use insecure connection (true for development)
+  insecure: true
+
+# Scenarios to execute (in order)
+# These scenarios generate different types of synthetic traffic
+scenarios:
+  - simple_tool_call      # Single tool invocation
+  - multi_tool_chain      # Multiple sequential tool calls
+  - high_token_usage      # Large input/output to test token metrics
+  - conversation_context  # Multi-turn conversation
+  - multi_agent          # Parent-child agent hierarchy
+
+# Note: tool_failure scenario excluded from continuous runs
+# to avoid generating excessive error logs
+
+# Telemetry validation (optional)
+# Validates that telemetry appears in Prometheus and OpenSearch
+validation:
+  # Prometheus URL for metrics validation
+  prometheus_url: http://prometheus:9090
+  
+  # OpenSearch URL for traces/logs validation
+  opensearch_url: https://opensearch:9200
+  
+  # OpenSearch credentials
+  opensearch_user: admin
+  opensearch_password: ${OPENSEARCH_PASSWORD}

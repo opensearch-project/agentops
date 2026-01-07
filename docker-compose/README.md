@@ -40,17 +40,24 @@ The main `docker-compose.yml` file is located in this directory and references c
    - Prometheus: http://localhost:9090
    - OpenSearch API: http://localhost:9200
 
-4. **Send test data:**
+4. **View synthetic telemetry (from canary):**
+   The canary service automatically generates synthetic agent traffic every 5 minutes.
+   - View canary logs: `docker-compose logs -f canary`
+   - See metrics in Prometheus: http://localhost:9090 (query: `gen_ai_client_token_usage_total`)
+   - See traces in OpenSearch Dashboards: http://localhost:5601 (Observability → Trace Analytics)
+   - For more details, see [CANARY.md](CANARY.md)
+
+5. **Send your own test data:**
    Configure your agent application to send OTLP data to:
    - gRPC: `http://localhost:4317`
    - HTTP: `http://localhost:4318`
 
-5. **Stop the stack:**
+6. **Stop the stack:**
    ```bash
    docker-compose down
    ```
 
-6. **Stop and remove data:**
+7. **Stop and remove data:**
    ```bash
    docker-compose down -v
    ```
@@ -63,6 +70,9 @@ The main `docker-compose.yml` file is located in this directory and references c
   - Default credentials: admin/My_password_123!@# (configured in .env file)
 - **prometheus**: Stores metrics with OTLP receiver enabled (port 9090)
 - **opensearch-dashboards**: Visualization UI (port 5601)
+- **canary**: Generates synthetic agent traffic for continuous validation (no exposed ports)
+  - Runs automatically every 5 minutes to validate the observability pipeline
+  - See [CANARY.md](CANARY.md) for details
 
 ## Configuration Files
 

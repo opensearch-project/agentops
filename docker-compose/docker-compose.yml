@@ -188,3 +188,33 @@ services:
         limits:
           memory: ${DASHBOARDS_MEMORY_LIMIT}
     logging: *logging
+
+  # Canary Service - Generates synthetic agent traffic for observability validation
+  # Runs continuously to ensure telemetry pipeline is working correctly
+  canary:
+    build:
+      context: ../examples/python
+      dockerfile: Dockerfile
+    container_name: atlas-canary
+    environment:
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+    depends_on:
+      otel-collector:
+        condition: service_started
+      prometheus:
+        condition: service_started
+      opensearch:
+        condition: service_healthy
+    networks:
+      - atlas-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    # Run canary every 5 minutes (300 seconds)
+    # Adjust the sleep interval as needed for your use case
+    command: ["sh", "-c", "while true; do python canary_runner.py --config canary/config_docker.yaml; sleep 300; done"]
+    logging: *logging
+

@@ -1,0 +1,57 @@
+# Real Mode Configuration
+# This configuration runs the canary system with real LLM providers
+# Suitable for periodic end-to-end validation (hourly or daily)
+# WARNING: This will incur API costs from your LLM provider
+
+# Mode: mock or real
+mode: real
+
+# Agent configuration
+agent:
+  agent_id: canary_real_001
+  agent_name: Real Canary Agent
+
+# Real LLM provider settings
+real_settings:
+  # API key for LLM provider (use environment variable)
+  api_key: ${OPENAI_API_KEY}
+  
+  # Model to use for real LLM calls
+  model: gpt-4
+  
+  # Optional: API endpoint override
+  # api_endpoint: https://api.openai.com/v1
+
+# OpenTelemetry configuration
+otlp:
+  # OTLP collector endpoint
+  # Use localhost for local development, or service name in Docker/K8s
+  endpoint: http://localhost:4317
+  
+  # Whether to use insecure connection (true for development)
+  insecure: true
+
+# Scenarios to execute (in order)
+# Note: Real mode scenarios will make actual API calls
+scenarios:
+  - simple_tool_call
+  - multi_tool_chain
+  - high_token_usage
+  - conversation_context
+  - multi_agent
+  # Note: tool_failure scenario is excluded in real mode
+  # as it tests mock-specific failure simulation
+
+# Telemetry validation (optional)
+# If provided, the canary will validate that telemetry appears in the stack
+validation:
+  # Prometheus URL for metrics validation
+  prometheus_url: http://localhost:9090
+  
+  # OpenSearch URL for traces/logs validation
+  opensearch_url: https://localhost:9200
+  
+  # OpenSearch credentials
+  # Use environment variables for sensitive values
+  opensearch_user: admin
+  opensearch_password: ${OPENSEARCH_PASSWORD}

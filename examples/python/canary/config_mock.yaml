@@ -1,0 +1,55 @@
+# Mock Mode Configuration
+# This configuration runs the canary system with mock providers (no API costs)
+# Suitable for frequent validation (every few minutes) and CI/CD pipelines
+
+# Mode: mock or real
+mode: mock
+
+# Agent configuration
+agent:
+  agent_id: canary_mock_001
+  agent_name: Mock Canary Agent
+
+# Mock-specific settings
+mock_settings:
+  # Simulated LLM latency in milliseconds
+  llm_latency_ms: 500
+  
+  # Simulated tool execution latency in milliseconds
+  tool_latency_ms: 200
+  
+  # Tool failure rate (0.0 = never fail, 1.0 = always fail)
+  # Set to 0.0 for normal scenarios, increase for failure testing
+  tool_failure_rate: 0.0
+
+# OpenTelemetry configuration
+otlp:
+  # OTLP collector endpoint
+  # Use localhost for local development, or service name in Docker/K8s
+  endpoint: http://localhost:4317
+  
+  # Whether to use insecure connection (true for development)
+  insecure: true
+
+# Scenarios to execute (in order)
+scenarios:
+  - simple_tool_call
+  - multi_tool_chain
+  - tool_failure
+  - high_token_usage
+  - conversation_context
+  - multi_agent
+
+# Telemetry validation (optional)
+# If provided, the canary will validate that telemetry appears in the stack
+validation:
+  # Prometheus URL for metrics validation
+  prometheus_url: http://localhost:9090
+  
+  # OpenSearch URL for traces/logs validation
+  opensearch_url: https://localhost:9200
+  
+  # OpenSearch credentials
+  # Use environment variables for sensitive values
+  opensearch_user: admin
+  opensearch_password: ${OPENSEARCH_PASSWORD}

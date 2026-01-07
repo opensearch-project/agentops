@@ -1,0 +1,14 @@
+# Minimal Configuration Example
+# This shows the minimum required fields for a valid configuration
+
+mode: mock
+
+agent:
+  agent_id: canary_minimal_001
+  agent_name: Minimal Canary Agent
+
+otlp:
+  endpoint: http://localhost:4317
+
+scenarios:
+  - simple_tool_call

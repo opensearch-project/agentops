@@ -73,3 +73,9 @@ csp.warnLegacyBrowsers: false
 # Saved objects configuration
 # Maximum number of saved objects to import at once (in bytes)
 savedObjects.maxImportPayloadBytes: 26214400
+
+explore.enabled: true
+workspace.enabled: true
+data_source.enabled: true
+data_source.ssl.verificationMode: none
+explore.discoverTraces.enabled: true

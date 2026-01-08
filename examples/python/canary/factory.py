@@ -7,7 +7,7 @@ driven agent creation without requiring the canary runner to know about
 specific provider implementations.
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from .agent import ConfigurableAgent
 from .providers import (
@@ -16,6 +16,7 @@ from .providers import (
     RealLLMProvider,
     RealToolProvider,
 )
+from .faults import FaultInjectionConfig
 
 
 class AgentFactory:
@@ -117,11 +118,18 @@ class AgentFactory:
             otlp_endpoint=self.otlp_endpoint
         )
 
-    def create_from_config(self, config: Dict[str, Any]) -> ConfigurableAgent:
-        """Create agent from configuration dictionary.
+    def create_from_config(
+        self,
+        config: Dict[str, Any],
+        fault_config: Optional[FaultInjectionConfig] = None,
+    ) -> ConfigurableAgent:
+        """Create agent from configuration with optional fault injection.
 
         This is the main method used by the canary runner.
-        It reads the mode from config and delegates to the appropriate method.
+        It reads the mode from config and delegates to the appropriate
+        method. When fault_config is provided, it merges fault injection
+        settings with base provider settings to enable composable fault
+        testing.
 
         Example config:
         {
@@ -134,10 +142,13 @@ class AgentFactory:
         }
 
         Args:
-            config: Configuration dictionary containing mode and agent settings
+            config: Configuration dictionary containing mode and agent
+                settings
+            fault_config: Optional fault injection configuration to apply
 
         Returns:
             ConfigurableAgent instance configured according to the config
+            with fault injection applied if enabled
 
         Raises:
             ValueError: If mode is unknown or required fields are missing
@@ -145,12 +156,86 @@ class AgentFactory:
         mode = config.get("mode", "mock")
 
         if mode == "mock":
-            return self.create_mock_agent(
+            # Start with base settings from config
+            llm_latency = config.get("llm_latency_ms", 500)
+            tool_latency = config.get("tool_latency_ms", 200)
+            tool_failure_rate = config.get("tool_failure_rate", 0.0)
+
+            # Initialize fault injection parameters with defaults
+            llm_failure_rate = 0.0
+            failure_pattern = "random"
+            rate_limit_after = None
+            max_tokens = None
+            completeness_ratio = 1.0
+
+            # Apply fault injection profiles if enabled
+            if fault_config and fault_config.enabled:
+                # High latency profile: adds latency to LLM and tool
+                # providers
+                if fault_config.is_profile_enabled("high_latency"):
+                    llm_latency = fault_config.get_parameter(
+                        "high_latency", "llm_latency_ms", llm_latency
+                    )
+                    tool_latency = fault_config.get_parameter(
+                        "high_latency", "tool_latency_ms", tool_latency
+                    )
+
+                # Intermittent failures profile: adds failure rates and
+                # patterns
+                if fault_config.is_profile_enabled("intermittent_failures"):
+                    llm_failure_rate = fault_config.get_parameter(
+                        "intermittent_failures", "llm_failure_rate", 0.0
+                    )
+                    tool_failure_rate = fault_config.get_parameter(
+                        "intermittent_failures",
+                        "tool_failure_rate",
+                        tool_failure_rate,
+                    )
+                    failure_pattern = fault_config.get_parameter(
+                        "intermittent_failures", "failure_pattern", "random"
+                    )
+
+                # Rate limits profile: triggers rate limiting after N calls
+                if fault_config.is_profile_enabled("rate_limits"):
+                    rate_limit_after = fault_config.get_parameter(
+                        "rate_limits", "trigger_after_calls", None
+                    )
+
+                # Token limits profile: enforces maximum token limits
+                if fault_config.is_profile_enabled("token_limits"):
+                    max_tokens = fault_config.get_parameter(
+                        "token_limits", "max_tokens", None
+                    )
+
+                # Partial responses profile: returns incomplete responses
+                if fault_config.is_profile_enabled("partial_responses"):
+                    completeness_ratio = fault_config.get_parameter(
+                        "partial_responses", "completeness_ratio", 1.0
+                    )
+
+            # Create providers with merged configuration
+            llm_provider = MockLLMProvider(
+                latency_ms=llm_latency,
+                failure_rate=llm_failure_rate,
+                failure_pattern=failure_pattern,
+                rate_limit_after=rate_limit_after,
+                max_tokens=max_tokens,
+                completeness_ratio=completeness_ratio,
+            )
+
+            tool_provider = MockToolProvider(
+                latency_ms=tool_latency,
+                failure_rate=tool_failure_rate,
+                failure_pattern=failure_pattern,
+                completeness_ratio=completeness_ratio,
+            )
+
+            return ConfigurableAgent(
+                llm_provider=llm_provider,
+                tool_provider=tool_provider,
                 agent_id=config.get("agent_id", "canary_mock_001"),
                 agent_name=config.get("agent_name", "Mock Canary Agent"),
-                llm_latency_ms=config.get("llm_latency_ms", 500),
-                tool_latency_ms=config.get("tool_latency_ms", 200),
-                tool_failure_rate=config.get("tool_failure_rate", 0.0)
+                otlp_endpoint=self.otlp_endpoint,
             )
         elif mode == "real":
             return self.create_real_agent(

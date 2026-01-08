@@ -10,7 +10,7 @@ validation accurately reflects production behavior.
 import json
 import logging
 import time
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from opentelemetry import trace, metrics
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -32,6 +32,7 @@ from opentelemetry.exporter.otlp.proto.grpc._log_exporter import (
 from opentelemetry.trace import Status, StatusCode
 
 from .providers import LLMProvider, ToolProvider
+from .exceptions import ChildAgentNotFoundError
 
 
 class ConfigurableAgent:
@@ -56,7 +57,9 @@ class ConfigurableAgent:
         tool_provider: ToolProvider,
         agent_id: str = "canary_agent_001",
         agent_name: str = "Canary Agent",
-        otlp_endpoint: str = "http://localhost:4317"
+        otlp_endpoint: str = "http://localhost:4317",
+        span_kind: trace.SpanKind = trace.SpanKind.INTERNAL,
+        child_agents: Optional[Dict[str, "ConfigurableAgent"]] = None,
     ):
         """
         Initialize configurable agent with providers.
@@ -67,6 +70,9 @@ class ConfigurableAgent:
             agent_id: Unique agent identifier
             agent_name: Human-readable agent name
             otlp_endpoint: OTLP collector endpoint
+            span_kind: SpanKind for this agent's invoke_agent span
+                      (INTERNAL for in-process, CLIENT for remote-like)
+            child_agents: Dictionary mapping child agent names to agent instances
         """
         self.llm_provider = llm_provider
         self.tool_provider = tool_provider
@@ -74,6 +80,8 @@ class ConfigurableAgent:
         self.agent_name = agent_name
         self.model = "gpt-4"
         self.otlp_endpoint = otlp_endpoint
+        self.span_kind = span_kind
+        self.child_agents = child_agents or {}
 
         # Initialize OpenTelemetry (same as weather_agent.py)
         self.tracer, self.meter, self.logger = self._setup_telemetry(
@@ -210,8 +218,7 @@ class ConfigurableAgent:
 
         # Create invoke_agent span with gen-ai semantic conventions
         with self.tracer.start_as_current_span(
-            f"invoke_agent {self.agent_name}",
-            kind=trace.SpanKind.CLIENT
+            f"invoke_agent {self.agent_name}", kind=self.span_kind
         ) as span:
             try:
                 # Set gen-ai semantic convention attributes
@@ -497,3 +504,56 @@ class ConfigurableAgent:
                 span.set_status(Status(StatusCode.ERROR, str(e)))
                 span.record_exception(e)
                 raise
+
+    def invoke_child_agent(
+        self, child_name: str, message: str, conversation_id: str
+    ) -> str:
+        """
+        Invoke a child agent with trace context propagation.
+
+        This method retrieves a child agent by name and invokes it with the
+        provided message and conversation ID. The current OpenTelemetry trace
+        context is automatically propagated to the child agent, ensuring that
+        the child's invoke_agent span becomes a child of the current span.
+
+        Trace Context Propagation:
+        - The child agent's invoke_agent span will be a child of the current
+          span due to OpenTelemetry's automatic context propagation within
+          the same process
+        - The trace_id is preserved across the parent-child invocation
+        - The parent_span_id of the child's span will match the current span_id
+
+        Span Kind Behavior:
+        - The child agent's span_kind (INTERNAL or CLIENT) is determined by
+          the child agent's configuration, not by this method
+        - INTERNAL: Represents in-process agent invocations (e.g., LangChain,
+          CrewAI agents)
+        - CLIENT: Represents remote agent service calls (e.g., OpenAI
+          Assistants API, AWS Bedrock Agents)
+
+        Args:
+            child_name: Name of the child agent to invoke (must exist in
+                       self.child_agents dictionary)
+            message: Message to send to the child agent
+            conversation_id: Conversation ID to maintain continuity across
+                           the agent hierarchy
+
+        Returns:
+            Child agent's response string
+
+        Raises:
+            ChildAgentNotFoundError: If child_name is not found in the
+                                    child_agents dictionary
+        """
+        # Retrieve child agent from dictionary
+        if child_name not in self.child_agents:
+            available_children = list(self.child_agents.keys())
+            raise ChildAgentNotFoundError(child_name, available_children)
+
+        child_agent = self.child_agents[child_name]
+
+        # Invoke child agent - trace context is automatically propagated
+        # by OpenTelemetry within the same process
+        child_response = child_agent.invoke(message, conversation_id)
+
+        return child_response

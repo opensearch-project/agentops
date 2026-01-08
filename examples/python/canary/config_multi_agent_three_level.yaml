@@ -1,0 +1,124 @@
+# Multi-Agent Configuration: Three-Level Hierarchy
+# This configuration demonstrates a three-level agent hierarchy (grandparent → parent → child)
+# with mixed span kinds to validate deep trace nesting and context propagation.
+#
+# Trace Structure:
+# ================
+# Trace ID: <shared across all agents>
+# │
+# ├─ Span: invoke_agent Grandparent Agent (kind: INTERNAL)
+# │  │ span_id: <grandparent_span_id>
+# │  │ parent_span_id: null
+# │  │ gen_ai.agent.id: "grandparent_001"
+# │  │ gen_ai.agent.name: "Grandparent Agent"
+# │  │ gen_ai.conversation.id: <conversation_id>
+# │  │
+# │  └─ Span: invoke_agent Parent Agent (kind: CLIENT)
+# │     │ span_id: <parent_span_id>
+# │     │ parent_span_id: <grandparent_span_id>
+# │     │ gen_ai.agent.id: "parent_three_001"
+# │     │ gen_ai.agent.name: "Parent Agent"
+# │     │ gen_ai.conversation.id: <conversation_id>
+# │     │
+# │     ├─ Span: chat gpt-4 (parent's LLM call)
+# │     │  │ parent_span_id: <parent_span_id>
+# │     │
+# │     └─ Span: invoke_agent Child Agent (kind: INTERNAL)
+# │        │ span_id: <child_span_id>
+# │        │ parent_span_id: <parent_span_id>
+# │        │ gen_ai.agent.id: "child_three_001"
+# │        │ gen_ai.agent.name: "Child Agent"
+# │        │ gen_ai.conversation.id: <conversation_id>
+# │        │
+# │        ├─ Span: chat gpt-4 (child's LLM call)
+# │        │  │ parent_span_id: <child_span_id>
+# │        │
+# │        └─ Span: execute_tool get_weather
+# │           │ parent_span_id: <child_span_id>
+#
+# Expected Span Relationships:
+# ============================
+# 1. All spans share the same trace_id
+# 2. Parent's parent_span_id == grandparent's span_id
+# 3. Child's parent_span_id == parent's span_id
+# 4. All spans share the same gen_ai.conversation.id
+# 5. Each agent has unique gen_ai.agent.id and gen_ai.agent.name
+# 6. Grandparent span has kind: INTERNAL
+# 7. Parent span has kind: CLIENT
+# 8. Child span has kind: INTERNAL
+# 9. Three levels of nesting are correctly represented in OpenSearch
+#
+# SpanKind Behavior:
+# ==================
+# - INTERNAL: Represents in-process agent invocations
+#   Used for grandparent (top-level) and child (leaf) agents
+# - CLIENT: Represents remote agent service calls
+#   Used for parent (middle-level) agent to simulate a remote service call pattern
+#
+# This mixed pattern validates that:
+# - Trace context propagates correctly through multiple levels
+# - Different span kinds can be mixed in the same hierarchy
+# - OpenSearch correctly stores and displays deep hierarchies
+#
+# Note: All agents run in the same process and share the same mode (mock or real).
+# The span_kind only affects the OpenTelemetry span attribute for observability purposes.
+
+# Mode: mock or real
+mode: mock
+
+# Grandparent agent configuration (top level)
+agent:
+  agent_id: grandparent_001
+  agent_name: Grandparent Agent
+  span_kind: INTERNAL  # Top-level agent uses INTERNAL
+  
+  # Grandparent has one child: the parent agent
+  children:
+    # Parent agent (middle level) with CLIENT span kind
+    - agent_id: parent_three_001
+      agent_name: Parent Agent
+      span_kind: CLIENT  # Middle-level uses CLIENT to simulate remote service
+      description: Middle-level agent simulating remote service invocation
+      
+      # Parent has one child: the child agent
+      children:
+        # Child agent (leaf level) with INTERNAL span kind
+        - agent_id: child_three_001
+          agent_name: Child Agent
+          span_kind: INTERNAL  # Leaf-level uses INTERNAL
+          description: Leaf-level agent performing actual work
+
+# Mock provider settings (applies to all agents when mode: mock)
+mock_settings:
+  # Simulated latency for LLM calls (milliseconds)
+  llm_latency_ms: 100
+  
+  # Simulated latency for tool calls (milliseconds)
+  tool_latency_ms: 50
+  
+  # Tool failure rate (0.0 to 1.0)
+  tool_failure_rate: 0.0
+
+# OpenTelemetry configuration
+otlp:
+  # OTLP collector endpoint
+  endpoint: http://localhost:4317
+  
+  # Whether to use insecure connection
+  insecure: true
+
+# Scenarios to execute
+scenarios:
+  - multi_agent
+
+# Telemetry validation (optional)
+validation:
+  # Prometheus URL for metrics validation
+  prometheus_url: http://localhost:9090
+  
+  # OpenSearch URL for traces/logs validation
+  opensearch_url: https://localhost:9200
+  
+  # OpenSearch credentials
+  opensearch_user: admin
+  opensearch_password: admin

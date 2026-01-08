@@ -1,0 +1,171 @@
+# Multi-Agent Configuration: Sibling Agents Pattern
+# This configuration demonstrates a parent agent with multiple sibling children
+# (both INTERNAL and CLIENT span kinds) to validate parallel agent invocations.
+#
+# Trace Structure:
+# ================
+# Trace ID: <shared across all agents>
+# │
+# ├─ Span: invoke_agent Parent Agent (kind: INTERNAL)
+# │  │ span_id: <parent_span_id>
+# │  │ parent_span_id: null
+# │  │ gen_ai.agent.id: "parent_siblings_001"
+# │  │ gen_ai.agent.name: "Parent Agent"
+# │  │ gen_ai.conversation.id: <conversation_id>
+# │  │
+# │  ├─ Span: invoke_agent Weather Agent (kind: INTERNAL)
+# │  │  │ span_id: <weather_span_id>
+# │  │  │ parent_span_id: <parent_span_id>
+# │  │  │ gen_ai.agent.id: "child_weather_001"
+# │  │  │ gen_ai.agent.name: "Weather Agent"
+# │  │  │ gen_ai.conversation.id: <conversation_id>
+# │  │  │
+# │  │  ├─ Span: chat gpt-4 (weather agent's LLM call)
+# │  │  │  │ parent_span_id: <weather_span_id>
+# │  │  │
+# │  │  └─ Span: execute_tool get_weather
+# │  │     │ parent_span_id: <weather_span_id>
+# │  │
+# │  ├─ Span: invoke_agent Data Processor Agent (kind: CLIENT)
+# │  │  │ span_id: <processor_span_id>
+# │  │  │ parent_span_id: <parent_span_id>
+# │  │  │ gen_ai.agent.id: "child_processor_001"
+# │  │  │ gen_ai.agent.name: "Data Processor Agent"
+# │  │  │ gen_ai.conversation.id: <conversation_id>
+# │  │  │
+# │  │  ├─ Span: chat gpt-4 (processor agent's LLM call)
+# │  │  │  │ parent_span_id: <processor_span_id>
+# │  │  │
+# │  │  └─ Span: execute_tool process_data
+# │  │     │ parent_span_id: <processor_span_id>
+# │  │
+# │  ├─ Span: invoke_agent Analytics Agent (kind: INTERNAL)
+# │  │  │ span_id: <analytics_span_id>
+# │  │  │ parent_span_id: <parent_span_id>
+# │  │  │ gen_ai.agent.id: "child_analytics_001"
+# │  │  │ gen_ai.agent.name: "Analytics Agent"
+# │  │  │ gen_ai.conversation.id: <conversation_id>
+# │  │  │
+# │  │  ├─ Span: chat gpt-4 (analytics agent's LLM call)
+# │  │  │  │ parent_span_id: <analytics_span_id>
+# │  │  │
+# │  │  └─ Span: execute_tool analyze_data
+# │  │     │ parent_span_id: <analytics_span_id>
+# │  │
+# │  └─ Span: invoke_agent Report Generator Agent (kind: CLIENT)
+# │     │ span_id: <report_span_id>
+# │     │ parent_span_id: <parent_span_id>
+# │     │ gen_ai.agent.id: "child_report_001"
+# │     │ gen_ai.agent.name: "Report Generator Agent"
+# │     │ gen_ai.conversation.id: <conversation_id>
+# │     │
+# │     ├─ Span: chat gpt-4 (report agent's LLM call)
+# │     │  │ parent_span_id: <report_span_id>
+# │     │
+# │     └─ Span: execute_tool generate_report
+# │        │ parent_span_id: <report_span_id>
+#
+# Expected Span Relationships:
+# ============================
+# 1. All spans share the same trace_id
+# 2. All four child agents have parent_span_id == parent's span_id (siblings)
+# 3. All spans share the same gen_ai.conversation.id
+# 4. Each agent has unique gen_ai.agent.id and gen_ai.agent.name
+# 5. Parent span has kind: INTERNAL
+# 6. Weather Agent span has kind: INTERNAL
+# 7. Data Processor Agent span has kind: CLIENT
+# 8. Analytics Agent span has kind: INTERNAL
+# 9. Report Generator Agent span has kind: CLIENT
+# 10. All sibling spans are at the same hierarchy level in OpenSearch
+#
+# SpanKind Behavior:
+# ==================
+# - INTERNAL: Used for Weather Agent and Analytics Agent
+#   Represents in-process specialized agents (e.g., domain-specific LangChain agents)
+# - CLIENT: Used for Data Processor Agent and Report Generator Agent
+#   Represents remote service agents (e.g., external API-based agents)
+#
+# This pattern validates that:
+# - Multiple children can be invoked sequentially from the same parent
+# - All siblings correctly reference the same parent span
+# - Mixed span kinds work correctly with multiple siblings
+# - OpenSearch correctly displays sibling relationships
+#
+# Use Case:
+# =========
+# This pattern is common in orchestrator agents that delegate to multiple
+# specialized agents (e.g., a coordinator agent that calls weather, data processing,
+# analytics, and reporting agents to complete a complex task).
+#
+# Note: All agents run in the same process and share the same mode (mock or real).
+# The span_kind only affects the OpenTelemetry span attribute for observability purposes.
+
+# Mode: mock or real
+mode: mock
+
+# Parent agent configuration (orchestrator)
+agent:
+  agent_id: parent_siblings_001
+  agent_name: Parent Agent
+  span_kind: INTERNAL  # Orchestrator uses INTERNAL
+  
+  # Multiple sibling child agents with mixed span kinds
+  children:
+    # First sibling: Weather Agent (INTERNAL)
+    - agent_id: child_weather_001
+      agent_name: Weather Agent
+      span_kind: INTERNAL
+      description: In-process weather data agent
+    
+    # Second sibling: Data Processor Agent (CLIENT)
+    - agent_id: child_processor_001
+      agent_name: Data Processor Agent
+      span_kind: CLIENT
+      description: Remote data processing service agent
+    
+    # Third sibling: Analytics Agent (INTERNAL)
+    - agent_id: child_analytics_001
+      agent_name: Analytics Agent
+      span_kind: INTERNAL
+      description: In-process analytics agent
+    
+    # Fourth sibling: Report Generator Agent (CLIENT)
+    - agent_id: child_report_001
+      agent_name: Report Generator Agent
+      span_kind: CLIENT
+      description: Remote report generation service agent
+
+# Mock provider settings (applies to all agents when mode: mock)
+mock_settings:
+  # Simulated latency for LLM calls (milliseconds)
+  llm_latency_ms: 100
+  
+  # Simulated latency for tool calls (milliseconds)
+  tool_latency_ms: 50
+  
+  # Tool failure rate (0.0 to 1.0)
+  tool_failure_rate: 0.0
+
+# OpenTelemetry configuration
+otlp:
+  # OTLP collector endpoint
+  endpoint: http://localhost:4317
+  
+  # Whether to use insecure connection
+  insecure: true
+
+# Scenarios to execute
+scenarios:
+  - multi_agent
+
+# Telemetry validation (optional)
+validation:
+  # Prometheus URL for metrics validation
+  prometheus_url: http://localhost:9090
+  
+  # OpenSearch URL for traces/logs validation
+  opensearch_url: https://localhost:9200
+  
+  # OpenSearch credentials
+  opensearch_user: admin
+  opensearch_password: admin

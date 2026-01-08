@@ -27,24 +27,40 @@ from .scenarios import (
 )
 from .validator import TelemetryValidator
 from .runner import CanaryRunner
+from .faults import (
+    FaultProfile,
+    FaultInjectionConfig,
+    RateLimitError,
+    TokenLimitError,
+)
+from .config import (
+    load_config,
+    parse_fault_injection_config,
+)
 
 __all__ = [
-    'LLMProvider',
-    'ToolProvider',
-    'MockLLMProvider',
-    'MockToolProvider',
-    'RealToolProvider',
-    'RealLLMProvider',
-    'ConfigurableAgent',
-    'AgentFactory',
-    'ScenarioResult',
-    'CanaryScenario',
-    'SimpleToolCallScenario',
-    'MultiToolChainScenario',
-    'ToolFailureScenario',
-    'HighTokenUsageScenario',
-    'ConversationContextScenario',
-    'MultiAgentScenario',
-    'TelemetryValidator',
-    'CanaryRunner',
+    "LLMProvider",
+    "ToolProvider",
+    "MockLLMProvider",
+    "MockToolProvider",
+    "RealToolProvider",
+    "RealLLMProvider",
+    "ConfigurableAgent",
+    "AgentFactory",
+    "ScenarioResult",
+    "CanaryScenario",
+    "SimpleToolCallScenario",
+    "MultiToolChainScenario",
+    "ToolFailureScenario",
+    "HighTokenUsageScenario",
+    "ConversationContextScenario",
+    "MultiAgentScenario",
+    "TelemetryValidator",
+    "CanaryRunner",
+    "FaultProfile",
+    "FaultInjectionConfig",
+    "RateLimitError",
+    "TokenLimitError",
+    "load_config",
+    "parse_fault_injection_config",
 ]

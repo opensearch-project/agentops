@@ -305,29 +305,35 @@ class ConfigurableAgent:
                 )
 
                 # Record token usage metrics
-                self.token_counter.add(
-                    llm_response["usage"]["prompt_tokens"],
-                    attributes={
-                        "gen_ai.operation.name": "invoke_agent",
-                        "gen_ai.provider.name": self.llm_provider.provider_name,
-                        "gen_ai.request.model": self.model,
-                        "gen_ai.response.model": llm_response["model"],
-                        "gen_ai.token.type": "input",
-                        "server.address": "api.openai.com"
-                    }
-                )
+                # Ensure we're recording non-zero values
+                input_tokens = llm_response["usage"]["prompt_tokens"]
+                output_tokens = llm_response["usage"]["completion_tokens"]
 
-                self.token_counter.add(
-                    llm_response["usage"]["completion_tokens"],
-                    attributes={
-                        "gen_ai.operation.name": "invoke_agent",
-                        "gen_ai.provider.name": self.llm_provider.provider_name,
-                        "gen_ai.request.model": self.model,
-                        "gen_ai.response.model": llm_response["model"],
-                        "gen_ai.token.type": "output",
-                        "server.address": "api.openai.com"
-                    }
-                )
+                if input_tokens > 0:
+                    self.token_counter.add(
+                        input_tokens,
+                        attributes={
+                            "gen_ai.operation.name": "invoke_agent",
+                            "gen_ai.provider.name": self.llm_provider.provider_name,
+                            "gen_ai.request.model": self.model,
+                            "gen_ai.response.model": llm_response["model"],
+                            "gen_ai.token.type": "input",
+                            "server.address": "api.openai.com",
+                        },
+                    )
+
+                if output_tokens > 0:
+                    self.token_counter.add(
+                        output_tokens,
+                        attributes={
+                            "gen_ai.operation.name": "invoke_agent",
+                            "gen_ai.provider.name": self.llm_provider.provider_name,
+                            "gen_ai.request.model": self.model,
+                            "gen_ai.response.model": llm_response["model"],
+                            "gen_ai.token.type": "output",
+                            "server.address": "api.openai.com",
+                        },
+                    )
 
                 # Add span event for output
                 span.add_event(

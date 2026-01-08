@@ -489,6 +489,12 @@ cd docker-compose
 docker-compose up -d
 ```
 
+**Note for macOS users**: Some macOS users use Finch as an alternative to Docker. If you're using Finch, replace `docker-compose` with `finch compose` in all commands:
+```bash
+cd docker-compose
+finch compose up -d
+```
+
 ### Checking Service Health
 
 ```bash
@@ -539,6 +545,20 @@ docker-compose down -v
    ```bash
    docker-compose logs <service-name>
    ```
+
+**Note**: If the service uses a custom `build` directive (like the canary service), you must rebuild the container to apply code changes:
+```bash
+# Rebuild the service with no cache
+docker-compose build --no-cache <service-name>
+
+# Restart the service
+docker-compose restart <service-name>
+
+# Or rebuild and restart in one command
+docker-compose up -d --build <service-name>
+```
+
+**Note**: If using Finch instead of Docker, replace `docker-compose` with `finch compose` in the commands above.
 
 ### Changing Environment Variables
 
@@ -641,6 +661,12 @@ component:
 4. Add README.md in example directory explaining usage
 5. Update main README.md to reference new example
 
+**Note**: If the example is used by a Docker Compose service with a custom build (like the canary), you must rebuild the container after making changes:
+```bash
+docker-compose build --no-cache <service-name>
+docker-compose restart <service-name>
+```
+
 ### Modifying Data Retention
 
 **OpenSearch**: Update ISM policy in `opensearch/` configuration
@@ -708,6 +734,18 @@ curl http://localhost:9200/_cat/indices?v
 6. Stop the stack:
 ```bash
 docker-compose down
+```
+
+**Important**: If you modified code in services with custom builds (e.g., canary service), rebuild before testing:
+```bash
+# Rebuild the service
+docker-compose build --no-cache canary
+
+# Restart to apply changes
+docker-compose restart canary
+
+# Or rebuild and restart in one step
+docker-compose up -d --build canary
 ```
 
 ### Testing Helm Charts

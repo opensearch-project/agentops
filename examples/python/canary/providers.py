@@ -268,8 +268,9 @@ class MockLLMProvider:
         time.sleep(self._latency_ms / 1000.0)
 
         # Calculate tokens (rough approximation: 1 token ≈ 4 characters)
+        # Ensure we always return at least 1 token for non-empty messages
         prompt_text = " ".join(msg["content"] for msg in messages)
-        prompt_tokens = len(prompt_text) // 4
+        prompt_tokens = max(1, len(prompt_text) // 4)
 
         # Generate deterministic response based on last message
         last_message = messages[-1]["content"].lower()
@@ -320,7 +321,8 @@ class MockLLMProvider:
                 truncate_at = int(len(response_text) * self._completeness_ratio)
                 response_text = response_text[:truncate_at]
 
-            completion_tokens = len(response_text) // 4
+            # Ensure we always return at least 1 token for non-empty responses
+            completion_tokens = max(1, len(response_text) // 4)
             total_tokens = prompt_tokens + completion_tokens
 
             # Check token limit

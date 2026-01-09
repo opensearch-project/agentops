@@ -1,9 +1,10 @@
 """
 Code Assistant Agent - OpenTelemetry Instrumentation Example
-Taken from https://github.com/strands-agents/samples/tree/1dbb06f1d2a408b65793410ba7fce06d1c44114d/02-samples/06-code-assistant
+Adapted from https://github.com/strands-agents/samples/tree/1dbb06f1d2a408b65793410ba7fce06d1c44114d/02-samples/06-code-assistant
 
 This example demonstrates how to instrument a Strands AI agent application
 with OpenTelemetry to send telemetry data to an OLTP endpoint.
+StrandsTelemetry automatically applies OpenTelemetry GenAI Semantic Conventions.
 """
 
 import os
@@ -202,4 +203,3 @@ if __name__ == "__main__":
             print(f"\nAn error occurred: {str(e)}")
             print("Please try asking a different question.")
             print("Check OpenSearch Dashboards for error traces.")
-

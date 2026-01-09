@@ -193,7 +193,7 @@ services:
   # Runs continuously to ensure telemetry pipeline is working correctly
   canary:
     build:
-      context: ../examples/python
+      context: ../examples/plain-agents
       dockerfile: Dockerfile
     container_name: atlas-canary
     environment:

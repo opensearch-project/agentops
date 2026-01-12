@@ -6,7 +6,10 @@ ATLAS (Agent Tracing Logging Analytics Stack) is an open-source quickstart obser
 
 ## Overview
 
-ATLAS combines OpenSearch, OpenTelemetry, Prometheus, and OpenSearch Dashboards into a unified stack that ingests, processes, stores, and visualizes telemetry data from AI agents. The stack follows the [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) to provide standardized observability for agent operations, tool executions, and evaluations.
+ATLAS combines OpenSearch, OpenTelemetry, Prometheus, and OpenSearch Dashboards into a unified stack that ingests, processes, stores, and visualizes telemetry data from AI agents. The stack follows the [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) to provide standardized observability for agent operations, tool executions, and evaluations. 
+
+![](./docs/atlas-arch.excalidraw.png)
+
 
 ### Key Features
 

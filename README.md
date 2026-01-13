@@ -1,4 +1,4 @@
-# ATLAS - Agent Traces Logging Analytics Stack
+# 🌐 ATLAS - Agent Traces Logging Analytics Stack
 
 > ⚠️ **Production Readiness Warning**: ATLAS is designed for development and testing environments. It requires additional hardening, security configuration, and operational procedures before use in production. See [Production Readiness](#production-readiness) for details.
 
@@ -18,39 +18,27 @@ ATLAS combines OpenSearch, OpenTelemetry, Prometheus, and OpenSearch Dashboards 
 - **Prometheus**: Stores time-series metrics data
 - **OpenSearch Dashboards**: Provides web-based visualization and exploration
 
-## Quick Start
-
-### Prerequisites
-
-- Docker Engine 20.10+ or Finch 1.0+ (macOS alternative to Docker)
-- Docker Compose 2.0+ (or finch compose)
-- Minimum 4GB RAM available for containers
-- Minimum 10GB disk space for data volumes
+## 🚀 Quickstart
+To get started quickly, use the provided Docker Compose setup:
 
 ### Docker Compose Deployment
 
-**Note**: If you're using Finch instead of Docker, replace `docker compose` with `finch compose` in all commands below.
-
-1. Clone the repository:
+#### 1️⃣ Clone the repository:
 ```bash
 git clone https://github.com/opensearch-project/atlas.git
 cd atlas
 ```
 
-2. (Optional) Customize configuration:
-```bash
-cd docker-compose
-# Edit .env file to change versions, ports, credentials, or resource limits
-nano .env
-```
-
-3. Start the stack:
+#### 2️⃣ Start the stack:
 ```bash
 cd docker-compose
 docker compose up -d
 ```
 
-   **Optional**: Start with example services (weather-agent + canary):
+#### **Optional**: Start with example services (weather-agent + canary) to generate synthetic telemetry data
+
+[docker-compose.yml](./docker-compose/docker-compose.yml) uses [Profiles](https://docs.docker.com/reference/compose-file/profiles/) to specify optional run configurations. Use the `example` profile to start the stack with a sample agent and synthetic canary traffic to generate example telemetry data.
+
 ```bash
 docker compose --profile examples up -d
 ```
@@ -61,30 +49,15 @@ docker compose --profile examples up -d
 docker compose ps
 ```
 
-5. Access the interfaces:
-- OpenSearch Dashboards: http://localhost:5601
-- Prometheus UI: http://localhost:9090
-- Weather Agent API (if examples enabled): http://localhost:8000
-
-6. Send sample telemetry data:
-```bash
-# If using example services, telemetry is generated automatically by the canary
-docker compose logs -f canary
-
-# Or run the standalone example
-cd examples/plain-agents/weather-agent
-python main.py
-```
-
-7. View your data in OpenSearch Dashboards at http://localhost:5601
+5. View your data in OpenSearch Dashboards at http://localhost:5601
 
 
 ## Instrumenting Your Agent
 
 ATLAS accepts telemetry data via the OpenTelemetry Protocol (OTLP) and follows the [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) for standardized attribute naming and structure for AI agents. 
 
-Here's a quick example in Python:
-
+### Example: Manual Instrumentation with OpenTelemetry  
+For complete example, see [examples/plain-agents/weather-agent](./examples/plain-agents/weather-agent)  
 ```python
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -112,45 +85,39 @@ with tracer.start_as_current_span("invoke_agent") as span:
     span.set_attribute("gen_ai.usage.input_tokens", 150)
     span.set_attribute("gen_ai.usage.output_tokens", 75)
 ```
+### Example: Instrument with StrandsTelemetry
+For complete example, see [examples/strands-agents/code-assistant](./examples/strands-agents/code-assistant)  
+```python
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from strands import Agent
+from strands.models import BedrockModel
+from strands.telemetry import StrandsTelemetry
 
-For complete examples, see the [examples/](examples/) directory.
+# 1. Initialize StrandsTelemetry (auto-instruments with GenAI semantic conventions)
+telemetry = StrandsTelemetry()
+
+# 2. Configure OTLP exporter to send traces to your observability stack
+exporter = OTLPSpanExporter(endpoint="localhost:4317", insecure=True)
+telemetry.tracer_provider.add_span_processor(BatchSpanProcessor(exporter))
+
+# 3. Use your agent normally - telemetry happens automatically!
+agent = Agent(
+    system_prompt="You are a helpful assistant",
+    model=BedrockModel(model_id="us.anthropic.claude-sonnet-4-20250514-v1:0"),
+    tools=[your_tools]
+)
+
+# Every agent call is automatically traced with GenAI semantic conventions
+agent("What's the weather like?")
+```
+
 
 ## Configuration
 
 ### Environment Variables
 
-The `docker-compose/.env` file contains all configurable parameters:
-- **Component versions**: OpenSearch, Prometheus, Data Prepper, etc.
-- **Port mappings**: Customize exposed ports for all services
-- **Credentials**: Default admin/Admin123!@# (change for production)
-- **Resource limits**: Memory and CPU limits for each service
-
-Edit this file before starting the stack to customize your deployment.
-
-### Default Ports
-
-- **4317**: OTLP gRPC endpoint
-- **4318**: OTLP HTTP endpoint
-- **5601**: OpenSearch Dashboards UI
-- **9090**: Prometheus UI
-- **9200**: OpenSearch REST API
-
-### Data Retention
-
-- **OpenSearch**: 1 day (configurable via ISM policy)
-- **Prometheus**: 15 days (configurable in prometheus.yml)
-
-### Resource Requirements
-
-**Minimum (Development)**:
-- 4GB RAM
-- 10GB disk space
-- 2 CPU cores
-
-**Recommended (Development)**:
-- 8GB RAM
-- 50GB disk space
-- 4 CPU cores
+The [docker-compose/.env](./docker-compose/.env) file contains all configurable parameters. Edit this file before starting the stack to customize your deployment.
 
 ## Production Readiness
 
@@ -195,19 +162,19 @@ docker stats
 
 View service logs:
 ```bash
-docker-compose logs <service-name>
+docker compose logs <service-name>
 ```
 
 ### Data Not Appearing
 
 Verify OpenTelemetry Collector is receiving data:
 ```bash
-docker-compose logs otel-collector
+docker compose logs otel-collector
 ```
 
 Check Data Prepper pipeline status:
 ```bash
-docker-compose logs data-prepper
+docker compose logs data-prepper
 ```
 
 Verify OpenSearch indices:
@@ -219,7 +186,7 @@ curl http://localhost:9200/_cat/indices?v
 
 Check resource usage:
 ```bash
-docker-compose stats
+docker compose stats
 ```
 
 Adjust resource limits in docker-compose.yml or values.yaml for Helm.

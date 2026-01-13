@@ -154,9 +154,7 @@ def main():
     else:
         dashboard_url = "http://localhost:5601/app/home"
 
-    print("🔍 OpenSearch cluster: http://localhost:9200")
-    print("📈 Prometheus: http://localhost:9090")
-    print(f"📊 OpenSearch Dashboards URL: {dashboard_url}")
+    print(f"\033[1m📊 OpenSearch Dashboards Workspace: {dashboard_url}\033[0m")
     print()
 
 if __name__ == "__main__":

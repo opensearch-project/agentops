@@ -34,11 +34,12 @@ cd atlas
 docker compose up -d
 ```
 
-#### **Optional**: Start with example services (weather-agent + canary)
+#### **Optional**: Start with example services (weather-agent + canary) 
+If you don't have an agent to test with, you can start the stack with the included example services to generate example telemetry data.
 ```bash
 docker compose --profile examples up -d
 ```  
-[docker-compose.yml](./docker-compose.yml) uses Docker [Profiles](https://docs.docker.com/reference/compose-file/profiles/) to specify optional run configurations. The above command uses the `examples` profile to start the stack with a sample agent and synthetic canary traffic to generate example telemetry data.
+[docker-compose.yml](./docker-compose.yml) uses Docker [Profiles](https://docs.docker.com/reference/compose-file/profiles/) to specify optional run configurations. The above command uses the `examples` profile to start the stack with a sample agent and synthetic canary traffic
 
 #### 3️⃣ Verify all services are running:
 ```bash
@@ -46,25 +47,31 @@ docker compose ps
 ```
 
 #### 4️⃣ View your data in OpenSearch Dashboards at 📊 http://localhost:5601  
+The `opensearch-dashboards-init` container will create initial Workspace and index patterns. It will also output the full dashboards URL with user/pass. Example:  
 
-### Shutting Down Services
-
-To stop the stack while preserving your data:
 ```bash
-docker compose down
+docker compose logs opensearch-dashboards-init --tail=20
+```
+Example output: 
+```bash
+...
+opensearch-dashboards-init |🎉 ATLAS Stack Ready!
+opensearch-dashboards-init |👤 Username: admin
+opensearch-dashboards-init |🔑 Password: My_password_123!@#
+opensearch-dashboards-init |📊 OpenSearch Dashboards Workspace: http://localhost:5601/w/9Z8lc3/app/explore/traces
 ```
 
-To stop the stack and remove all data volumes:
-```bash
-docker compose down -v
-```
+### Destroying the Stack
 
-If you started services with a profile (e.g., `--profile examples`), use:
+To stop the stack (all profiles) while preserving your data:
 ```bash
 docker compose --profile "*" down
 ```
 
-This ensures all services, including those in profiles, are properly stopped and networks are cleaned up.
+To stop the stack and remove all data volumes:
+```bash
+docker compose --profile "*" down -v
+```
 
 ## Instrumenting Your Agent
 

@@ -20,8 +20,7 @@ atlas/
 │   ├── docker-compose.yml       # Main service definitions
 │   ├── .env                     # Environment variables for configuration
 │   ├── README.md                # Docker Compose documentation
-│   ├── QUICK_START.md           # Quick start guide
-│   ├── CHANGELOG.md             # Configuration change history
+│   ├── EXAMPLES.md              # Example services documentation
 │   ├── otel-collector/          # OpenTelemetry Collector configuration
 │   │   └── config.yaml
 │   ├── data-prepper/            # Data Prepper pipeline configuration
@@ -29,8 +28,11 @@ atlas/
 │   │   └── data-prepper-config.yaml
 │   ├── prometheus/              # Prometheus configuration
 │   │   └── prometheus.yml
-│   └── opensearch-dashboards/   # OpenSearch Dashboards configuration
-│       └── opensearch_dashboards.yml
+│   ├── opensearch-dashboards/   # OpenSearch Dashboards configuration
+│   │   └── opensearch_dashboards.yml
+│   └── canary/                  # Canary service (optional example)
+│       ├── Dockerfile
+│       └── canary.py
 ├── helm/                        # Kubernetes Helm charts
 │   └── atlas/                   # Main Helm chart
 │       ├── Chart.yaml           # Chart metadata
@@ -41,11 +43,14 @@ atlas/
 │           ├── configmap.yaml
 │           └── pvc.yaml
 ├── examples/                    # Instrumentation examples
-│   ├── python/                  # Python examples
-│   ├── javascript/              # JavaScript/TypeScript examples
-│   └── frameworks/              # Agent framework integrations
-│       ├── langchain/
-│       └── crewai/
+│   ├── plain-agents/            # Plain agent examples
+│   │   └── weather-agent/       # Weather agent with FastAPI server
+│   │       ├── Dockerfile
+│   │       ├── main.py
+│   │       ├── server.py
+│   │       └── README.md
+│   ├── langchain-agents/        # LangChain examples
+│   └── strands-agents/          # Strands examples
 ├── docs/                        # Additional documentation
 ├── .kiro/                       # Kiro AI assistant configuration
 │   ├── specs/                   # Feature specifications
@@ -53,7 +58,7 @@ atlas/
 ├── README.md                    # Main documentation
 ├── AGENTS.md                    # This file
 ├── CONTRIBUTING.md              # Contribution guidelines
-└── TROUBLESHOOTING.md           # Troubleshooting guide
+└── MAINTAINERS.md               # Maintainer information
 ```
 
 ## Directory Organization

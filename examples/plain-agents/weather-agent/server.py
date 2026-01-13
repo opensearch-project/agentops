@@ -46,22 +46,29 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for FastAPI app.
     Sets up OpenTelemetry and creates the agent on startup.
     """
+    import os
+
     global agent
-    
+
+    # Get OTLP endpoint from environment or use default
+    otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+
     # Setup OpenTelemetry
     tracer, meter, logger = setup_telemetry(
         service_name="weather-agent-api",
         service_version="1.0.0",
-        otlp_endpoint="http://localhost:4317"
+        otlp_endpoint=otlp_endpoint,
     )
-    
+
     # Create agent
     agent = WeatherAgent(tracer, meter, logger)
-    
-    logger.info("Weather Agent API server started")
-    
+
+    logger.info(
+        "Weather Agent API server started", extra={"otlp_endpoint": otlp_endpoint}
+    )
+
     yield
-    
+
     # Cleanup (if needed)
     logger.info("Weather Agent API server shutting down")
 

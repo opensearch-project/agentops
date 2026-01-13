@@ -22,12 +22,14 @@ ATLAS combines OpenSearch, OpenTelemetry, Prometheus, and OpenSearch Dashboards 
 
 ### Prerequisites
 
-- Docker Engine 20.10+
-- Docker Compose 2.0+
+- Docker Engine 20.10+ or Finch 1.0+ (macOS alternative to Docker)
+- Docker Compose 2.0+ (or finch compose)
 - Minimum 4GB RAM available for containers
 - Minimum 10GB disk space for data volumes
 
 ### Docker Compose Deployment
+
+**Note**: If you're using Finch instead of Docker, replace `docker compose` with `finch compose` in all commands below.
 
 1. Clone the repository:
 ```bash
@@ -48,22 +50,33 @@ cd docker-compose
 docker compose up -d
 ```
 
-3. Verify all services are running:
+   **Optional**: Start with example services (weather-agent + canary):
+```bash
+docker compose --profile examples up -d
+```
+   See [docker-compose/EXAMPLES.md](docker-compose/EXAMPLES.md) for details on the example services.
+
+4. Verify all services are running:
 ```bash
 docker compose ps
 ```
 
-4. Access the interfaces:
+5. Access the interfaces:
 - OpenSearch Dashboards: http://localhost:5601
 - Prometheus UI: http://localhost:9090
+- Weather Agent API (if examples enabled): http://localhost:8000
 
-5. Send sample telemetry data:
+6. Send sample telemetry data:
 ```bash
-# See examples/ directory for language-specific instrumentation
-python examples/python/sample_agent.py
+# If using example services, telemetry is generated automatically by the canary
+docker compose logs -f canary
+
+# Or run the standalone example
+cd examples/plain-agents/weather-agent
+python main.py
 ```
 
-6. View your data in OpenSearch Dashboards at http://localhost:5601
+7. View your data in OpenSearch Dashboards at http://localhost:5601
 
 
 ## Instrumenting Your Agent

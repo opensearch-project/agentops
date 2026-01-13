@@ -15,8 +15,11 @@ docker-compose/
 │   └── data-prepper-config.yaml
 ├── prometheus/                     # Prometheus configuration
 │   └── prometheus.yml
-└── opensearch-dashboards/          # OpenSearch Dashboards configuration
-    └── opensearch_dashboards.yml
+├── opensearch-dashboards/          # OpenSearch Dashboards configuration
+│   └── opensearch_dashboards.yml
+└── canary/                         # Canary service (optional example)
+    ├── Dockerfile
+    └── canary.py
 ```
 
 The main `docker-compose.yml` file is located in this directory and references configuration files from the subdirectories. Each service has its own subdirectory containing its specific configuration files. OpenSearch uses default configuration with environment variables set in docker-compose.yml.
@@ -25,9 +28,16 @@ The main `docker-compose.yml` file is located in this directory and references c
 
 **Note**: The `.env` file contains all configurable parameters including component versions, ports, credentials, and resource limits. You can customize these values before starting the stack.
 
-1. **Start the stack:**
+**macOS users**: If you're using Finch instead of Docker, replace `docker compose` with `finch compose` in all commands below.
+
+1. **Start the core stack:**
    ```bash
    docker compose up -d
+   ```
+
+   **Or start with example services:**
+   ```bash
+   docker compose --profile examples up -d
    ```
 
 2. **Verify services are running:**
@@ -39,30 +49,33 @@ The main `docker-compose.yml` file is located in this directory and references c
    - OpenSearch Dashboards: http://localhost:5601
    - Prometheus: http://localhost:9090
    - OpenSearch API: http://localhost:9200
+   - Weather Agent API (if examples enabled): http://localhost:8000
 
-4. **View synthetic telemetry (from canary):**
-   The canary service automatically generates synthetic agent traffic every 5 minutes.
+4. **View telemetry data:**
+   
+   **If using example services:**
    - View canary logs: `docker-compose logs -f canary`
    - See metrics in Prometheus: http://localhost:9090 (query: `gen_ai_client_token_usage_total`)
    - See traces in OpenSearch Dashboards: http://localhost:5601 (Observability → Trace Analytics)
-   - For more details, see [CANARY.md](CANARY.md)
-
-5. **Send your own test data:**
+   
+   **Send your own test data:**
    Configure your agent application to send OTLP data to:
    - gRPC: `http://localhost:4317`
    - HTTP: `http://localhost:4318`
 
-6. **Stop the stack:**
+5. **Stop the stack:**
    ```bash
    docker-compose down
    ```
 
-7. **Stop and remove data:**
+6. **Stop and remove data:**
    ```bash
    docker-compose down -v
    ```
 
 ## Services
+
+### Core Services (Always Running)
 
 - **otel-collector**: Receives OTLP telemetry data (ports 4317, 4318, 8888)
 - **data-prepper**: Processes logs and traces before OpenSearch ingestion (ports 21890, 21892)
@@ -70,9 +83,31 @@ The main `docker-compose.yml` file is located in this directory and references c
   - Default credentials: admin/My_password_123!@# (configured in .env file)
 - **prometheus**: Stores metrics with OTLP receiver enabled (port 9090)
 - **opensearch-dashboards**: Visualization UI (port 5601)
-- **canary**: Generates synthetic agent traffic for continuous validation (no exposed ports)
-  - Runs automatically every 5 minutes to validate the observability pipeline
-  - See [CANARY.md](CANARY.md) for details
+
+### Optional Example Services (Profile: examples)
+
+These services demonstrate how to instrument an agent application and generate test telemetry:
+
+- **weather-agent**: Example FastAPI server with OpenTelemetry instrumentation (port 8000)
+  - Demonstrates Gen-AI semantic conventions
+  - Provides REST API for agent invocation
+  - Sends traces, metrics, and logs to ATLAS stack
+- **canary**: Periodic test client that invokes weather-agent (no exposed ports)
+  - Generates synthetic agent traffic every 30 seconds (configurable)
+  - Validates the observability pipeline end-to-end
+  - Useful for testing and demonstrations
+
+**To enable example services:**
+```bash
+# Start core services + examples
+docker compose --profile examples up -d
+
+# Stop example services only
+docker compose stop weather-agent canary
+
+# Remove example services
+docker compose --profile examples down
+```
 
 ## Configuration Files
 
@@ -99,6 +134,25 @@ docker compose up -d
 **To modify service behavior**: Edit the configuration file in its respective subdirectory and restart the service:
 ```bash
 docker-compose restart <service-name>
+```
+
+**To customize example services**: Edit the `.env` file:
+- `WEATHER_AGENT_PORT`: Port for weather-agent API (default: 8000)
+- `CANARY_INTERVAL`: Seconds between canary invocations (default: 30)
+- `WEATHER_AGENT_MEMORY_LIMIT`: Memory limit for weather-agent (default: 200M)
+- `CANARY_MEMORY_LIMIT`: Memory limit for canary (default: 100M)
+
+**To modify weather-agent or canary code**: After editing code in `examples/plain-agents/weather-agent/` or `docker-compose/canary.py`:
+```bash
+# Rebuild the service with no cache
+docker-compose build --no-cache weather-agent
+# Or for canary
+docker-compose build --no-cache canary
+
+# Restart the service
+docker-compose restart weather-agent
+# Or restart both
+docker compose --profile examples up -d --build
 ```
 
 The docker-compose.yml file mounts these configurations into the containers.

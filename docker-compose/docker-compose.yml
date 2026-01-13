@@ -1,5 +1,3 @@
-version: '3.8'
-
 # ATLAS (Agent Traces Logging Analytics Stack)
 # Docker Compose configuration for local development
 # WARNING: This configuration is for development/testing only - not production-ready
@@ -187,4 +185,53 @@ services:
       resources:
         limits:
           memory: ${DASHBOARDS_MEMORY_LIMIT}
+    logging: *logging
+
+  # Weather Agent API Server - Example instrumented agent (optional)
+  # Enable with: docker compose --profile examples up -d
+  weather-agent:
+    build:
+      context: ../examples/plain-agents/weather-agent
+      dockerfile: Dockerfile
+    container_name: weather-agent
+    ports:
+      # FastAPI server endpoint
+      - "${WEATHER_AGENT_PORT}:8000"
+    environment:
+      # Override OTLP endpoint to use docker network
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
+    depends_on:
+      - otel-collector
+    networks:
+      - atlas-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${WEATHER_AGENT_MEMORY_LIMIT}
+    profiles:
+      - examples
+    logging: *logging
+
+  # Canary Service - Periodically invokes weather-agent for testing (optional)
+  # Enable with: docker compose --profile examples up -d
+  canary:
+    build:
+      context: ./canary
+      dockerfile: Dockerfile
+    container_name: canary
+    environment:
+      - WEATHER_AGENT_URL=http://weather-agent:8000
+      - CANARY_INTERVAL=${CANARY_INTERVAL}
+    depends_on:
+      - weather-agent
+    networks:
+      - atlas-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${CANARY_MEMORY_LIMIT}
+    profiles:
+      - examples
     logging: *logging

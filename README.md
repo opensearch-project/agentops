@@ -31,13 +31,12 @@ cd atlas
 
 #### 2️⃣ Start the stack:
 ```bash
-cd docker-compose
 docker compose up -d
 ```
 
-#### **Optional**: Start with example services (weather-agent + canary) to generate synthetic telemetry data
+#### **Optional**: Start with example services (weather-agent + canary)
 
-[docker-compose.yml](./docker-compose/docker-compose.yml) uses [Profiles](https://docs.docker.com/reference/compose-file/profiles/) to specify optional run configurations. Use the `example` profile to start the stack with a sample agent and synthetic canary traffic to generate example telemetry data.
+[docker-compose.yml](./docker-compose.yml) uses [Profiles](https://docs.docker.com/reference/compose-file/profiles/) to specify optional run configurations. Use the `example` profile to start the stack with a sample agent and synthetic canary traffic to generate example telemetry data.
 
 ```bash
 docker compose --profile examples up -d
@@ -117,7 +116,7 @@ agent("What's the weather like?")
 
 ### Environment Variables
 
-The [docker-compose/.env](./docker-compose/.env) file contains all configurable parameters. Edit this file before starting the stack to customize your deployment.
+The [.env](./.env) file contains all configurable parameters. Edit this file before starting the stack to customize your deployment.
 
 ## Production Readiness
 

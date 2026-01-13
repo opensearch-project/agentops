@@ -27,7 +27,7 @@ services:
     container_name: otel-collector
     command: ["--config=/etc/otelcol-config.yml"]
     volumes:
-      - ./otel-collector/config.yaml:/etc/otelcol-config.yml
+      - ./docker-compose/otel-collector/config.yaml:/etc/otelcol-config.yml
     ports:
       # OTLP gRPC receiver - high-performance binary protocol
       - "${OTEL_COLLECTOR_PORT_GRPC}:4317"
@@ -60,8 +60,8 @@ services:
     container_name: data-prepper
     platform: linux/amd64
     volumes:
-      - ./data-prepper/pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
-      - ./data-prepper/data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
+      - ./docker-compose/data-prepper/pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
+      - ./docker-compose/data-prepper/data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
     ports:
       # OTLP gRPC receiver from OpenTelemetry Collector
       - "${DATA_PREPPER_OTLP_PORT}:21890"
@@ -146,7 +146,7 @@ services:
       - '--enable-feature=exemplar-storage'
       - '--web.enable-otlp-receiver'
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./docker-compose/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       # Persist metrics data across container restarts
       - prometheus-data:/prometheus
     ports:
@@ -171,7 +171,7 @@ services:
       - OPENSEARCH_USER=${OPENSEARCH_USER}
       - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
     volumes:
-      - ./opensearch-dashboards/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
+      - ./docker-compose/opensearch-dashboards/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
     ports:
       # Web UI endpoint
       - "${OPENSEARCH_DASHBOARDS_PORT}:5601"
@@ -191,7 +191,7 @@ services:
   # Enable with: docker compose --profile examples up -d
   weather-agent:
     build:
-      context: ../examples/plain-agents/weather-agent
+      context: ./examples/plain-agents/weather-agent
       dockerfile: Dockerfile
     container_name: weather-agent
     ports:
@@ -217,7 +217,7 @@ services:
   # Enable with: docker compose --profile examples up -d
   canary:
     build:
-      context: ./canary
+      context: ./docker-compose/canary
       dockerfile: Dockerfile
     container_name: canary
     environment:

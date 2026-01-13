@@ -22,11 +22,11 @@ docker-compose/
     └── canary.py
 ```
 
-The main `docker-compose.yml` file is located in this directory and references configuration files from the subdirectories. Each service has its own subdirectory containing its specific configuration files. OpenSearch uses default configuration with environment variables set in docker-compose.yml.
+The main `docker-compose.yml` file is located in the repository root and references configuration files from this directory's subdirectories. Each service has its own subdirectory containing its specific configuration files. OpenSearch uses default configuration with environment variables set in docker-compose.yml.
 
 ## Quick Start
 
-**Note**: The `.env` file contains all configurable parameters including component versions, ports, credentials, and resource limits. You can customize these values before starting the stack.
+**Note**: The `.env` file in the repository root contains all configurable parameters including component versions, ports, credentials, and resource limits. You can customize these values before starting the stack.
 
 **macOS users**: If you're using Finch instead of Docker, replace `docker compose` with `finch compose` in all commands below.
 
@@ -113,8 +113,8 @@ docker compose --profile examples down
 
 All configuration files are organized by service in subdirectories:
 
-- **.env**: Environment variables for versions, ports, credentials, and resource limits
-- **docker-compose.yml**: Main service definitions and orchestration (in this directory)
+- **.env**: Environment variables for versions, ports, credentials, and resource limits (in repository root)
+- **docker-compose.yml**: Main service definitions and orchestration (in repository root)
 - **otel-collector/config.yaml**: OpenTelemetry Collector receivers, processors, and exporters
 - **data-prepper/pipelines.yaml**: Data transformation pipelines for logs and traces
 - **data-prepper/data-prepper-config.yaml**: Data Prepper server settings
@@ -125,7 +125,7 @@ OpenSearch uses default configuration with settings provided via environment var
 
 ### Customizing Configuration
 
-**To change versions, ports, or credentials**: Edit the `.env` file and restart services:
+**To change versions, ports, or credentials**: Edit the `.env` file in the repository root and restart services:
 ```bash
 docker-compose down
 docker compose up -d

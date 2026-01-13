@@ -16,9 +16,9 @@ ATLAS (Agent Traces Logging Analytics Stack) is a configuration-based repository
 
 ```
 atlas/
-├── docker-compose/              # Docker Compose deployment files
-│   ├── docker-compose.yml       # Main service definitions
-│   ├── .env                     # Environment variables for configuration
+├── docker-compose.yml           # Main Docker Compose service definitions
+├── .env                         # Environment variables for Docker Compose
+├── docker-compose/              # Docker Compose configuration files
 │   ├── README.md                # Docker Compose documentation
 │   ├── EXAMPLES.md              # Example services documentation
 │   ├── otel-collector/          # OpenTelemetry Collector configuration
@@ -68,8 +68,8 @@ atlas/
 Contains all files needed for local Docker Compose deployment. Each component has its own subdirectory with configuration files.
 
 **Key Files**:
-- `docker-compose.yml`: Defines all services, dependencies, ports, and volumes
-- `.env`: Environment variables for easy configuration customization
+- `docker-compose.yml`: Defines all services, dependencies, ports, and volumes (in repository root)
+- `.env`: Environment variables for easy configuration customization (in repository root)
 - `README.md`: Comprehensive documentation for Docker Compose deployment
 - `QUICK_START.md`: Step-by-step quick start guide
 - `CHANGELOG.md`: History of configuration changes and updates
@@ -490,13 +490,11 @@ component:
 ### Starting the Stack
 
 ```bash
-cd docker-compose
 docker compose up -d
 ```
 
-**Note for macOS users**: Some macOS users use Finch as an alternative to Docker. If you're using Finch, replace `docker-compose` with `finch compose` in all commands:
+**Note for macOS users**: Some macOS users use Finch as an alternative to Docker. If you're using Finch, replace `docker compose` with `finch compose` in all commands:
 ```bash
-cd docker-compose
 finch compose up -d
 ```
 
@@ -567,7 +565,7 @@ docker compose up -d --build <service-name>
 
 ### Changing Environment Variables
 
-1. **Edit `.env` file** in docker-compose directory
+1. **Edit `.env` file** in repository root
 2. **Recreate services** to apply changes:
    ```bash
    docker-compose down
@@ -712,7 +710,6 @@ receivers:
 
 1. Start the stack:
 ```bash
-cd docker-compose
 docker compose up -d
 ```
 
@@ -871,11 +868,11 @@ When modifying OpenSearch credentials:
 ### Configuration File Locations
 
 - **OpenSearch**: No custom config file - uses environment variables in docker-compose.yml
-- **OpenTelemetry Collector**: `otel-collector/config.yaml`
-- **Data Prepper**: `data-prepper/pipelines.yaml` and `data-prepper/data-prepper-config.yaml`
-- **Prometheus**: `prometheus/prometheus.yml`
-- **OpenSearch Dashboards**: `opensearch-dashboards/opensearch_dashboards.yml`
-- **Environment Variables**: `.env` file in docker-compose directory
+- **OpenTelemetry Collector**: `docker-compose/otel-collector/config.yaml`
+- **Data Prepper**: `docker-compose/data-prepper/pipelines.yaml` and `docker-compose/data-prepper/data-prepper-config.yaml`
+- **Prometheus**: `docker-compose/prometheus/prometheus.yml`
+- **OpenSearch Dashboards**: `docker-compose/opensearch-dashboards/opensearch_dashboards.yml`
+- **Environment Variables**: `.env` file in repository root
 
 ### Index Management
 

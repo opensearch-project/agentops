@@ -27,7 +27,7 @@ The main `docker-compose.yml` file is located in this directory and references c
 
 1. **Start the stack:**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 2. **Verify services are running:**
@@ -93,7 +93,7 @@ OpenSearch uses default configuration with settings provided via environment var
 **To change versions, ports, or credentials**: Edit the `.env` file and restart services:
 ```bash
 docker-compose down
-docker-compose up -d
+docker compose up -d
 ```
 
 **To modify service behavior**: Edit the configuration file in its respective subdirectory and restart the service:
@@ -140,7 +140,7 @@ curl http://localhost:9200/_cat/indices?v
 **Reset everything:**
 ```bash
 docker-compose down -v
-docker-compose up -d
+docker compose up -d
 ```
 
 ## Security Warning

@@ -63,7 +63,7 @@ git checkout -b feature/your-feature-name
 ```bash
 # Start the stack
 cd docker-compose
-docker-compose up -d
+docker compose up -d
 
 # Verify all services are running
 docker-compose ps

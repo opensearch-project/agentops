@@ -55,7 +55,7 @@ The instrumentation works by:
 1. **ATLAS Stack Running**: Ensure the ATLAS observability stack is running
    ```bash
    cd ../../docker-compose
-   docker-compose up -d
+   docker compose up -d
    ```
 
 2. **AWS Credentials**: Configure AWS credentials for Bedrock access

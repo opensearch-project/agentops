@@ -486,7 +486,7 @@ component:
 
 ```bash
 cd docker-compose
-docker-compose up -d
+docker compose up -d
 ```
 
 **Note for macOS users**: Some macOS users use Finch as an alternative to Docker. If you're using Finch, replace `docker-compose` with `finch compose` in all commands:
@@ -555,7 +555,7 @@ docker-compose build --no-cache <service-name>
 docker-compose restart <service-name>
 
 # Or rebuild and restart in one command
-docker-compose up -d --build <service-name>
+docker compose up -d --build <service-name>
 ```
 
 **Note**: If using Finch instead of Docker, replace `docker-compose` with `finch compose` in the commands above.
@@ -566,7 +566,7 @@ docker-compose up -d --build <service-name>
 2. **Recreate services** to apply changes:
    ```bash
    docker-compose down
-   docker-compose up -d
+   docker compose up -d
    ```
 
 ### Changing OpenSearch Password
@@ -589,7 +589,7 @@ docker-compose up -d --build <service-name>
 4. **Restart services**:
    ```bash
    docker-compose down
-   docker-compose up -d
+   docker compose up -d
    ```
 
 1. Add service definition to `docker-compose.yml`:
@@ -708,7 +708,7 @@ receivers:
 1. Start the stack:
 ```bash
 cd docker-compose
-docker-compose up -d
+docker compose up -d
 ```
 
 2. Verify services are running:
@@ -745,7 +745,7 @@ docker-compose build --no-cache canary
 docker-compose restart canary
 
 # Or rebuild and restart in one step
-docker-compose up -d --build canary
+docker compose up -d --build canary
 ```
 
 ### Testing Helm Charts
@@ -861,7 +861,7 @@ When modifying OpenSearch credentials:
 1. Update `.env` file
 2. Update `opensearch-dashboards/opensearch_dashboards.yml`
 3. Update all OpenSearch sinks in `data-prepper/pipelines.yaml`
-4. Restart all services with `docker-compose down && docker-compose up -d`
+4. Restart all services with `docker-compose down && docker compose up -d`
 
 ### Configuration File Locations
 

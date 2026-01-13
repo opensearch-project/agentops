@@ -1,0 +1,11 @@
+[project]
+name = "weather-agent"
+version = "1.0.0"
+description = "Plain Python weather agent with OpenTelemetry instrumentation for ATLAS"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.20.0",
+]

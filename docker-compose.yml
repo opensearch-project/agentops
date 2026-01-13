@@ -235,3 +235,20 @@ services:
     profiles:
       - examples
     logging: *logging
+
+  # OpenSearch Dashboards Initialization - Creates workspace and index patterns
+  opensearch-dashboards-init:
+    image: python:3.11-alpine
+    container_name: opensearch-dashboards-init
+    command: sh -c "pip install requests && python /init.py"
+    depends_on:
+      opensearch-dashboards:
+        condition: service_healthy
+    environment:
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+    volumes:
+      - ./docker-compose/opensearch-dashboards/init/init-opensearch-dashboards.py:/init.py
+    networks:
+      - atlas-network
+    restart: "no"
+    logging: *logging

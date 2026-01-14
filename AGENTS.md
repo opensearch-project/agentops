@@ -49,8 +49,8 @@ atlas/
 │   │       ├── main.py
 │   │       ├── server.py
 │   │       └── README.md
-│   ├── langchain-agents/        # LangChain examples
-│   └── strands-agents/          # Strands examples
+│   ├── langchain/               # LangChain examples
+│   └── strands/                 # Strands examples
 ├── docs/                        # Additional documentation
 ├── .kiro/                       # Kiro AI assistant configuration
 │   ├── specs/                   # Feature specifications

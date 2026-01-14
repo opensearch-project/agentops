@@ -103,7 +103,7 @@ with tracer.start_as_current_span("invoke_agent") as span:
     span.set_attribute("gen_ai.usage.output_tokens", 75)
 ```
 ### Example: Instrument with StrandsTelemetry
-For complete example, see [examples/strands-agents/code-assistant](./examples/strands-agents/code-assistant)  
+For complete example, see [examples/strands/code-assistant](./examples/strands/code-assistant)  
 ```python
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.trace.export import BatchSpanProcessor

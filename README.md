@@ -28,17 +28,9 @@ cd atlas
 See [Configuration](#configuration) section for details on customizing the stack.
 
 ### 2️⃣ Start the stack:  
-By default, the stack starts with example services (weather-agent and canary) that generate sample telemetry data:
 ```bash
 docker compose up -d
 ```
-
-If you want to run only the core observability stack without examples:
-```bash
-COMPOSE_PROFILES=atlas-only docker compose up -d
-```
-
-The `.env` file sets `COMPOSE_PROFILES=atlas-only,examples` by default, which activates both the core stack and example services. You can override this by setting the environment variable to only `atlas-only`.
 
 ### 3️⃣ View your Logs and Traces in OpenSearch Dashboards 
 👉 Navigate to http://localhost:5601  
@@ -164,12 +156,6 @@ To change the OpenSearch username and password:
    ```bash
    docker compose down
    docker compose up -d
-   ```
-   
-   Or if running stack-only without examples:
-   ```bash
-   docker compose down
-   COMPOSE_PROFILES=atlas-only docker compose up -d
    ```
 
 **Note**: The `opensearch-dashboards` and `opensearch-dashboards-init` services automatically use the values from `.env`, so no manual changes are needed for those components.

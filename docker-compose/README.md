@@ -30,14 +30,9 @@ The main `docker-compose.yml` file is located in the repository root and referen
 
 **macOS users**: If you're using Finch instead of Docker, replace `docker compose` with `finch compose` in all commands below.
 
-1. **Start the core stack:**
+1. **Start the stack:**
    ```bash
    docker compose up -d
-   ```
-
-   This starts all services including examples. **To start only the core stack without examples:**
-   ```bash
-   COMPOSE_PROFILES=atlas-only docker compose up -d
    ```
 
 2. **Verify services are running:**
@@ -53,12 +48,11 @@ The main `docker-compose.yml` file is located in the repository root and referen
 
 4. **View telemetry data:**
    
-   **With example services (default):**
    - View canary logs: `docker-compose logs -f canary`
    - See metrics in Prometheus: http://localhost:9090 (query: `gen_ai_client_token_usage_total`)
    - See traces in OpenSearch Dashboards: http://localhost:5601 (Observability → Trace Analytics)
    
-   **Send your own test data:**
+   **Or send your own test data:**
    Configure your agent application to send OTLP data to:
    - gRPC: `http://localhost:4317`
    - HTTP: `http://localhost:4318`
@@ -77,8 +71,6 @@ The main `docker-compose.yml` file is located in the repository root and referen
 
 ### Core Services
 
-These services form the core observability stack (profile: `atlas-only`):
-
 - **otel-collector**: Receives OTLP telemetry data (ports 4317, 4318, 8888)
 - **data-prepper**: Processes logs and traces before OpenSearch ingestion (ports 21890, 21892)
 - **opensearch**: Stores logs and traces with security enabled (port 9200, 9600)
@@ -86,9 +78,9 @@ These services form the core observability stack (profile: `atlas-only`):
 - **prometheus**: Stores metrics with OTLP receiver enabled (port 9090)
 - **opensearch-dashboards**: Visualization UI (port 5601)
 
-### Example Services (Run by Default)
+### Example Services
 
-These services demonstrate how to instrument an agent application and generate test telemetry (profile: `examples`):
+These services demonstrate how to instrument an agent application and generate test telemetry:
 
 - **weather-agent**: Example FastAPI server with OpenTelemetry instrumentation (port 8000)
   - Demonstrates Gen-AI semantic conventions
@@ -98,30 +90,6 @@ These services demonstrate how to instrument an agent application and generate t
   - Generates synthetic agent traffic every 30 seconds (configurable)
   - Validates the observability pipeline end-to-end
   - Useful for testing and demonstrations
-
-## Working with Profiles
-
-The `.env` file contains `COMPOSE_PROFILES=atlas-only,examples`, which means both profiles are active by default.
-
-**To start the full stack with examples (default):**
-```bash
-docker compose up -d
-```
-
-**To start only the core stack without examples:**
-```bash
-COMPOSE_PROFILES=atlas-only docker compose up -d
-```
-
-**To stop example services while keeping the core stack running:**
-```bash
-docker compose stop weather-agent canary
-```
-
-**To restart example services:**
-```bash
-docker compose start weather-agent canary
-```
 
 ## Configuration Files
 

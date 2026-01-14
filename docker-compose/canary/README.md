@@ -30,11 +30,6 @@ The canary service runs by default when you start the stack:
 docker compose up -d
 ```
 
-To exclude the canary and other examples:
-```bash
-COMPOSE_PROFILES=atlas-only docker compose up -d
-```
-
 View canary logs:
 ```bash
 docker compose logs -f canary

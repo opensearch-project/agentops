@@ -52,8 +52,6 @@ services:
     depends_on:
       opensearch:
         condition: service_healthy
-    profiles:
-      - atlas-only
     logging: *logging
 
   # Data Prepper - Transforms and enriches logs/traces before OpenSearch ingestion
@@ -84,8 +82,6 @@ services:
       resources:
         limits:
           memory: ${DATA_PREPPER_MEMORY_LIMIT}
-    profiles:
-      - atlas-only
     logging: *logging
 
   # OpenSearch - Stores and indexes logs and traces for search and analysis
@@ -130,8 +126,6 @@ services:
       interval: 5s
       timeout: 10s
       retries: 30
-    profiles:
-      - atlas-only
     logging: *logging
 
   # Prometheus - Time-series database for metrics storage
@@ -165,8 +159,6 @@ services:
       resources:
         limits:
           memory: ${PROMETHEUS_MEMORY_LIMIT}
-    profiles:
-      - atlas-only
     logging: *logging
 
   # OpenSearch Dashboards - Web UI for visualizing logs and traces
@@ -199,12 +191,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-    profiles:
-      - atlas-only
     logging: *logging
 
   # Weather Agent API Server - Example instrumented agent
-  # Runs by default via COMPOSE_PROFILES in .env
   weather-agent:
     build:
       context: ./examples/plain-agents/weather-agent
@@ -225,12 +214,9 @@ services:
       resources:
         limits:
           memory: ${WEATHER_AGENT_MEMORY_LIMIT}
-    profiles:
-      - examples
     logging: *logging
 
   # Canary Service - Periodically invokes weather-agent for testing
-  # Runs by default via COMPOSE_PROFILES in .env
   canary:
     build:
       context: ./docker-compose/canary
@@ -248,8 +234,6 @@ services:
       resources:
         limits:
           memory: ${CANARY_MEMORY_LIMIT}
-    profiles:
-      - examples
     logging: *logging
 
   # OpenSearch Dashboards Initialization - Creates workspace and index patterns
@@ -269,6 +253,4 @@ services:
     networks:
       - atlas-network
     restart: "no"
-    profiles:
-      - atlas-only
     logging: *logging

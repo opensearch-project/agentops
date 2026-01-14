@@ -259,13 +259,6 @@ service-name:
 - Set resource limits to prevent resource exhaustion
 - Configure log rotation to prevent disk space issues
 
-**Profile Usage**:
-- Core services use `profiles: [atlas-only]`
-- Example services use `profiles: [examples]`
-- The `.env` file sets `COMPOSE_PROFILES=atlas-only,examples` to activate both by default
-- To run only core stack: `COMPOSE_PROFILES=atlas-only docker compose up -d`
-- To run everything: `docker compose up -d` (default)
-
 ### OpenTelemetry Collector Configuration
 
 Structure: Receivers → Processors → Exporters
@@ -496,23 +489,13 @@ component:
 
 ### Starting the Stack
 
-By default, this starts all services including example agents (weather-agent and canary):
-
 ```bash
 docker compose up -d
-```
-
-To start only the core observability stack without examples:
-
-```bash
-COMPOSE_PROFILES=atlas-only docker compose up -d
 ```
 
 **Note for macOS users**: Some macOS users use Finch as an alternative to Docker. If you're using Finch, replace `docker compose` with `finch compose` in all commands:
 ```bash
 finch compose up -d
-# Or for stack-only
-COMPOSE_PROFILES=atlas-only finch compose up -d
 ```
 
 ### Checking Service Health

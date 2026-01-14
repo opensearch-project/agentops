@@ -24,10 +24,27 @@ To get started quickly, use the provided Docker Compose setup:
 git clone https://github.com/opensearch-project/atlas.git
 cd atlas
 ```
+
 ### **Optional**: Configure stack
-See [Configuration](#configuration) section for details on customizing the stack.
+The `.env` file contains all configurable parameters. By default, it includes example services (weather-agent and canary) via `INCLUDE_COMPOSE_FILES=docker-compose.examples.yml`. To run only the core stack, comment out this line in `.env`.
+
+See [Configuration](#configuration) section for more details.
 
 ### 2️⃣ Start the stack:  
+```bash
+docker compose up -d
+```
+
+This starts all services including example services (weather-agent and canary) that generate sample telemetry data.
+
+**To run only the core observability stack without examples:**
+
+Edit `.env` and comment out or remove the `INCLUDE_COMPOSE_FILES` line:
+```env
+# INCLUDE_COMPOSE_FILES=docker-compose.examples.yml
+```
+
+Then start the stack:
 ```bash
 docker compose up -d
 ```
@@ -127,6 +144,24 @@ agent("What's the weather like?")
 ### Environment Variables
 
 The [.env](./.env) file contains all configurable parameters. Edit this file before starting the stack to customize your deployment.
+
+### Including Example Services
+
+By default, the stack includes example services (weather-agent and canary) via the `INCLUDE_COMPOSE_FILES` variable in `.env`:
+
+```env
+INCLUDE_COMPOSE_FILES=docker-compose.examples.yml
+```
+
+These example services are defined in `docker-compose.examples.yml`, which is included by the main `docker-compose.yml` file.
+
+**To run without examples:**
+- Comment out or remove the `INCLUDE_COMPOSE_FILES` line in `.env`
+- Restart the stack: `docker compose down && docker compose up -d`
+
+**To add your own services:**
+- Create a new compose file (e.g., `docker-compose.custom.yml`)
+- Update `.env`: `INCLUDE_COMPOSE_FILES=docker-compose.examples.yml,docker-compose.custom.yml`
 
 ### Changing OpenSearch Credentials
 

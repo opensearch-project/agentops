@@ -1,0 +1,83 @@
+# ATLAS Example Services
+# Docker Compose configuration for example instrumented agents
+# 
+# ⚠️  This is NOT a standalone Docker Compose file!
+# This file is included by docker-compose.yml via the 'include:' directive.
+# It depends on networks and services defined in the main docker-compose.yml.
+#
+# To use: Set INCLUDE_COMPOSE_FILES=docker-compose.examples.yml in .env
+# Then run: docker compose up -d
+#
+
+services:
+  # OpenSearch Dashboards Initialization - Creates example workspace and index patterns
+  opensearch-dashboards-init:
+    image: python:3.11-alpine
+    container_name: opensearch-dashboards-init
+    command: sh -c "pip install requests && python /init.py"
+    depends_on:
+      opensearch-dashboards:
+        condition: service_healthy
+    environment:
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+      - PROMETHEUS_HOST=${PROMETHEUS_HOST}
+      - PROMETHEUS_PORT=${PROMETHEUS_PORT}
+    volumes:
+      - ./docker-compose/opensearch-dashboards/init/init-opensearch-dashboards.py:/init.py
+    networks:
+      - atlas-network
+    restart: "no"
+    logging: *logging
+
+  # Weather Agent API Server - Example instrumented agent
+  weather-agent:
+    build:
+      context: ./examples/plain-agents/weather-agent
+      dockerfile: Dockerfile
+    container_name: weather-agent
+    ports:
+      # FastAPI server endpoint
+      - "${WEATHER_AGENT_PORT}:8000"
+    environment:
+      # Override OTLP endpoint to use docker network
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
+    depends_on:
+      - otel-collector
+    networks:
+      - atlas-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${WEATHER_AGENT_MEMORY_LIMIT}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+        tag: "{{.Name}}"
+
+  # Canary Service - Periodically invokes weather-agent for testing
+  canary:
+    build:
+      context: ./docker-compose/canary
+      dockerfile: Dockerfile
+    container_name: canary
+    environment:
+      - WEATHER_AGENT_URL=http://weather-agent:8000
+      - CANARY_INTERVAL=${CANARY_INTERVAL}
+    depends_on:
+      - weather-agent
+    networks:
+      - atlas-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${CANARY_MEMORY_LIMIT}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+        tag: "{{.Name}}"

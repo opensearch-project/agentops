@@ -6,7 +6,8 @@ This directory contains the Docker Compose configuration for running the ATLAS o
 
 ```
 docker-compose/
-├── docker-compose.yml              # Main orchestration file - defines all services
+├── docker-compose.yml              # Main orchestration file - defines core services
+├── docker-compose.examples.yml     # Example services (included via .env)
 ├── .env                            # Environment variables (versions, ports, credentials)
 ├── otel-collector/                 # OpenTelemetry Collector configuration
 │   └── config.yaml
@@ -22,15 +23,31 @@ docker-compose/
     └── canary.py
 ```
 
-The main `docker-compose.yml` file is located in the repository root and references configuration files from this directory's subdirectories. Each service has its own subdirectory containing its specific configuration files. OpenSearch uses default configuration with environment variables set in docker-compose.yml.
+The main `docker-compose.yml` file is located in the repository root and references configuration files from this directory's subdirectories. The `docker-compose.examples.yml` file contains example services (weather-agent, canary) and is included via the `INCLUDE_COMPOSE_FILES` variable in `.env`. Each service has its own subdirectory containing its specific configuration files. OpenSearch uses default configuration with environment variables set in docker-compose.yml.
 
 ## Quick Start
 
 **Note**: The `.env` file in the repository root contains all configurable parameters including component versions, ports, credentials, and resource limits. You can customize these values before starting the stack.
 
+By default, the stack includes example services (weather-agent and canary) via `INCLUDE_COMPOSE_FILES=docker-compose.examples.yml` in `.env`. To run only the core stack, comment out this line.
+
 **macOS users**: If you're using Finch instead of Docker, replace `docker compose` with `finch compose` in all commands below.
 
 1. **Start the stack:**
+   ```bash
+   docker compose up -d
+   ```
+
+   This starts all services including examples.
+
+2. **To run only the core stack without examples:**
+   
+   Edit `.env` and comment out the `INCLUDE_COMPOSE_FILES` line:
+   ```env
+   # INCLUDE_COMPOSE_FILES=docker-compose.examples.yml
+   ```
+   
+   Then start the stack:
    ```bash
    docker compose up -d
    ```
@@ -96,7 +113,9 @@ These services demonstrate how to instrument an agent application and generate t
 All configuration files are organized by service in subdirectories:
 
 - **.env**: Environment variables for versions, ports, credentials, and resource limits (in repository root)
-- **docker-compose.yml**: Main service definitions and orchestration (in repository root)
+  - `INCLUDE_COMPOSE_FILES`: Controls which additional compose files to include (default: `docker-compose.examples.yml`)
+- **docker-compose.yml**: Main service definitions for core observability stack (in repository root)
+- **docker-compose.examples.yml**: Example services (weather-agent, canary) included via .env (in repository root)
 - **otel-collector/config.yaml**: OpenTelemetry Collector receivers, processors, and exporters
 - **data-prepper/pipelines.yaml**: Data transformation pipelines for logs and traces
 - **data-prepper/data-prepper-config.yaml**: Data Prepper server settings
@@ -104,6 +123,29 @@ All configuration files are organized by service in subdirectories:
 - **opensearch-dashboards/opensearch_dashboards.yml**: Dashboard UI settings
 
 OpenSearch uses default configuration with settings provided via environment variables in docker-compose.yml.
+
+### Managing Example Services
+
+The example services (weather-agent and canary) are defined in `docker-compose.examples.yml` and included via the `.env` file:
+
+```env
+INCLUDE_COMPOSE_FILES=docker-compose.examples.yml
+```
+
+**To disable example services:**
+1. Edit `.env` and comment out the line:
+   ```env
+   # INCLUDE_COMPOSE_FILES=docker-compose.examples.yml
+   ```
+2. Restart the stack:
+   ```bash
+   docker compose down
+   docker compose up -d
+   ```
+
+**To re-enable example services:**
+1. Uncomment the line in `.env`
+2. Restart the stack
 
 ### Customizing Configuration
 

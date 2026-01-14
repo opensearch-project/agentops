@@ -2,6 +2,10 @@
 # Docker Compose configuration for local development
 # WARNING: This configuration is for development/testing only - not production-ready
 
+include:
+  - path: ${INCLUDE_COMPOSE_FILES}
+    required: false
+
 x-default-logging: &logging
   driver: "json-file"
   options:
@@ -191,66 +195,4 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-    logging: *logging
-
-  # Weather Agent API Server - Example instrumented agent
-  weather-agent:
-    build:
-      context: ./examples/plain-agents/weather-agent
-      dockerfile: Dockerfile
-    container_name: weather-agent
-    ports:
-      # FastAPI server endpoint
-      - "${WEATHER_AGENT_PORT}:8000"
-    environment:
-      # Override OTLP endpoint to use docker network
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
-    depends_on:
-      - otel-collector
-    networks:
-      - atlas-network
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: ${WEATHER_AGENT_MEMORY_LIMIT}
-    logging: *logging
-
-  # Canary Service - Periodically invokes weather-agent for testing
-  canary:
-    build:
-      context: ./docker-compose/canary
-      dockerfile: Dockerfile
-    container_name: canary
-    environment:
-      - WEATHER_AGENT_URL=http://weather-agent:8000
-      - CANARY_INTERVAL=${CANARY_INTERVAL}
-    depends_on:
-      - weather-agent
-    networks:
-      - atlas-network
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: ${CANARY_MEMORY_LIMIT}
-    logging: *logging
-
-  # OpenSearch Dashboards Initialization - Creates workspace and index patterns
-  opensearch-dashboards-init:
-    image: python:3.11-alpine
-    container_name: opensearch-dashboards-init
-    command: sh -c "pip install requests && python /init.py"
-    depends_on:
-      opensearch-dashboards:
-        condition: service_healthy
-    environment:
-      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
-      - PROMETHEUS_HOST=${PROMETHEUS_HOST}
-      - PROMETHEUS_PORT=${PROMETHEUS_PORT}
-    volumes:
-      - ./docker-compose/opensearch-dashboards/init/init-opensearch-dashboards.py:/init.py
-    networks:
-      - atlas-network
-    restart: "no"
     logging: *logging

@@ -17,6 +17,7 @@ ATLAS (Agent Traces Logging Analytics Stack) is a configuration-based repository
 ```
 atlas/
 ├── docker-compose.yml           # Main Docker Compose service definitions
+├── docker-compose.examples.yml  # Example services (included via .env)
 ├── .env                         # Environment variables for Docker Compose
 ├── docker-compose/              # Docker Compose configuration files
 │   ├── README.md                # Docker Compose documentation
@@ -68,8 +69,10 @@ atlas/
 Contains all files needed for local Docker Compose deployment. Each component has its own subdirectory with configuration files.
 
 **Key Files**:
-- `docker-compose.yml`: Defines all services, dependencies, ports, and volumes (in repository root)
+- `docker-compose.yml`: Defines core observability services, dependencies, ports, and volumes (in repository root)
+- `docker-compose.examples.yml`: Defines example services (weather-agent, canary) included via .env (in repository root)
 - `.env`: Environment variables for easy configuration customization (in repository root)
+  - `INCLUDE_COMPOSE_FILES`: Controls which additional compose files to include (default: `docker-compose.examples.yml`)
 - `README.md`: Comprehensive documentation for Docker Compose deployment
 - `QUICK_START.md`: Step-by-step quick start guide
 - `CHANGELOG.md`: History of configuration changes and updates
@@ -80,6 +83,8 @@ Contains all files needed for local Docker Compose deployment. Each component ha
 - `opensearch-dashboards/opensearch_dashboards.yml`: Dashboard UI configuration
 
 **Note**: OpenSearch uses default configuration with settings provided via environment variables in docker-compose.yml and .env file.
+
+**Example Services**: The weather-agent and canary services are defined in `docker-compose.examples.yml` and included by default. To disable them, comment out `INCLUDE_COMPOSE_FILES=docker-compose.examples.yml` in the `.env` file.
 
 ### Prometheus Configuration
 
@@ -489,6 +494,18 @@ component:
 
 ### Starting the Stack
 
+By default, this starts all services including example agents (weather-agent and canary):
+
+```bash
+docker compose up -d
+```
+
+To start only the core observability stack without examples, edit `.env` and comment out:
+```env
+# INCLUDE_COMPOSE_FILES=docker-compose.examples.yml
+```
+
+Then start the stack:
 ```bash
 docker compose up -d
 ```
@@ -571,6 +588,25 @@ docker compose up -d --build <service-name>
    docker-compose down
    docker compose up -d
    ```
+
+### Managing Example Services
+
+Example services (weather-agent and canary) are defined in `docker-compose.examples.yml` and included via `.env`:
+
+**To disable examples:**
+1. Edit `.env` and comment out:
+   ```env
+   # INCLUDE_COMPOSE_FILES=docker-compose.examples.yml
+   ```
+2. Restart: `docker compose down && docker compose up -d`
+
+**To re-enable examples:**
+1. Uncomment the line in `.env`
+2. Restart the stack
+
+**To add custom services:**
+1. Create `docker-compose.custom.yml`
+2. Update `.env`: `INCLUDE_COMPOSE_FILES=docker-compose.examples.yml,docker-compose.custom.yml`
 
 ### Changing OpenSearch Password
 

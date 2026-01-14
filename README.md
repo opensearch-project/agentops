@@ -1,6 +1,6 @@
 # 🌐 ATLAS - Agent Tracing Logging Analytics Stack
 
-ATLAS (Agent Tracing Logging Analytics Stack) is an open-source quickstart observability stack specifically designed for AI agent observability. It provides a complete, pre-configured infrastructure that enables developers to quickly deploy and monitor their agent applications using industry-standard observability tools.
+ATLAS (Agent Tracing Logging Analytics Stack) is an open-source observability stack specifically designed for AI agent observability. It provides a complete, pre-configured infrastructure that enables developers to quickly deploy and monitor their agent applications using industry-standard observability tools.
 
 ## Overview
 
@@ -28,15 +28,17 @@ cd atlas
 See [Configuration](#configuration) section for details on customizing the stack.
 
 ### 2️⃣ Start the stack:  
-If you already have an agent to test with and want to send telemetry from your agent:
+By default, the stack starts with example services (weather-agent and canary) that generate sample telemetry data:
 ```bash
 docker compose up -d
 ```
-Or if you don't have an agent to test with, you can start the stack with the included example services to generate example telemetry data.  
+
+If you want to run only the core observability stack without examples:
 ```bash
-docker compose --profile examples up -d
-```  
-[docker-compose.yml](./docker-compose.yml) uses Docker [Profiles](https://docs.docker.com/reference/compose-file/profiles/) to specify optional run configurations. The above command uses the `examples` profile to start the stack with a sample agent and synthetic canary traffic
+COMPOSE_PROFILES=atlas-only docker compose up -d
+```
+
+The `.env` file sets `COMPOSE_PROFILES=atlas-only,examples` by default, which activates both the core stack and example services. You can override this by setting the environment variable to only `atlas-only`.
 
 ### 3️⃣ View your Logs and Traces in OpenSearch Dashboards 
 👉 Navigate to http://localhost:5601  
@@ -57,14 +59,14 @@ opensearch-dashboards-init |📊 OpenSearch Dashboards Workspace: http://localho
 
 ### Destroying the Stack
 
-To stop the stack (all profiles) while preserving your data:
+To stop the stack while preserving your data:
 ```bash
-docker compose --profile "*" down
+docker compose down
 ```
 
 To stop the stack and remove all data volumes:
 ```bash
-docker compose --profile "*" down -v
+docker compose down -v
 ```
 
 ## Instrumenting Your Agent
@@ -160,8 +162,14 @@ To change the OpenSearch username and password:
 
 3. **Restart the stack**:
    ```bash
-   docker compose --profile "*" down
+   docker compose down
    docker compose up -d
+   ```
+   
+   Or if running stack-only without examples:
+   ```bash
+   docker compose down
+   COMPOSE_PROFILES=atlas-only docker compose up -d
    ```
 
 **Note**: The `opensearch-dashboards` and `opensearch-dashboards-init` services automatically use the values from `.env`, so no manual changes are needed for those components.
@@ -245,9 +253,9 @@ If `docker compose down` fails with an error like:
 failed to remove network atlas-network: Error response from daemon: error while removing network: network atlas-network id ab129adaabcd7ab35cddb1fbe8dc2a68b3c730b9fb9384c5c1e7f5ca015c27d9 has active endpoints
 ```
 
-This typically occurs when you started services with a profile. Use:
+This typically occurs when you have running services. Use:
 ```bash
-docker compose --profile "*" down
+docker compose down
 ```
 
 For more troubleshooting guidance, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).

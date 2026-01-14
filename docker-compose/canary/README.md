@@ -24,15 +24,20 @@ Environment variables (set in `../.env`):
 
 ## Usage
 
-The canary service is part of the `examples` profile and starts automatically when you run:
+The canary service runs by default when you start the stack:
 
 ```bash
-finch compose --profile examples up -d
+docker compose up -d
+```
+
+To exclude the canary and other examples:
+```bash
+COMPOSE_PROFILES=atlas-only docker compose up -d
 ```
 
 View canary logs:
 ```bash
-finch compose logs -f canary
+docker compose logs -f canary
 ```
 
 ## How It Works
@@ -62,13 +67,13 @@ The canary randomly selects from these queries:
 After editing `canary.py`, rebuild and restart:
 
 ```bash
-finch compose build --no-cache canary
-finch compose restart canary
+docker compose build --no-cache canary
+docker compose restart canary
 ```
 
 ## Troubleshooting
 
 If the canary fails to connect:
 1. Check weather-agent health: `curl http://localhost:8000/health`
-2. View canary logs: `finch compose logs canary`
-3. Verify both services are on the same network: `finch compose ps`
+2. View canary logs: `docker compose logs canary`
+3. Verify both services are on the same network: `docker compose ps`

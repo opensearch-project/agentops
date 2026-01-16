@@ -125,7 +125,9 @@ def get_existing_index_pattern(workspace_id, title):
         return None
 
 
-def create_index_pattern(workspace_id, title, time_field=None, signal_type=None):
+def create_index_pattern(
+    workspace_id, title, time_field=None, signal_type=None, schema_mappings=None
+):
     """Create index pattern in workspace and return its ID"""
     # Check if index pattern already exists
     existing_id = get_existing_index_pattern(workspace_id, title)
@@ -146,6 +148,10 @@ def create_index_pattern(workspace_id, title, time_field=None, signal_type=None)
     # Only add signalType if signal_type is provided
     if signal_type:
         payload["attributes"]["signalType"] = signal_type
+
+    # Only add schemaMappings if schema_mappings is provided (as a JSON string)
+    if schema_mappings:
+        payload["attributes"]["schemaMappings"] = schema_mappings
 
     # Use workspace-specific URL if workspace exists, otherwise use default
     if workspace_id and workspace_id != "default":
@@ -462,8 +468,9 @@ def main():
         workspace_id = create_workspace()
 
     # Create index patterns (idempotent - will skip if already exist)
+    logs_schema_mappings = '{"otelLogs":{"timestamp":"time","traceId":"traceId","spanId":"spanId","serviceName":"resource.attributes.service.name"}}'
     logs_pattern_id = create_index_pattern(
-        workspace_id, "logs-otel-v1-*", "time", "logs"
+        workspace_id, "logs-otel-v1-*", "time", "logs", logs_schema_mappings
     )
     create_index_pattern(workspace_id, "otel-v1-apm-span-*", "startTime", "traces")
     create_index_pattern(workspace_id, "otel-v1-apm-service-map")

@@ -18,7 +18,7 @@ x-default-logging: &logging
 
 services:
   # OpenSearch Dashboards Initialization - Creates example workspace and index patterns
-  opensearch-dashboards-init:
+  example-opensearch-dashboards-init:
     image: python:3.11-alpine
     container_name: opensearch-dashboards-init
     command: sh -c "pip install requests && python /init.py"
@@ -37,7 +37,7 @@ services:
     logging: *logging
 
   # Weather Agent API Server - Example instrumented agent
-  weather-agent:
+  example-weather-agent:
     build:
       context: ./examples/plain-agents/weather-agent
       dockerfile: Dockerfile
@@ -60,7 +60,7 @@ services:
     logging: *logging
 
   # Canary Service - Periodically invokes weather-agent for testing
-  canary:
+  example-canary:
     build:
       context: ./docker-compose/canary
       dockerfile: Dockerfile

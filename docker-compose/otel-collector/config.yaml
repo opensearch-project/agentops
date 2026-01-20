@@ -53,6 +53,8 @@ processors:
           - delete_key(attributes, "user_agent.original")
           - set(attributes["error_type"], attributes["error.type"]) where attributes["error.type"] != nil
           - delete_key(attributes, "error.type")
+          - set(attributes["upstream_cluster"], attributes["upstream_cluster"]) where attributes["upstream_cluster"] != nil
+          - delete_key(attributes, "upstream_cluster")
     log_statements:
       - context: log
         statements:

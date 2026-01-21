@@ -28,7 +28,7 @@ def wait_for_dashboards():
         time.sleep(5)
 
 def get_existing_workspace():
-    """Check if ATLAS workspace already exists"""
+    """Check if AgentOps workspace already exists"""
     try:
         response = requests.post(
             f"{BASE_URL}/api/workspaces/_list",
@@ -44,7 +44,7 @@ def get_existing_workspace():
             if result.get("success"):
                 workspaces = result.get("result", {}).get("workspaces", [])
                 for workspace in workspaces:
-                    if workspace.get("name") == "ATLAS Observability":
+                    if workspace.get("name") == "AgentOps Observability":
                         return workspace.get("id")
         elif response.status_code == 404:
             print("⚠️  Workspace API not available - workspaces may not be supported in this version")
@@ -54,12 +54,12 @@ def get_existing_workspace():
     return None
 
 def create_workspace():
-    """Create new ATLAS workspace"""
-    print("🏗️  Creating ATLAS workspace...")
+    """Create new AgentOps workspace"""
+    print("🏗️  Creating AgentOps workspace...")
 
     payload = {
         "attributes": {
-            "name": "ATLAS Observability",
+            "name": "AgentOps Observability",
             "description": "AI Agent observability workspace with logs, traces, and metrics",
             "features": ["use-case-observability"]
         }
@@ -211,7 +211,7 @@ def get_existing_prometheus_datasource(datasource_name):
 
 def create_prometheus_datasource(workspace_id):
     """Create Prometheus datasource using direct query API"""
-    datasource_name = "ATLAS_Prometheus"
+    datasource_name = "AgentOps_Prometheus"
 
     # Check if datasource already exists
     existing_id = get_existing_prometheus_datasource(datasource_name)
@@ -560,7 +560,7 @@ def main():
     workspace_id = get_existing_workspace()
 
     if workspace_id:
-        print("✅ ATLAS workspace already exists")
+        print("✅ AgentOps workspace already exists")
     else:
         workspace_id = create_workspace()
 
@@ -590,7 +590,7 @@ def main():
 
     # Output summary
     print()
-    print("🎉 ATLAS Stack Ready!")
+    print("🎉 AgentOps Stack Ready!")
     print(f"👤 Username: {USERNAME}")
     print(f"🔑 Password: {PASSWORD}")
 

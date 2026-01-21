@@ -1,6 +1,6 @@
-# ATLAS Docker Compose Deployment
+# AgentOps Docker Compose Deployment
 
-This directory contains the Docker Compose configuration for running the ATLAS observability stack locally.
+This directory contains the Docker Compose configuration for running the AgentOps observability stack locally.
 
 ## Directory Structure
 
@@ -102,7 +102,7 @@ These services demonstrate how to instrument an agent application and generate t
 - **weather-agent**: Example FastAPI server with OpenTelemetry instrumentation (port 8000)
   - Demonstrates Gen-AI semantic conventions
   - Provides REST API for agent invocation
-  - Sends traces, metrics, and logs to ATLAS stack
+  - Sends traces, metrics, and logs to AgentOps stack
 - **canary**: Periodic test client that invokes weather-agent (no exposed ports)
   - Generates synthetic agent traffic every 30 seconds (configurable)
   - Validates the observability pipeline end-to-end

@@ -3,7 +3,7 @@
 Weather Agent Example - OpenTelemetry Instrumentation
 
 This example demonstrates how to instrument an AI agent application with OpenTelemetry
-to send telemetry data to the ATLAS observability stack using OTLP protocol.
+to send telemetry data to the AgentOps observability stack using OTLP protocol.
 
 Key features demonstrated:
 - OTLP exporter configuration for traces, metrics, and logs
@@ -510,7 +510,7 @@ def main():
     # Metrics export every 2 seconds, so wait at least 3 seconds
     print("Waiting for telemetry export...")
     time.sleep(3)
-    print("✓ Telemetry exported to ATLAS stack")
+    print("✓ Telemetry exported to AgentOps stack")
     print()
     
     print("=" * 60)

@@ -2,7 +2,7 @@
 LangChain Bedrock Agent - OpenTelemetry Instrumentation Example
 
 This example demonstrates how to instrument a LangChain agent application
-with OpenTelemetry to send telemetry data to the ATLAS observability stack
+with OpenTelemetry to send telemetry data to the AgentOps observability stack
 using OTLP protocol.
 """
 
@@ -61,7 +61,7 @@ def setup_telemetry(
     tracer_provider = TracerProvider(resource=resource)
     trace.set_tracer_provider(tracer_provider)
 
-    # Configure OTLP gRPC exporter (sends traces to ATLAS stack)
+    # Configure OTLP gRPC exporter (sends traces to AgentOps stack)
     otlp_exporter = OTLPSpanExporter(
         endpoint=otlp_endpoint,
         insecure=True,  # No TLS for local development
@@ -258,7 +258,7 @@ def main() -> None:
     3. Create and run agent with automatic telemetry
 
     All LangChain operations are automatically traced with Gen-AI
-    semantic conventions and exported to the ATLAS stack.
+    semantic conventions and exported to the AgentOps stack.
     """
     print("\n💰 LangChain Bedrock Financial Assistant 💰")
     print("=" * 60)

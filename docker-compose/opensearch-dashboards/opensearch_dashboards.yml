@@ -5,7 +5,7 @@
 # Host and port for the Dashboards web server
 server.host: '0.0.0.0'
 server.port: 5601
-server.name: 'atlas-dashboards'
+server.name: 'agentops-dashboards'
 
 # OpenSearch connection configuration
 # URL of the OpenSearch cluster to connect to

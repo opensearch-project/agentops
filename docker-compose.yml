@@ -1,4 +1,4 @@
-# ATLAS (Agent Traces Logging Analytics Stack)
+# AgentOps
 # Docker Compose configuration for local development
 # WARNING: This configuration is for development/testing only - not production-ready
 
@@ -14,8 +14,8 @@ x-default-logging: &logging
     tag: "{{.Name}}"
 
 networks:
-  atlas-network:
-    name: atlas-network
+  agentops-network:
+    name: agentops-network
     driver: bridge
 
 volumes:
@@ -40,7 +40,7 @@ services:
       # Metrics endpoint for collector self-monitoring
       - "${OTEL_COLLECTOR_METRICS_PORT}:8888"
     networks:
-      - atlas-network
+      - agentops-network
     restart: unless-stopped
     deploy:
       resources:
@@ -80,7 +80,7 @@ services:
       opensearch:
         condition: service_healthy
     networks:
-      - atlas-network
+      - agentops-network
     restart: unless-stopped
     deploy:
       resources:
@@ -98,12 +98,12 @@ services:
       args:
         OPENSEARCH_VERSION: ${OPENSEARCH_VERSION}
         OPENSEARCH_DOCKER_REPO: ${OPENSEARCH_DOCKER_REPO}
-    image: atlas-opensearch:${OPENSEARCH_VERSION}
+    image: agentops-opensearch:${OPENSEARCH_VERSION}
     container_name: opensearch
     environment:
       # Single-node cluster for development
-      - cluster.name=atlas-cluster
-      - node.name=atlas-node
+      - cluster.name=agentops-cluster
+      - node.name=agentops-node
       - discovery.type=single-node
       - bootstrap.memory_lock=true
       # Set heap size (adjust based on available memory)
@@ -120,7 +120,7 @@ services:
       # Performance analyzer
       - "9600:9600"
     networks:
-      - atlas-network
+      - agentops-network
     restart: unless-stopped
     deploy:
       resources:
@@ -166,7 +166,7 @@ services:
       # Web UI and API endpoint
       - "${PROMETHEUS_PORT}:9090"
     networks:
-      - atlas-network
+      - agentops-network
     restart: unless-stopped
     deploy:
       resources:
@@ -192,7 +192,7 @@ services:
       opensearch:
         condition: service_healthy
     networks:
-      - atlas-network
+      - agentops-network
     restart: unless-stopped
     deploy:
       resources:

@@ -1,6 +1,6 @@
-# Contributing to ATLAS
+# Contributing to AgentOps
 
-Thank you for your interest in contributing to ATLAS (Agent Traces Logging Analytics Stack)! This document provides guidelines for both human developers and AI coding assistants to contribute effectively to the project.
+Thank you for your interest in contributing to AgentOps! This document provides guidelines for both human developers and AI coding assistants to contribute effectively to the project.
 
 ## Table of Contents
 
@@ -33,13 +33,13 @@ This project follows the OpenSearch Project Code of Conduct. By participating, y
 1. Fork the repository on GitHub
 2. Clone your fork locally:
 ```bash
-git clone https://github.com/YOUR_USERNAME/atlas.git
-cd atlas
+git clone https://github.com/YOUR_USERNAME/agentops.git
+cd agentops
 ```
 
 3. Add the upstream repository:
 ```bash
-git remote add upstream https://github.com/opensearch-project/atlas.git
+git remote add upstream https://github.com/opensearch-project/agentops.git
 ```
 
 4. Create a branch for your changes:
@@ -85,20 +85,20 @@ docker-compose down
 
 ```bash
 # Validate chart syntax
-helm lint helm/atlas
+helm lint helm/agentops
 
 # Render templates to check for errors
-helm template atlas helm/atlas
+helm template agentops helm/agentops
 
 # Deploy to a test cluster (kind, minikube, etc.)
-helm install atlas-test helm/atlas
+helm install agentops-test helm/agentops
 
 # Verify deployment
 kubectl get pods
 kubectl logs <pod-name>
 
 # Clean up
-helm uninstall atlas-test
+helm uninstall agentops-test
 ```
 
 ### 3. Run Validation Tests
@@ -247,7 +247,7 @@ opensearch:
   volumes:
     - opensearch-data:/usr/share/opensearch/data
   networks:
-    - atlas-network
+    - agentops-network
 ```
 
 ### Helm Charts
@@ -452,7 +452,7 @@ Contributors will be recognized in:
 - CONTRIBUTORS.md file
 - GitHub contributor graph
 
-Thank you for contributing to ATLAS! Your efforts help make agent observability accessible to everyone.
+Thank you for contributing to AgentOps! Your efforts help make agent observability accessible to everyone.
 
 ## Questions?
 

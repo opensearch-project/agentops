@@ -1,6 +1,6 @@
 # Weather Agent - Plain Python Example
 
-This example demonstrates how to instrument a plain Python AI agent with OpenTelemetry to send telemetry data to the ATLAS observability stack.
+This example demonstrates how to instrument a plain Python AI agent with OpenTelemetry to send telemetry data to the AgentOps observability stack.
 
 ## Features
 
@@ -15,11 +15,11 @@ This example demonstrates how to instrument a plain Python AI agent with OpenTel
 
 - Python 3.9 or higher
 - [uv](https://docs.astral.sh/uv/) package manager
-- ATLAS stack running (see [docker-compose README](../../../docker-compose/README.md))
+- AgentOps stack running (see [docker-compose README](../../../docker-compose/README.md))
 
 ## Quick Start
 
-1. Make sure the ATLAS stack is running:
+1. Make sure the AgentOps stack is running:
 ```bash
 cd ../../../docker-compose
 docker compose up -d
@@ -52,7 +52,7 @@ curl -X POST http://localhost:8000/invoke \
 The agent will:
 - Set up OpenTelemetry with OTLP exporters
 - Process weather queries
-- Send traces, metrics, and logs to the ATLAS stack
+- Send traces, metrics, and logs to the AgentOps stack
 
 ## View Telemetry Data
 
@@ -88,4 +88,4 @@ You can customize the agent by:
 
 - [OpenTelemetry Python Documentation](https://opentelemetry.io/docs/languages/python/)
 - [Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)
-- [ATLAS Documentation](../../../README.md)
+- [AgentOps Documentation](../../../README.md)

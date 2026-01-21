@@ -15,7 +15,7 @@ global:
   
   # Labels to add to all time series and alerts
   external_labels:
-    cluster: 'atlas-dev'
+    cluster: 'agentops-dev'
     environment: 'development'
 
 # OTLP configuration for receiving metrics via OpenTelemetry Protocol

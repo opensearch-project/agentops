@@ -1,8 +1,8 @@
-# 🌐 ATLAS - Agents Tracing Logging Analytics Stack
+# 🔭 AgentOps
 
-ATLAS (Agents Tracing Logging Analytics Stack) is an open-source observability stack designed for modern distributed systems. Built on OpenTelemetry, OpenSearch, and Prometheus, ATLAS provides a complete, pre-configured infrastructure for monitoring microservices, web applications, and AI agents—with first-class support for agent observability through [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/).
+AgentOps is an open-source observability stack designed for modern distributed systems. Built on OpenTelemetry, OpenSearch, and Prometheus, AgentOps provides a complete, pre-configured infrastructure for monitoring microservices, web applications, and AI agents—with first-class support for agent observability through [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/).
 
-![](./docs/atlas-arch-rev2.excalidraw.png)
+![](./docs/agentops-arch-compose.excalidraw.png)
 
 ## Components
 
@@ -17,8 +17,8 @@ To get started quickly, use the provided Docker Compose setup:
 
 ### 1️⃣ Clone the repository:
 ```bash
-git clone https://github.com/opensearch-project/atlas.git
-cd atlas
+git clone https://github.com/opensearch-project/agentops.git
+cd agentops
 ```
 
 ### **Optional**: Configure stack
@@ -44,7 +44,7 @@ docker compose logs opensearch-dashboards-init --tail=20
 Example output: 
 ```bash
 ...
-opensearch-dashboards-init |🎉 ATLAS Stack Ready!
+opensearch-dashboards-init |🎉 AgentOps Stack Ready!
 opensearch-dashboards-init |👤 Username: admin
 opensearch-dashboards-init |🔑 Password: My_password_123!@#
 opensearch-dashboards-init |📊 OpenSearch Dashboards Workspace: http://localhost:5601/w/9Z8lc3/app/explore/traces
@@ -64,7 +64,7 @@ docker compose down -v
 
 ## Instrumenting Your Agent
 
-ATLAS accepts telemetry data via the OpenTelemetry Protocol (OTLP) and follows the [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) for standardized attribute naming and structure for AI agents. 
+AgentOps accepts telemetry data via the OpenTelemetry Protocol (OTLP) and follows the [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) for standardized attribute naming and structure for AI agents. 
 
 ### Example: Manual Instrumentation with OpenTelemetry  
 For complete example, see [examples/plain-agents/weather-agent](./examples/plain-agents/weather-agent)  
@@ -143,7 +143,7 @@ INCLUDE_COMPOSE_EXAMPLES=docker-compose.examples.yml
 
 ### Running with OpenTelemetry Demo
 
-ATLAS can run alongside the [OpenTelemetry Demo](https://opentelemetry.io/docs/demo/) application, a full microservices e-commerce app that generates realistic telemetry data.
+AgentOps can run alongside the [OpenTelemetry Demo](https://opentelemetry.io/docs/demo/) application, a full microservices e-commerce app that generates realistic telemetry data.
 
 **To enable OpenTelemetry Demo**, uncomment in `.env`:
 ```env
@@ -197,10 +197,10 @@ To change the OpenSearch username and password:
 
 | Configuration | Memory Usage | Recommended Minimum |
 |---------------|--------------|---------------------|
-| Core ATLAS only | ~1.1 GB | 4 GB RAM |
+| Core AgentOps only | ~1.1 GB | 4 GB RAM |
 | Core + OTel Demo | ~3.0 GB | 8 GB RAM |
 
-**Core ATLAS services** (~1.1 GB total):
+**Core AgentOps services** (~1.1 GB total):
 - OpenSearch: ~1.6 GB
 - Data Prepper: ~650 MB
 - OpenSearch Dashboards: ~230 MB
@@ -223,7 +223,7 @@ finch stats --no-stream
 
 ## Production Readiness
 
-⚠️ **ATLAS is NOT production-ready out of the box.** The default configuration prioritizes ease of use for development and testing. Before deploying to production, you must address the following:
+⚠️ **AgentOps is NOT production-ready out of the box.** The default configuration prioritizes ease of use for development and testing. Before deploying to production, you must address the following:
 
 ### Security Hardening Required
 
@@ -296,7 +296,7 @@ Adjust resource limits in docker-compose.yml or values.yaml for Helm.
 
 If `docker compose down` fails with an error like:
 ```
-failed to remove network atlas-network: Error response from daemon: error while removing network: network atlas-network id ab129adaabcd7ab35cddb1fbe8dc2a68b3c730b9fb9384c5c1e7f5ca015c27d9 has active endpoints
+failed to remove network agentops-network: Error response from daemon: error while removing network: network agentops-network id ab129adaabcd7ab35cddb1fbe8dc2a68b3c730b9fb9384c5c1e7f5ca015c27d9 has active endpoints
 ```
 
 This typically occurs when containers from other compose files are still running. Try:
@@ -306,7 +306,7 @@ docker compose down --remove-orphans
 
 Or stop all containers using the network first:
 ```bash
-docker network inspect atlas-network --format '{{range .Containers}}{{.Name}} {{end}}' | xargs -r docker stop
+docker network inspect agentops-network --format '{{range .Containers}}{{.Name}} {{end}}' | xargs -r docker stop
 docker compose down
 ```
 
@@ -334,13 +334,13 @@ This project is licensed under the Apache License 2.0 - see the LICENSE file for
 
 ## Support
 
-- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/opensearch-project/atlas/issues)
-- **Discussions**: Ask questions in [GitHub Discussions](https://github.com/opensearch-project/atlas/discussions)
+- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/opensearch-project/agentops/issues)
+- **Discussions**: Ask questions in [GitHub Discussions](https://github.com/opensearch-project/agentops/discussions)
 - **Documentation**: See the [docs/](docs/) directory
 
 ## Acknowledgments
 
-ATLAS is built on top of excellent open-source projects:
+AgentOps is built on top of excellent open-source projects:
 
 - [OpenTelemetry](https://opentelemetry.io/)
 - [OpenSearch](https://opensearch.org/)
@@ -349,4 +349,4 @@ ATLAS is built on top of excellent open-source projects:
 
 ---
 
-**Remember**: ATLAS is for development and testing. Harden security and operations before production use.
+**Remember**: AgentOps is for development and testing. Harden security and operations before production use.

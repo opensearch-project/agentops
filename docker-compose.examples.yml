@@ -1,4 +1,4 @@
-# ATLAS Example Services
+# AgentOps Example Services
 # Docker Compose configuration for example instrumented agents
 # 
 # ⚠️  This is NOT a standalone Docker Compose file!
@@ -32,7 +32,7 @@ services:
     volumes:
       - ./docker-compose/opensearch-dashboards/init/init-opensearch-dashboards.py:/init.py
     networks:
-      - atlas-network
+      - agentops-network
     restart: "no"
     logging: *logging
 
@@ -51,7 +51,7 @@ services:
     depends_on:
       - otel-collector
     networks:
-      - atlas-network
+      - agentops-network
     restart: unless-stopped
     deploy:
       resources:
@@ -71,7 +71,7 @@ services:
     depends_on:
       - example-weather-agent
     networks:
-      - atlas-network
+      - agentops-network
     restart: unless-stopped
     deploy:
       resources:

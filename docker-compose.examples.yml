@@ -69,7 +69,7 @@ services:
       - WEATHER_AGENT_URL=http://weather-agent:8000
       - CANARY_INTERVAL=${CANARY_INTERVAL}
     depends_on:
-      - weather-agent
+      - example-weather-agent
     networks:
       - atlas-network
     restart: unless-stopped

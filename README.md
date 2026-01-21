@@ -131,21 +131,35 @@ The [.env](./.env) file contains all configurable parameters. Edit this file bef
 
 ### Including Example Services
 
-By default, the stack includes example services (weather-agent and canary) via the `INCLUDE_COMPOSE_FILES` variable in `.env`:
+By default, the stack includes example services (weather-agent and canary) via the `INCLUDE_COMPOSE_EXAMPLES` variable in `.env`:
 
 ```env
-INCLUDE_COMPOSE_FILES=docker-compose.examples.yml
+INCLUDE_COMPOSE_EXAMPLES=docker-compose.examples.yml
 ```
 
-These example services are defined in `docker-compose.examples.yml`, which is included by the main `docker-compose.yml` file.
-
 **To run without examples:**
-- Comment out or remove the `INCLUDE_COMPOSE_FILES` line in `.env`
+- Comment out the `INCLUDE_COMPOSE_EXAMPLES` line in `.env`
 - Restart the stack: `docker compose down && docker compose up -d`
 
-**To add your own services:**
-- Create a new compose file (e.g., `docker-compose.custom.yml`)
-- Update `.env`: `INCLUDE_COMPOSE_FILES=docker-compose.examples.yml,docker-compose.custom.yml`
+### Running with OpenTelemetry Demo
+
+ATLAS can run alongside the [OpenTelemetry Demo](https://opentelemetry.io/docs/demo/) application, a full microservices e-commerce app that generates realistic telemetry data.
+
+**To enable OpenTelemetry Demo**, uncomment in `.env`:
+```env
+INCLUDE_COMPOSE_OTEL_DEMO=docker-compose.otel-demo.yml
+```
+
+Then restart the stack:
+```bash
+docker compose down && docker compose up -d
+```
+
+**Access points when running with OTel Demo:**
+- Frontend Proxy: http://localhost:8080
+- Load Generator UI: http://localhost:8089
+
+**Note:** Running with OTel Demo significantly increases resource requirements. See [Resource Requirements](#resource-requirements) below.
 
 ### Changing OpenSearch Credentials
 
@@ -178,6 +192,34 @@ To change the OpenSearch username and password:
    ```
 
 **Note**: The `opensearch-dashboards` and `opensearch-dashboards-init` services automatically use the values from `.env`, so no manual changes are needed for those components. OpenSearch uses HTTPS with self-signed certificates, so use `-k` flag with curl commands.
+
+## Resource Requirements
+
+| Configuration | Memory Usage | Recommended Minimum |
+|---------------|--------------|---------------------|
+| Core ATLAS only | ~1.1 GB | 4 GB RAM |
+| Core + OTel Demo | ~3.0 GB | 8 GB RAM |
+
+**Core ATLAS services** (~1.1 GB total):
+- OpenSearch: ~1.6 GB
+- Data Prepper: ~650 MB
+- OpenSearch Dashboards: ~230 MB
+- OTel Collector: ~100 MB
+- Prometheus: ~40 MB
+- Example services (weather-agent, canary): ~100 MB
+
+**OpenTelemetry Demo adds** (~1.9 GB total):
+- Kafka: ~500 MB
+- Java services (fraud-detection, ad, accounting): ~540 MB
+- Frontend, load-generator, and other services: ~850 MB
+
+**Check resource usage:**
+```bash
+docker stats --no-stream
+
+# For Finch users
+finch stats --no-stream
+```
 
 ## Production Readiness
 

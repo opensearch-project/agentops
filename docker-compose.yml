@@ -3,8 +3,8 @@
 # WARNING: This configuration is for development/testing only - not production-ready
 
 include:
-  - path: ${INCLUDE_COMPOSE_FILES}
-    required: false
+  - path: ${INCLUDE_COMPOSE_EXAMPLES:-docker-compose/util/docker-compose.empty.yml}
+  - path: ${INCLUDE_COMPOSE_OTEL_DEMO:-docker-compose/util/docker-compose.empty.yml}
 
 x-default-logging: &logging
   driver: "json-file"

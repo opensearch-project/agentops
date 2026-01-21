@@ -729,6 +729,4 @@ services:
     <<: *network
     logging: *logging
 
-networks:
-  atlas-network:
-    external: true
+

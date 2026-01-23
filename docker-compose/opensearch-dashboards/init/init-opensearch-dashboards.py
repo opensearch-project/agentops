@@ -3,6 +3,7 @@
 import os
 import time
 import requests
+import yaml
 
 BASE_URL = "http://opensearch-dashboards:5601"
 USERNAME = os.getenv("OPENSEARCH_USER", "admin")
@@ -552,6 +553,110 @@ def create_apm_correlation(workspace_id, traces_pattern_id, logs_pattern_id):
         return None
 
 
+def create_or_update_saved_query(
+    workspace_id, query_id, title, description, query_string, language="PPL"
+):
+    """Create or update a saved query in the workspace"""
+    print(f"💾 Creating/updating saved query: {title}...")
+
+    # Base attributes for both create and update
+    base_attributes = {
+        "title": title,
+        "description": description,
+        "query": {"query": query_string, "language": language},
+    }
+
+    # Set URL based on workspace
+    if workspace_id and workspace_id != "default":
+        url = f"{BASE_URL}/w/{workspace_id}/api/saved_objects/query/{query_id}"
+    else:
+        url = f"{BASE_URL}/api/saved_objects/query/{query_id}"
+
+    try:
+        # Try POST first (create) - includes workspaces field
+        create_payload = {"attributes": base_attributes}
+        if workspace_id and workspace_id != "default":
+            create_payload["workspaces"] = [workspace_id]
+
+        response = requests.post(
+            url,
+            auth=(USERNAME, PASSWORD),
+            headers={"Content-Type": "application/json", "osd-xsrf": "true"},
+            json=create_payload,
+            verify=False,
+            timeout=10,
+        )
+
+        if response.status_code == 200:
+            print(f"✅ Created saved query: {title}")
+            return query_id
+        elif response.status_code == 409:
+            # Query exists, update it with PUT - only attributes, no workspaces field
+            print(f"🔄 Query exists, updating: {title}")
+            update_payload = {"attributes": base_attributes}
+
+            response = requests.put(
+                url,
+                auth=(USERNAME, PASSWORD),
+                headers={"Content-Type": "application/json", "osd-xsrf": "true"},
+                json=update_payload,
+                verify=False,
+                timeout=10,
+            )
+
+            if response.status_code == 200:
+                print(f"✅ Updated saved query: {title}")
+                return query_id
+            else:
+                print(f"⚠️  Saved query update failed: {response.text}")
+                return None
+        else:
+            print(f"⚠️  Saved query creation failed: {response.text}")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"⚠️  Error creating/updating saved query: {e}")
+        return None
+
+
+def create_default_saved_queries(workspace_id):
+    """Create a collection of useful saved queries for agent observability"""
+    print("📝 Creating saved queries...")
+
+    # Load queries from YAML file
+    queries_file = "/config/saved-queries.yaml"
+
+    try:
+        with open(queries_file, "r") as f:
+            config = yaml.safe_load(f)
+            queries = config.get("queries", [])
+    except FileNotFoundError:
+        print(f"⚠️  Queries file not found: {queries_file}")
+        return 0
+    except yaml.YAMLError as e:
+        print(f"⚠️  Error parsing queries YAML: {e}")
+        return 0
+
+    if not queries:
+        print("⚠️  No queries found in configuration file")
+        return 0
+
+    created_count = 0
+    for query_def in queries:
+        result = create_or_update_saved_query(
+            workspace_id,
+            query_def.get("id"),
+            query_def.get("title"),
+            query_def.get("description"),
+            query_def.get("query"),
+            query_def.get("language", "PPL"),
+        )
+        if result:
+            created_count += 1
+
+    print(f"✅ Processed {created_count} saved queries")
+    return created_count
+
+
 def main():
     """Initialize OpenSearch Dashboards with workspace and datasources"""
     wait_for_dashboards()
@@ -583,6 +688,9 @@ def main():
     # Create APM correlation between traces and logs
     if traces_pattern_id and logs_pattern_id:
         create_apm_correlation(workspace_id, traces_pattern_id, logs_pattern_id)
+
+    # Create saved queries for common agent observability patterns
+    create_default_saved_queries(workspace_id)
 
     # Create datasources
     create_prometheus_datasource(workspace_id)

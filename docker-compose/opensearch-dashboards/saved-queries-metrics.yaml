@@ -5,69 +5,69 @@ queries:
   - id: http_request_rate_by_service
     title: HTTP request rate by service
     description: Request rate per second grouped by service
-    language: PromQL
+    language: PROMQL
     query: |
       sum(rate(http_server_duration_seconds_count[5m])) by (service_name)
 
   - id: http_latency_p95_by_service
     title: HTTP latency P95 by service
     description: 95th percentile request latency by service
-    language: PromQL
+    language: PROMQL
     query: |
       histogram_quantile(0.95, sum(rate(http_server_duration_seconds_bucket[5m])) by (le, service_name))
 
   - id: http_error_rate
     title: HTTP error rate (5xx)
     description: Percentage of requests returning 5xx errors
-    language: PromQL
+    language: PROMQL
     query: |
       sum(rate(http_server_duration_seconds_count{http_response_status_code=~"5.."}[5m])) by (service_name) / sum(rate(http_server_duration_seconds_count[5m])) by (service_name)
 
   - id: cart_latency_p99
     title: Cart operations latency P99
     description: 99th percentile latency for cart add operations
-    language: PromQL
+    language: PROMQL
     query: |
       histogram_quantile(0.99, sum(rate(app_cart_add_item_latency_seconds_bucket[5m])) by (le))
 
   - id: db_operation_latency_p95
     title: Database operation latency P95
     description: 95th percentile database operation duration by service
-    language: PromQL
+    language: PROMQL
     query: |
       histogram_quantile(0.95, sum(rate(db_client_operation_duration_seconds_bucket[5m])) by (le, service_name))
 
   - id: frontend_request_rate
     title: Frontend request rate
     description: Total frontend requests per second
-    language: PromQL
+    language: PROMQL
     query: |
       sum(rate(app_frontend_requests_total[5m]))
 
   - id: payment_transactions
     title: Payment transactions per minute
     description: Number of payment transactions in the last minute
-    language: PromQL
+    language: PROMQL
     query: |
       sum(increase(app_payment_transactions_total[1m]))
 
   - id: ad_requests_rate
     title: Ad requests rate
     description: Ad service request rate per second
-    language: PromQL
+    language: PROMQL
     query: |
       sum(rate(app_ads_ad_requests_total[5m]))
 
   - id: recommendations_rate
     title: Recommendations rate
     description: Product recommendations per second
-    language: PromQL
+    language: PROMQL
     query: |
       sum(rate(app_recommendations_counter_total[5m]))
 
   - id: active_http_connections
     title: Active HTTP connections by service
     description: Current active HTTP requests per service
-    language: PromQL
+    language: PROMQL
     query: |
       sum(http_server_active_requests) by (service_name)

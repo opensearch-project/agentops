@@ -22,7 +22,9 @@ cd agentops
 ```
 
 ### **Optional**: Configure stack
-The `.env` file contains all configurable parameters. By default, it includes example services (weather-agent and canary) via `INCLUDE_COMPOSE_FILES=docker-compose.examples.yml`. To run only the core stack, comment out this line in `.env`.
+The `.env` file contains all configurable parameters:
+- **Example services**: Included by default via `INCLUDE_COMPOSE_EXAMPLES=docker-compose.examples.yml`. Comment out to run only the core stack.
+- **OpenTelemetry Demo**: Not enabled by default. Uncomment `INCLUDE_COMPOSE_OTEL_DEMO=docker-compose.otel-demo.yml` to add the full [OpenTelemetry Demo](https://opentelemetry.io/docs/demo/) microservices app for realistic e-commerce telemetry (~2GB additional memory required).
 
 See [Configuration](#configuration) section for more details.
 

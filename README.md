@@ -311,6 +311,18 @@ docker compose down
 
 For more troubleshooting guidance, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
+___
+
+## Project Status: 🚧 Alpha
+
+**Note**: As the OpenSearch agent observability ecosystem grows, this repository *may* eventually be consolidated into a unified "container-recipes" repository alongside other quickstart setups. This would provide a centralized location for all OpenSearch deployment patterns. However we'll communicate any such changes through the repository's issue tracker and release notes.
+
+### Temporary Workarounds
+
+The current configuration includes a custom OpenSearch Dockerfile (`docker-compose/opensearch/Dockerfile`) that removes some plugins facing issues during OpenSearch 3.5.0 development. This workaround will be removed once OpenSearch 3.5.0 is officially released and stabilized. At that point, we'll switch back to using the standard OpenSearch Docker image directly.
+
+Track progress: [OpenSearch 3.5.0 Release](https://github.com/opensearch-project/OpenSearch/releases)
+
 ## Documentation
 
 - [AGENTS.md](AGENTS.md) - AI-optimized repository documentation

@@ -91,7 +91,9 @@ services:
   # OpenSearch - Stores and indexes logs and traces for search and analysis
   opensearch:
     # image: ${OPENSEARCH_DOCKER_REPO}/opensearch:${OPENSEARCH_DASHBOARDS_VERSION}
-    # NOTE: using custom build to remove problematic plugins prior to 3.5.0 release
+    # NOTE: Using custom build to remove problematic plugins.
+    # TODO: Remove this workaround and use standard image once OpenSearch 3.5.0 is officially released.
+    # See: https://github.com/opensearch-project/OpenSearch/releases
     build:
       context: ./docker-compose/opensearch
       dockerfile: Dockerfile

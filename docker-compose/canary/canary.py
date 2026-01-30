@@ -113,6 +113,8 @@ def main():
                 success += 1
 
             print(f"         Success: {success}/{count} ({100*success/count:.0f}%)\n")
+            
+            # Sleep after first invocation (not before) so data appears immediately on startup
             time.sleep(CANARY_INTERVAL)
 
         except KeyboardInterrupt:

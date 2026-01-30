@@ -72,7 +72,7 @@ agentops/
 Contains all files needed for local Docker Compose deployment. Each component has its own subdirectory with configuration files.
 
 **Key Files**:
-- `docker-compose.yml`: Defines core observability services, dependencies, ports, and volumes (in repository root)
+- `docker-compose.yml`: Defines core observability services (including opensearch-dashboards-init), dependencies, ports, and volumes (in repository root)
 - `docker-compose.examples.yml`: Defines example services (weather-agent, canary) included via .env (in repository root)
 - `.env`: Environment variables for easy configuration customization (in repository root)
   - `INCLUDE_COMPOSE_FILES`: Controls which additional compose files to include (default: `docker-compose.examples.yml`)
@@ -84,6 +84,7 @@ Contains all files needed for local Docker Compose deployment. Each component ha
 - `data-prepper/data-prepper-config.yaml`: Data Prepper server configuration
 - `prometheus/prometheus.yml`: Prometheus scrape and storage configuration
 - `opensearch-dashboards/opensearch_dashboards.yml`: Dashboard UI configuration
+- `opensearch-dashboards/init/`: Initialization script and saved query configurations
 
 **Note**: OpenSearch uses default configuration with settings provided via environment variables in docker-compose.yml and .env file.
 

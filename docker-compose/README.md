@@ -95,6 +95,7 @@ By default, the stack includes example services (weather-agent and canary) via `
   - Default credentials: admin/My_password_123!@# (configured in .env file)
 - **prometheus**: Stores metrics with OTLP receiver enabled (port 9090)
 - **opensearch-dashboards**: Visualization UI (port 5601)
+- **opensearch-dashboards-init**: One-time initialization service that creates workspace, index patterns, and saved queries
 
 ### Example Services
 

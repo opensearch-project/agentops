@@ -207,3 +207,24 @@ services:
       timeout: 5s
       retries: 12
     logging: *logging
+
+  # OpenSearch Dashboards Initialization - Creates workspace and index patterns
+  opensearch-dashboards-init:
+    image: python:3.11-alpine
+    container_name: opensearch-dashboards-init
+    command: sh -c "pip install requests pyyaml && python /init.py"
+    depends_on:
+      opensearch-dashboards:
+        condition: service_healthy
+    environment:
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+      - PROMETHEUS_HOST=${PROMETHEUS_HOST}
+      - PROMETHEUS_PORT=${PROMETHEUS_PORT}
+    volumes:
+      - ./docker-compose/opensearch-dashboards/init/init-opensearch-dashboards.py:/init.py
+      - ./docker-compose/opensearch-dashboards/saved-queries-traces.yaml:/config/saved-queries-traces.yaml
+      - ./docker-compose/opensearch-dashboards/saved-queries-metrics.yaml:/config/saved-queries-metrics.yaml
+    networks:
+      - agentops-network
+    restart: "no"
+    logging: *logging

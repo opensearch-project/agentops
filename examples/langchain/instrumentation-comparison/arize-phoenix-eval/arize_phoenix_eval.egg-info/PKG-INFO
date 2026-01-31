@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: arize-phoenix-eval
+Version: 0.1.0
+Summary: Arize Phoenix evaluation example for instrumentation comparison
+Requires-Python: >=3.11
+Requires-Dist: arize-phoenix>=8.0.0
+Requires-Dist: arize-phoenix-otel>=0.10.0
+Requires-Dist: openinference-instrumentation-langchain>=0.1.0
+Requires-Dist: langchain>=0.3.0
+Requires-Dist: langchain-aws>=0.2.0
+Requires-Dist: opentelemetry-sdk>=1.20.0
+Requires-Dist: opentelemetry-exporter-otlp>=1.20.0

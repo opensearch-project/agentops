@@ -1,0 +1,41 @@
+{
+  "traceId": "5db28eef9a459860c517c9dd59e811e4",
+  "spanId": "eace2780ac4a5ca2",
+  "name": "ChatBedrockConverse",
+  "kind": "SPAN_KIND_INTERNAL",
+  "startTime": "2026-01-27T20:02:46.286456064Z",
+  "endTime": "2026-01-27T20:02:48.093477888Z",
+  "durationInNanos": 1807021824,
+  "serviceName": "arize-phoenix-eval-weather",
+  "instrumentationScope": {
+    "name": "openinference.instrumentation.langchain",
+    "version": "0.1.58"
+  },
+  "resource": {
+    "attributes": {
+      "service.name": "arize-phoenix-eval-weather",
+      "service.version": "1.0.0",
+      "deployment.environment": "evaluation",
+      "telemetry.sdk.language": "python",
+      "telemetry.sdk.version": "1.39.1"
+    }
+  },
+  "attributes": {
+    "openinference.span.kind": "LLM",
+    "llm.provider": "amazon_bedrock",
+    "llm.model_name": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "llm.token_count.prompt": 528,
+    "llm.token_count.completion": 97,
+    "llm.token_count.total": 625,
+    "llm.input_messages.0.message.role": "user",
+    "llm.input_messages.0.message.content": "What was the weather in London on 2024-01-15?",
+    "llm.output_messages.0.message.role": "assistant",
+    "llm.output_messages.0.message.contents.0.message_content.type": "text",
+    "llm.output_messages.0.message.contents.0.message_content.text": "I'll get the historical weather data for London on January 15th, 2024.",
+    "llm.output_messages.0.message.tool_calls.0.tool_call.function.name": "get_historical_weather",
+    "llm.output_messages.0.message.tool_calls.0.tool_call.function.arguments": "{\"location\": \"London\", \"date\": \"2024-01-15\"}",
+    "input.mime_type": "application/json",
+    "output.mime_type": "application/json"
+  },
+  "status": { "code": 1 }
+}

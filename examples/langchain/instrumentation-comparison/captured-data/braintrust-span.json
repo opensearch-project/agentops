@@ -1,0 +1,55 @@
+{
+  "traceId": "38dc3ac40feec9fbfafd041e81cd5920",
+  "droppedLinksCount": 0,
+  "instrumentationScope": {
+    "name": "braintrust-weather-agent",
+    "droppedAttributesCount": 0
+  },
+  "resource": {
+    "attributes": {
+      "telemetry.sdk.language": "python",
+      "service.name": "langchain-weather-braintrust",
+      "service.version": "1.0.0",
+      "telemetry.sdk.version": "1.39.1",
+      "host.name": "otel-collector",
+      "os.type": "linux",
+      "telemetry.sdk.name": "opentelemetry"
+    },
+    "schemaUrl": "https://opentelemetry.io/schemas/1.38.0",
+    "droppedAttributesCount": 0
+  },
+  "kind": "SPAN_KIND_INTERNAL",
+  "droppedEventsCount": 0,
+  "flags": 256,
+  "parentSpanId": "",
+  "schemaUrl": "",
+  "spanId": "f6f321ea13e8a536",
+  "traceState": "",
+  "name": "weather_agent_query",
+  "startTime": "2026-01-27T19:29:02.025816Z",
+  "attributes": {
+    "braintrust.metrics.completion_tokens": 50,
+    "braintrust.tags": [
+      "weather",
+      "langchain",
+      "comparison-test"
+    ],
+    "gen_ai.operation.name": "chat",
+    "braintrust.input": "What was the weather like in London yesterday?",
+    "braintrust.metadata.source": "instrumentation-comparison",
+    "braintrust.metrics.prompt_tokens": 150,
+    "gen_ai.request.model": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "braintrust.output": "I'd be happy to help you get the weather information for London yesterday! However, I need to know the specific date you're referring to as \"yesterday\" since I don't have access to the current date.\n\nCould you please provide the date in YYYY-MM-DD format? For example, if yesterday was December 15th, 2024, you would specify \"2024-12-15\".\n\nOnce you provide the date, I can get the historical weather data for London on that day.",
+    "gen_ai.system": "langchain"
+  },
+  "links": [],
+  "endTime": "2026-01-27T19:29:03.782067Z",
+  "droppedAttributesCount": 0,
+  "durationInNanos": 1756251000,
+  "events": [],
+  "status": {
+    "code": 0,
+    "message": ""
+  },
+  "serviceName": "langchain-weather-braintrust"
+}

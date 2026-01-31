@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: langchain-weather-braintrust
+Version: 1.0.0
+Requires-Python: >=3.11
+Requires-Dist: langchain-aws>=0.2.0
+Requires-Dist: langchain-core>=0.3.0
+Requires-Dist: braintrust[otel]>=0.3.0
+Requires-Dist: opentelemetry-exporter-otlp>=1.20.0
+Requires-Dist: opentelemetry-sdk>=1.20.0

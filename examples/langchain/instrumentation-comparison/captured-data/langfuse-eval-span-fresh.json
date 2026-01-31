@@ -1,0 +1,39 @@
+{
+  "traceId": "fe016480479efe06bf05be2f263b2f3b",
+  "spanId": "ea8c2d46d2bae1e8",
+  "name": "eval_run",
+  "kind": "SPAN_KIND_INTERNAL",
+  "startTime": "2026-01-27T20:18:35.793106Z",
+  "endTime": "2026-01-27T20:18:37.137866Z",
+  "durationInNanos": 1344760000,
+  "serviceName": "langfuse-eval-weather",
+  "instrumentationScope": {
+    "name": "langfuse-eval"
+  },
+  "resource": {
+    "attributes": {
+      "service.name": "langfuse-eval-weather",
+      "service.version": "1.0.0",
+      "deployment.environment": "evaluation",
+      "telemetry.sdk.language": "python",
+      "telemetry.sdk.version": "1.39.1"
+    }
+  },
+  "attributes": {
+    "langfuse.experiment.name": "weather-agent-eval-001",
+    "langfuse.experiment.run_id": "weather-3",
+    "langfuse.dataset.item_id": "weather-3",
+    "langfuse.trace.tags": "evaluation,weather-agent",
+    "langfuse.observation.input": "What was the weather in London on 2024-01-15?",
+    "langfuse.observation.output": "Tool: get_historical_weather",
+    "langfuse.score.tool_selection": 1.0,
+    "langfuse.score.location_extraction": 1.0,
+    "eval.score.tool_selection": 1.0,
+    "eval.score.location_extraction": 1.0,
+    "eval.expected_tool": "get_historical_weather",
+    "eval.expected_location": "London",
+    "gen_ai.operation.name": "eval",
+    "gen_ai.request.model": "us.anthropic.claude-sonnet-4-20250514-v1:0"
+  },
+  "status": { "code": 0 }
+}

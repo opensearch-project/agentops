@@ -1,0 +1,12 @@
+[project]
+name = "weather-agent-otel-contrib"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain-aws>=0.2.0",
+    "langchain-core>=0.3.0",
+    "opentelemetry-api>=1.31.0",
+    "opentelemetry-sdk>=1.31.0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.31.0",
+    "opentelemetry-semantic-conventions>=0.52b0",
+]

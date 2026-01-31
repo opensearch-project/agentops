@@ -1,0 +1,65 @@
+{
+  "traceId": "e8baea1d4cf068ceadd476ea2cbe1874",
+  "droppedLinksCount": 0,
+  "instrumentationScope": {
+    "name": "openinference.instrumentation.langchain",
+    "droppedAttributesCount": 0,
+    "version": "0.1.58"
+  },
+  "resource": {
+    "attributes": {
+      "telemetry.sdk.language": "python",
+      "service.name": "langchain-weather-openinference",
+      "service.version": "1.0.0",
+      "telemetry.sdk.version": "1.39.1",
+      "host.name": "otel-collector",
+      "os.type": "linux",
+      "telemetry.sdk.name": "opentelemetry"
+    },
+    "schemaUrl": "https://opentelemetry.io/schemas/1.38.0",
+    "droppedAttributesCount": 0
+  },
+  "kind": "SPAN_KIND_INTERNAL",
+  "droppedEventsCount": 0,
+  "flags": 256,
+  "parentSpanId": "f419992ba29d00a8",
+  "schemaUrl": "",
+  "spanId": "b949201df79a4a33",
+  "traceState": "",
+  "name": "ChatBedrockConverse",
+  "startTime": "2026-01-27T18:39:26.127817984Z",
+  "attributes": {
+    "llm.output_messages.0.message.content": "I'd be happy to help you get the weather information for London yesterday! However, I need to know the specific date you're referring to when you say \"yesterday.\" \n\nCould you please provide the date in YYYY-MM-DD format? For example, if yesterday was December 15th, 2024, you would write it as \"2024-12-15\".\n\nOnce you give me the date, I can look up the historical weather data for London on that day.",
+    "metadata": "{\"ls_provider\": \"amazon_bedrock\", \"ls_model_name\": \"us.anthropic.claude-sonnet-4-20250514-v1:0\", \"ls_model_type\": \"chat\", \"ls_temperature\": 0.0}",
+    "llm.input_messages.0.message.role": "system",
+    "llm.input_messages.1.message.role": "user",
+    "output.value": "{\"generations\": [[{\"text\": \"I'd be happy to help you get the weather information for London yesterday! However, I need to know the specific date you're referring to when you say \\\"yesterday.\\\" \\n\\nCould you please provide the date in YYYY-MM-DD format? For example, if yesterday was December 15th, 2024, you would write it as \\\"2024-12-15\\\".\\n\\nOnce you give me the date, I can look up the historical weather data for London on that day.\", \"generation_info\": null, \"type\": \"ChatGeneration\", \"message\": {\"lc\": 1, \"type\": \"constructor\", \"id\": [\"langchain\", \"schema\", \"messages\", \"AIMessage\"], \"kwargs\": {\"content\": \"I'd be happy to help you get the weather information for London yesterday! However, I need to know the specific date you're referring to when you say \\\"yesterday.\\\" \\n\\nCould you please provide the date in YYYY-MM-DD format? For example, if yesterday was December 15th, 2024, you would write it as \\\"2024-12-15\\\".\\n\\nOnce you give me the date, I can look up the historical weather data for London on that day.\", \"response_metadata\": {\"ResponseMetadata\": {\"RequestId\": \"a87841e2-931f-4633-b65d-c0c1256998fb\", \"HTTPStatusCode\": 200, \"HTTPHeaders\": {\"date\": \"Tue, 27 Jan 2026 18:39:27 GMT\", \"content-type\": \"application/json\", \"content-length\": \"725\", \"connection\": \"keep-alive\", \"x-amzn-requestid\": \"a87841e2-931f-4633-b65d-c0c1256998fb\"}, \"RetryAttempts\": 0}, \"stopReason\": \"end_turn\", \"metrics\": {\"latencyMs\": [1468]}, \"model_provider\": \"bedrock_converse\", \"model_name\": \"us.anthropic.claude-sonnet-4-20250514-v1:0\"}, \"type\": \"ai\", \"id\": \"lc_run--019c00c0-dfaf-77f1-b507-eba15df793b8-0\", \"usage_metadata\": {\"input_tokens\": 714, \"output_tokens\": 104, \"total_tokens\": 818, \"input_token_details\": {\"cache_creation\": 0, \"cache_read\": 0}}, \"tool_calls\": [], \"invalid_tool_calls\": []}}}]], \"llm_output\": null, \"run\": null, \"type\": \"LLMResult\"}",
+    "llm.token_count.prompt": 714,
+    "llm.model_name": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "llm.input_messages.1.message.content": "What was the weather like in London yesterday?",
+    "llm.invocation_parameters": "{\"_type\": \"amazon_bedrock_converse_chat\", \"stop\": null, \"tools\": [\"name='get_current_weather' description='Get current weather conditions for a location.\\\\n\\\\n    Args:\\\\n        location: City name or location\\\\n\\\\n    Returns:\\\\n        Current weather data including temperature and conditions' args_schema=<class 'langchain_core.utils.pydantic.get_current_weather'> func=<function get_current_weather at 0x11d59a160>\", \"name='get_forecast' description='Get weather forecast for the next several days.\\\\n\\\\n    Args:\\\\n        location: City name or location\\\\n        days: Number of days to forecast (1-7)\\\\n\\\\n    Returns:\\\\n        Multi-day forecast data' args_schema=<class 'langchain_core.utils.pydantic.get_forecast'> func=<function get_forecast at 0x11d59a2a0>\", \"name='get_historical_weather' description='Get historical weather data for a past date.\\\\n\\\\n    Args:\\\\n        location: City name or location\\\\n        date: Date in YYYY-MM-DD format\\\\n\\\\n    Returns:\\\\n        Historical weather data for the specified date' args_schema=<class 'langchain_core.utils.pydantic.get_historical_weather'> func=<function get_historical_weather at 0x11d59b4c0>\"], \"tool_choice\": null}",
+    "llm.token_count.completion": 104,
+    "llm.output_messages.0.message.role": "assistant",
+    "llm.token_count.total": 818,
+    "llm.tools.1.tool.json_schema": "\"name='get_forecast' description='Get weather forecast for the next several days.\\\\n\\\\n    Args:\\\\n        location: City name or location\\\\n        days: Number of days to forecast (1-7)\\\\n\\\\n    Returns:\\\\n        Multi-day forecast data' args_schema=<class 'langchain_core.utils.pydantic.get_forecast'> func=<function get_forecast at 0x11d59a2a0>\"",
+    "llm.provider": "amazon_bedrock",
+    "input.mime_type": "application/json",
+    "llm.input_messages.0.message.content": "You are a helpful weather assistant. You have access to three tools:\n- get_current_weather: For current conditions\n- get_forecast: For multi-day forecasts  \n- get_historical_weather: For past weather data\n\nAlways use the appropriate tool based on what the user is asking about.",
+    "output.mime_type": "application/json",
+    "input.value": "{\"messages\": [[{\"lc\": 1, \"type\": \"constructor\", \"id\": [\"langchain\", \"schema\", \"messages\", \"SystemMessage\"], \"kwargs\": {\"content\": \"You are a helpful weather assistant. You have access to three tools:\\n- get_current_weather: For current conditions\\n- get_forecast: For multi-day forecasts  \\n- get_historical_weather: For past weather data\\n\\nAlways use the appropriate tool based on what the user is asking about.\", \"type\": \"system\"}}, {\"lc\": 1, \"type\": \"constructor\", \"id\": [\"langchain\", \"schema\", \"messages\", \"HumanMessage\"], \"kwargs\": {\"content\": \"What was the weather like in London yesterday?\", \"type\": \"human\"}}]]}",
+    "openinference.span.kind": "LLM",
+    "llm.tools.0.tool.json_schema": "\"name='get_current_weather' description='Get current weather conditions for a location.\\\\n\\\\n    Args:\\\\n        location: City name or location\\\\n\\\\n    Returns:\\\\n        Current weather data including temperature and conditions' args_schema=<class 'langchain_core.utils.pydantic.get_current_weather'> func=<function get_current_weather at 0x11d59a160>\"",
+    "llm.tools.2.tool.json_schema": "\"name='get_historical_weather' description='Get historical weather data for a past date.\\\\n\\\\n    Args:\\\\n        location: City name or location\\\\n        date: Date in YYYY-MM-DD format\\\\n\\\\n    Returns:\\\\n        Historical weather data for the specified date' args_schema=<class 'langchain_core.utils.pydantic.get_historical_weather'> func=<function get_historical_weather at 0x11d59b4c0>\""
+  },
+  "links": [],
+  "endTime": "2026-01-27T18:39:27.638665984Z",
+  "droppedAttributesCount": 0,
+  "durationInNanos": 1510848000,
+  "events": [],
+  "status": {
+    "code": 1,
+    "message": ""
+  },
+  "serviceName": "langchain-weather-openinference",
+  "traceGroup": "RunnableSequence"
+}

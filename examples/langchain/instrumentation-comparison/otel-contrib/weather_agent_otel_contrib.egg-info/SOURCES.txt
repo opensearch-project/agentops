@@ -1,0 +1,7 @@
+main.py
+pyproject.toml
+weather_agent_otel_contrib.egg-info/PKG-INFO
+weather_agent_otel_contrib.egg-info/SOURCES.txt
+weather_agent_otel_contrib.egg-info/dependency_links.txt
+weather_agent_otel_contrib.egg-info/requires.txt
+weather_agent_otel_contrib.egg-info/top_level.txt

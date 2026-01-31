@@ -1,0 +1,38 @@
+{
+  "traceId": "dcb3bdec5b3bb1c45c274ba4b6856c74",
+  "spanId": "c16f01750369f31a",
+  "name": "experiment_run",
+  "kind": "SPAN_KIND_INTERNAL",
+  "startTime": "2026-01-27T19:51:51.588161Z",
+  "endTime": "2026-01-27T19:51:53.924593Z",
+  "durationInNanos": 2336432000,
+  "serviceName": "braintrust-eval-weather",
+  "instrumentationScope": {
+    "name": "braintrust-eval"
+  },
+  "resource": {
+    "attributes": {
+      "service.name": "braintrust-eval-weather",
+      "service.version": "1.0.0",
+      "deployment.environment": "evaluation",
+      "telemetry.sdk.language": "python",
+      "telemetry.sdk.version": "1.39.1"
+    }
+  },
+  "attributes": {
+    "braintrust.experiment.name": "weather-agent-bt-001",
+    "braintrust.experiment.item_index": 2,
+    "braintrust.input": "What was the weather in London on 2024-01-15?",
+    "braintrust.expected": "{'tool': 'get_historical_weather', 'location': 'London'}",
+    "braintrust.output": "{'tool': 'get_historical_weather', 'location': 'London', 'args': {'location': 'London', 'date': '2024-01-15'}}",
+    "braintrust.tags": ["historical"],
+    "braintrust.scores.tool_match": 1.0,
+    "braintrust.scores.location_match": 1.0,
+    "braintrust.metadata.source": "eval-comparison",
+    "eval.score.tool_match": 1.0,
+    "eval.score.location_match": 1.0,
+    "gen_ai.operation.name": "eval",
+    "gen_ai.request.model": "us.anthropic.claude-sonnet-4-20250514-v1:0"
+  },
+  "status": { "code": 0 }
+}

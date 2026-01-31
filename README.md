@@ -13,7 +13,32 @@ AgentOps is an open-source observability stack designed for modern distributed s
 - **OpenSearch Dashboards**: Provides web-based visualization and exploration
 
 ## 🚀 Quickstart
-To get started quickly, use the provided Docker Compose setup:
+
+### Option 1: One-Command Install (Recommended)
+
+Use our interactive installer for the best experience:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/opensearch-project/agentops/main/install.sh | bash
+```
+
+The installer will:
+- ✅ Check system requirements
+- 🎨 Guide you through configuration with a beautiful TUI
+- 📦 Pull and start all services automatically
+- 🔐 Display credentials and access points
+
+**Installation takes 8-15 minutes.** After completion, access:
+
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| **OpenSearch Dashboards** | http://localhost:5601 | admin / My_password_123!@# |
+| **Prometheus** | http://localhost:9090 | (none) |
+| **OpenSearch API** | https://localhost:9200 | admin / My_password_123!@# |
+
+### Option 2: Manual Setup
+
+To get started manually with Docker Compose:
 
 ### 1️⃣ Clone the repository:
 ```bash
@@ -115,6 +140,33 @@ agent = Agent(
 agent("What's the weather like?")
 ```
 
+
+## Managing Services
+
+### Common Commands
+
+```bash
+# View logs
+docker compose logs -f
+
+# View logs for specific service
+docker compose logs -f opensearch
+
+# Stop services (keeps data)
+docker compose down
+
+# Stop and remove all data
+docker compose down -v
+
+# Restart services
+docker compose restart
+
+# Restart specific service
+docker compose restart opensearch
+
+# Check service status
+docker compose ps
+```
 
 ## Configuration
 

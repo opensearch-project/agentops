@@ -1,0 +1,50 @@
+{
+  "traceId": "5db28eef9a459860c517c9dd59e811e4",
+  "spanId": "d4fd7bb66d4f0c25",
+  "name": "experiment_run",
+  "kind": "SPAN_KIND_INTERNAL",
+  "startTime": "2026-01-27T20:02:46.286332Z",
+  "endTime": "2026-01-27T20:02:48.093849Z",
+  "durationInNanos": 1807517000,
+  "serviceName": "arize-phoenix-eval-weather",
+  "instrumentationScope": {
+    "name": "arize-phoenix-eval",
+    "droppedAttributesCount": 0
+  },
+  "resource": {
+    "attributes": {
+      "telemetry.sdk.language": "python",
+      "service.name": "arize-phoenix-eval-weather",
+      "service.version": "1.0.0",
+      "telemetry.sdk.version": "1.39.1",
+      "host.name": "otel-collector",
+      "os.type": "linux",
+      "deployment.environment": "evaluation",
+      "telemetry.sdk.name": "opentelemetry"
+    }
+  },
+  "attributes": {
+    "phoenix.dataset.example_id": "weather-3",
+    "phoenix.experiment.run_index": 2,
+    "phoenix.eval.tool_match": 1.0,
+    "output.value": "{'tool': 'get_historical_weather', 'location': 'London', 'args': {'location': 'London', 'date': '2024-01-15'}}",
+    "eval.score.tool_match": 1.0,
+    "phoenix.experiment.name": "weather-agent-phoenix-001",
+    "input.mime_type": "text/plain",
+    "eval.score.location_match": 1.0,
+    "phoenix.tags": [
+      "historical"
+    ],
+    "output.mime_type": "text/plain",
+    "gen_ai.operation.name": "eval",
+    "phoenix.eval.location_match": 1.0,
+    "gen_ai.request.model": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "input.value": "What was the weather in London on 2024-01-15?",
+    "openinference.span.kind": "CHAIN",
+    "phoenix.expected": "{'tool': 'get_historical_weather', 'location': 'London'}"
+  },
+  "status": {
+    "code": 0,
+    "message": ""
+  }
+}

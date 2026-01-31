@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: weather-agent-otel-contrib
+Version: 0.1.0
+Requires-Python: >=3.12
+Requires-Dist: langchain-aws>=0.2.0
+Requires-Dist: langchain-core>=0.3.0
+Requires-Dist: opentelemetry-api>=1.31.0
+Requires-Dist: opentelemetry-sdk>=1.31.0
+Requires-Dist: opentelemetry-exporter-otlp-proto-grpc>=1.31.0
+Requires-Dist: opentelemetry-semantic-conventions>=0.52b0

@@ -1,0 +1,54 @@
+{
+  "traceId": "1409d16faeff1017194a29f2a40c99bb",
+  "droppedLinksCount": 0,
+  "instrumentationScope": {
+    "name": "langfuse-weather-agent",
+    "droppedAttributesCount": 0
+  },
+  "resource": {
+    "attributes": {
+      "telemetry.sdk.language": "python",
+      "service.name": "langchain-weather-langfuse",
+      "service.version": "1.0.0",
+      "telemetry.sdk.version": "1.39.1",
+      "host.name": "otel-collector",
+      "os.type": "linux",
+      "telemetry.sdk.name": "opentelemetry"
+    },
+    "schemaUrl": "https://opentelemetry.io/schemas/1.38.0",
+    "droppedAttributesCount": 0
+  },
+  "kind": "SPAN_KIND_INTERNAL",
+  "droppedEventsCount": 0,
+  "flags": 256,
+  "parentSpanId": "",
+  "schemaUrl": "",
+  "spanId": "6b8f92d1eaa7343a",
+  "traceState": "",
+  "name": "weather_agent_query",
+  "startTime": "2026-01-27T19:29:54.285601Z",
+  "attributes": {
+    "langfuse.trace.metadata.source": "instrumentation-comparison",
+    "langfuse.user.id": "test-user-123",
+    "langfuse.observation.output": "I'd be happy to help you get the weather information for London yesterday! However, I need to know the specific date you're referring to when you say \"yesterday.\" \n\nCould you please provide the date in YYYY-MM-DD format? For example, if yesterday was December 15th, 2024, you would write it as \"2024-12-15\".\n\nOnce you give me the date, I can look up the historical weather data for London on that day.",
+    "langfuse.session.id": "test-session-456",
+    "gen_ai.operation.name": "chat",
+    "gen_ai.usage.input_tokens": 150,
+    "gen_ai.usage.output_tokens": 50,
+    "gen_ai.request.model": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "langfuse.trace.name": "weather_agent_query",
+    "langfuse.trace.tags": "weather,langchain,comparison-test",
+    "langfuse.observation.input": "What was the weather like in London yesterday?",
+    "gen_ai.system": "langchain"
+  },
+  "links": [],
+  "endTime": "2026-01-27T19:29:55.826402Z",
+  "droppedAttributesCount": 0,
+  "durationInNanos": 1540801000,
+  "events": [],
+  "status": {
+    "code": 0,
+    "message": ""
+  },
+  "serviceName": "langchain-weather-langfuse"
+}

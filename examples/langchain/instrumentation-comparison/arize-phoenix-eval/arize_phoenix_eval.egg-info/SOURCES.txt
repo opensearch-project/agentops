@@ -1,0 +1,7 @@
+main.py
+pyproject.toml
+arize_phoenix_eval.egg-info/PKG-INFO
+arize_phoenix_eval.egg-info/SOURCES.txt
+arize_phoenix_eval.egg-info/dependency_links.txt
+arize_phoenix_eval.egg-info/requires.txt
+arize_phoenix_eval.egg-info/top_level.txt

@@ -1,0 +1,57 @@
+{
+  "traceId": "11e8b06096ea22aea1c1279d6d7e9168",
+  "droppedLinksCount": 0,
+  "instrumentationScope": {
+    "name": "langfuse-eval",
+    "droppedAttributesCount": 0
+  },
+  "resource": {
+    "attributes": {
+      "telemetry.sdk.language": "python",
+      "service.name": "langfuse-eval-weather",
+      "service.version": "1.0.0",
+      "telemetry.sdk.version": "1.39.1",
+      "host.name": "otel-collector",
+      "os.type": "linux",
+      "deployment.environment": "evaluation",
+      "telemetry.sdk.name": "opentelemetry"
+    },
+    "schemaUrl": "https://opentelemetry.io/schemas/1.38.0",
+    "droppedAttributesCount": 0
+  },
+  "kind": "SPAN_KIND_INTERNAL",
+  "droppedEventsCount": 0,
+  "flags": 256,
+  "parentSpanId": "",
+  "schemaUrl": "",
+  "spanId": "25f7f0030eca5012",
+  "traceState": "",
+  "name": "eval_run",
+  "startTime": "2026-01-27T19:50:04.148412Z",
+  "attributes": {
+    "langfuse.score.tool_selection": 1.0,
+    "eval.score.tool_selection": 1.0,
+    "langfuse.observation.input": "What was the weather in London on 2024-01-15?",
+    "langfuse.score.location_extraction": 1.0,
+    "eval.expected_location": "London",
+    "langfuse.experiment.name": "weather-agent-eval-001",
+    "langfuse.observation.output": "Tool: get_historical_weather",
+    "gen_ai.operation.name": "eval",
+    "gen_ai.request.model": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "eval.score.location_extraction": 1.0,
+    "langfuse.experiment.run_id": "weather-3",
+    "langfuse.dataset.item_id": "weather-3",
+    "langfuse.trace.tags": "evaluation,weather-agent",
+    "eval.expected_tool": "get_historical_weather"
+  },
+  "links": [],
+  "endTime": "2026-01-27T19:50:06.515463Z",
+  "droppedAttributesCount": 0,
+  "durationInNanos": 2367051000,
+  "events": [],
+  "status": {
+    "code": 0,
+    "message": ""
+  },
+  "serviceName": "langfuse-eval-weather"
+}

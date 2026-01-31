@@ -1,0 +1,5 @@
+# Data Prepper Server Configuration
+# Controls Data Prepper's runtime behavior and resource usage
+
+# SSL/TLS configuration - disabled for development
+ssl: false

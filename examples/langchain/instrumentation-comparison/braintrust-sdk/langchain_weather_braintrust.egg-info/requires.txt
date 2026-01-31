@@ -1,0 +1,5 @@
+langchain-aws>=0.2.0
+langchain-core>=0.3.0
+braintrust[otel]>=0.3.0
+opentelemetry-exporter-otlp>=1.20.0
+opentelemetry-sdk>=1.20.0

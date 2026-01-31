@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: langchain-weather-openinference
+Version: 1.0.0
+Requires-Python: >=3.11
+Requires-Dist: langchain-aws>=0.2.0
+Requires-Dist: langchain-core>=0.3.0
+Requires-Dist: opentelemetry-api>=1.20.0
+Requires-Dist: opentelemetry-sdk>=1.20.0
+Requires-Dist: opentelemetry-exporter-otlp-proto-grpc>=1.20.0
+Requires-Dist: openinference-instrumentation-langchain>=0.1.0

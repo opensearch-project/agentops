@@ -1,0 +1,6 @@
+services:
+  my-alpine:
+    image: alpine:latest
+    container_name: alpine_test
+    command: ["/bin/sh", "-c", "while true; do sleep 3600; done"]
+    restart: always

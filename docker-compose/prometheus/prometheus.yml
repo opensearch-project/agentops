@@ -1,0 +1,66 @@
+# Prometheus Configuration
+# Time-series database for metrics storage and querying
+
+# Global configuration applies to all scrape jobs
+global:
+  # How frequently to scrape targets by default
+  # 60 seconds aligns with OpenTelemetry SDK export intervals
+  scrape_interval: 60s
+  
+  # How long to wait before timing out a scrape request
+  scrape_timeout: 10s
+  
+  # How frequently to evaluate alerting rules
+  evaluation_interval: 60s
+  
+  # Labels to add to all time series and alerts
+  external_labels:
+    cluster: 'agentops-dev'
+    environment: 'development'
+
+# OTLP configuration for receiving metrics via OpenTelemetry Protocol
+otlp:
+  # Keep resource attributes that identify the source
+  keep_identifying_resource_attributes: true
+  # Promote resource attributes to metric labels for easier querying
+  promote_resource_attributes:
+    - service.instance.id
+    - service.name
+    - service.namespace
+    - service.version
+    - deployment.environment.name
+    # Gen-AI semantic convention attributes
+    - gen_ai.agent.id
+    - gen_ai.agent.name
+    - gen_ai.provider.name
+    - gen_ai.request.model
+    - gen_ai.response.model
+
+# Storage configuration
+storage:
+  tsdb:
+    # Allow out-of-order samples within 30 minute window
+    # Useful for handling delayed metrics
+    out_of_order_time_window: 30m
+
+# Scrape configurations define targets to monitor
+scrape_configs:
+  # Scrape Prometheus itself for self-monitoring
+  # Useful for debugging and understanding Prometheus health
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          component: 'metrics-storage'
+
+  # Scrape OpenTelemetry Collector metrics
+  # Monitors collector health, throughput, and resource usage
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8888']
+        labels:
+          service: 'otel-collector'
+          component: 'telemetry-ingestion'
+    # Scrape more frequently for real-time monitoring
+    scrape_interval: 10s

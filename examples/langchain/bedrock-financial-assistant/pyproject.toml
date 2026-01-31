@@ -1,0 +1,16 @@
+[project]
+name = "bedrock"
+version = "0.1.0"
+description = "LangChain Bedrock agent with OpenTelemetry instrumentation"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.42.25",
+    "langchain>=1.2.3",
+    "langchain-aws>=1.2.0",
+    "langchain-core>=1.2.7",
+    "opentelemetry-api>=1.30.0",
+    "opentelemetry-sdk>=1.30.0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.30.0",
+    "opentelemetry-instrumentation-langchain>=0.1.0",
+]

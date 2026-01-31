@@ -1,0 +1,7 @@
+main.py
+pyproject.toml
+braintrust_eval_example.egg-info/PKG-INFO
+braintrust_eval_example.egg-info/SOURCES.txt
+braintrust_eval_example.egg-info/dependency_links.txt
+braintrust_eval_example.egg-info/requires.txt
+braintrust_eval_example.egg-info/top_level.txt

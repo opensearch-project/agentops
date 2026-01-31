@@ -1,0 +1,12 @@
+[project]
+name = "langfuse-eval-example"
+version = "0.1.0"
+description = "Langfuse evaluation with traces sent to AgentOps"
+requires-python = ">=3.10"
+dependencies = [
+    "langfuse>=3.0.0",
+    "opentelemetry-sdk>=1.20.0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.20.0",
+    "langchain-aws>=0.2.0",
+    "langchain-core>=0.3.0",
+]

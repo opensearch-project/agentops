@@ -1,0 +1,43 @@
+services:
+  otel-contrib-weather-agent:
+    build:
+      context: .
+      dockerfile: otel-contrib/Dockerfile
+    container_name: langchain-weather-otel-contrib
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - AWS_REGION=us-west-2
+    volumes:
+      - ~/.aws:/root/.aws:ro
+    networks:
+      - agentops-network
+
+  openllmetry-weather-agent:
+    build:
+      context: .
+      dockerfile: openllmetry/Dockerfile
+    container_name: langchain-weather-openllmetry
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - AWS_REGION=us-west-2
+    volumes:
+      - ~/.aws:/root/.aws:ro
+    networks:
+      - agentops-network
+
+  openinference-weather-agent:
+    build:
+      context: .
+      dockerfile: openinference/Dockerfile
+    container_name: langchain-weather-openinference
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - AWS_REGION=us-west-2
+    volumes:
+      - ~/.aws:/root/.aws:ro
+    networks:
+      - agentops-network
+
+networks:
+  agentops-network:
+    external: true

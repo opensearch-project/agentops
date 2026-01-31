@@ -1,0 +1,11 @@
+[project]
+name = "langchain-weather-openllmetry"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "langchain-aws>=0.2.0",
+    "langchain-core>=0.3.0",
+    "opentelemetry-instrumentation-langchain>=0.51.0",
+    "opentelemetry-exporter-otlp>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+]

@@ -1,0 +1,6 @@
+braintrust[otel]>=0.3.1
+autoevals>=0.0.90
+opentelemetry-sdk>=1.20.0
+opentelemetry-exporter-otlp-proto-grpc>=1.20.0
+langchain-aws>=0.2.0
+langchain-core>=0.3.0

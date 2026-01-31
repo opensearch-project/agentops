@@ -1,0 +1,732 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+#
+# AgentOps OpenTelemetry Demo Services
+# Runs the OpenTelemetry Demo application and sends telemetry to the AgentOps OTLP endpoint.
+#
+# ⚠️  This is NOT a standalone Docker Compose file!
+# This file is included by docker-compose.yml via the 'include:' directive.
+# It depends on networks and services defined in the main docker-compose.yml.
+#
+# To use: Set INCLUDE_COMPOSE_FILES=docker-compose.otel-demo.yml in .env
+# Then run: docker compose up -d
+#
+
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+    tag: "{{.Name}}"
+
+x-network: &network
+  networks:
+    - agentops-network
+
+services:
+  # ******************
+  # Core Demo Services
+  # ******************
+  # Accounting service
+  accounting:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-accounting
+    container_name: accounting
+    deploy:
+      resources:
+        limits:
+          memory: 160M
+    restart: unless-stopped
+    environment:
+      - KAFKA_ADDR
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=accounting
+      - DB_CONNECTION_STRING=Host=${POSTGRES_HOST};Username=otelu;Password=otelp;Database=${POSTGRES_DB}
+      - OTEL_DOTNET_AUTO_TRACES_ENTITYFRAMEWORKCORE_INSTRUMENTATION_ENABLED=false
+    depends_on:
+      otel-collector:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+    <<: *network
+    logging: *logging
+
+  # AdService
+  ad:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-ad
+    container_name: ad
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    restart: unless-stopped
+    ports:
+      - "${AD_PORT}"
+    environment:
+      - AD_PORT
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_SERVICE_NAME=ad
+      # Workaround on OSX for https://bugs.openjdk.org/browse/JDK-8345296
+      - _JAVA_OPTIONS
+    depends_on:
+      otel-collector:
+        condition: service_started
+      flagd:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Cart service
+  cart:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-cart
+    container_name: cart
+    deploy:
+      resources:
+        limits:
+          memory: 160M
+    restart: unless-stopped
+    ports:
+      - "${CART_PORT}"
+    environment:
+      - CART_PORT
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - VALKEY_ADDR
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=cart
+      - ASPNETCORE_URLS=http://*:${CART_PORT}
+    depends_on:
+      valkey-cart:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+      flagd:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Checkout service
+  checkout:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-checkout
+    container_name: checkout
+    deploy:
+      resources:
+        limits:
+          memory: 20M
+    restart: unless-stopped
+    ports:
+      - "${CHECKOUT_PORT}"
+    environment:
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - CHECKOUT_PORT
+      - CART_ADDR
+      - CURRENCY_ADDR
+      - EMAIL_ADDR
+      - PAYMENT_ADDR
+      - PRODUCT_CATALOG_ADDR
+      - SHIPPING_ADDR
+      - KAFKA_ADDR
+      - GOMEMLIMIT=16MiB
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=checkout
+    depends_on:
+      cart:
+        condition: service_started
+      currency:
+        condition: service_started
+      email:
+        condition: service_started
+      payment:
+        condition: service_started
+      product-catalog:
+        condition: service_started
+      shipping:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+      flagd:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Currency service
+  currency:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-currency
+    container_name: currency
+    deploy:
+      resources:
+        limits:
+          memory: 20M
+    restart: unless-stopped
+    ports:
+      - "${CURRENCY_PORT}"
+    environment:
+      - CURRENCY_PORT
+      - IPV6_ENABLED
+      - VERSION=${IMAGE_VERSION}
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=currency
+    depends_on:
+      otel-collector:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Email service
+  email:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-email
+    container_name: email
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    restart: unless-stopped
+    ports:
+      - "${EMAIL_PORT}"
+    environment:
+      - APP_ENV=production
+      - EMAIL_PORT
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=email
+    depends_on:
+      otel-collector:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Fraud Detection service
+  fraud-detection:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-fraud-detection
+    container_name: fraud-detection
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    restart: unless-stopped
+    environment:
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - KAFKA_ADDR
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_INSTRUMENTATION_KAFKA_EXPERIMENTAL_SPAN_ATTRIBUTES=true
+      - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED=true
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=fraud-detection
+    depends_on:
+      otel-collector:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+    <<: *network
+    logging: *logging
+
+  # Frontend
+  frontend:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-frontend
+    container_name: frontend
+    deploy:
+      resources:
+        limits:
+          memory: 250M
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT}"
+    environment:
+      - PORT=${FRONTEND_PORT}
+      - FRONTEND_ADDR
+      - AD_ADDR
+      - CART_ADDR
+      - CHECKOUT_ADDR
+      - CURRENCY_ADDR
+      - PRODUCT_CATALOG_ADDR
+      - PRODUCT_REVIEWS_ADDR
+      - RECOMMENDATION_ADDR
+      - SHIPPING_ADDR
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_RESOURCE_ATTRIBUTES
+      - ENV_PLATFORM
+      - OTEL_SERVICE_NAME=frontend
+      - PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - WEB_OTEL_SERVICE_NAME=frontend-web
+      - OTEL_COLLECTOR_HOST
+      - FLAGD_HOST
+      - FLAGD_PORT
+    depends_on:
+      ad:
+        condition: service_started
+      cart:
+        condition: service_started
+      checkout:
+        condition: service_started
+      currency:
+        condition: service_started
+      product-catalog:
+        condition: service_started
+      quote:
+        condition: service_started
+      recommendation:
+        condition: service_started
+      shipping:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+      image-provider:
+        condition: service_started
+      flagd:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Frontend Proxy (Envoy)
+  frontend-proxy:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-frontend-proxy
+    container_name: frontend-proxy
+    deploy:
+      resources:
+        limits:
+          memory: 65M
+    restart: unless-stopped
+    ports:
+      - "${ENVOY_PORT}:${ENVOY_PORT}"
+      - "${ENVOY_ADMIN_PORT}:${ENVOY_ADMIN_PORT}"
+    environment:
+      - FRONTEND_PORT
+      - FRONTEND_HOST
+      - LOCUST_WEB_HOST
+      - LOCUST_WEB_PORT
+      - GRAFANA_PORT
+      - GRAFANA_HOST
+      - JAEGER_UI_PORT
+      - JAEGER_HOST
+      - OTEL_COLLECTOR_HOST
+      - IMAGE_PROVIDER_HOST
+      - IMAGE_PROVIDER_PORT
+      - OTEL_COLLECTOR_PORT_GRPC
+      - OTEL_COLLECTOR_PORT_HTTP
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=frontend-proxy
+      - ENVOY_PORT
+      - ENVOY_ADDR
+      - ENVOY_ADMIN_PORT
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - FLAGD_UI_HOST
+      - FLAGD_UI_PORT
+    depends_on:
+      frontend:
+        condition: service_started
+      load-generator:
+        condition: service_started
+      flagd-ui:
+        condition: service_started
+    <<: *network
+    dns_search: ""
+
+  # image-provider
+  image-provider:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-image-provider
+    container_name: image-provider
+    deploy:
+      resources:
+        limits:
+          memory: 120M
+    restart: unless-stopped
+    ports:
+      - "${IMAGE_PROVIDER_PORT}"
+    environment:
+      - IMAGE_PROVIDER_PORT
+      - OTEL_COLLECTOR_HOST
+      - OTEL_COLLECTOR_PORT_GRPC
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=image-provider
+    depends_on:
+      otel-collector:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Load Generator
+  load-generator:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-load-generator
+    container_name: load-generator
+    deploy:
+      resources:
+        limits:
+          memory: 1500M
+    restart: unless-stopped
+    ports:
+      - "${LOCUST_WEB_PORT}"
+    environment:
+      - LOCUST_WEB_PORT
+      - LOCUST_USERS
+      - LOCUST_HOST
+      - LOCUST_HEADLESS
+      - LOCUST_AUTOSTART
+      - LOCUST_BROWSER_TRAFFIC_ENABLED=false
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=load-generator
+      - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+      - LOCUST_WEB_HOST=0.0.0.0
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - FLAGD_OFREP_PORT
+    depends_on:
+      frontend:
+        condition: service_started
+      flagd:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Payment service
+  payment:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-payment
+    container_name: payment
+    deploy:
+      resources:
+        limits:
+          memory: 140M
+    restart: unless-stopped
+    ports:
+      - "${PAYMENT_PORT}"
+    environment:
+      - IPV6_ENABLED
+      - PAYMENT_PORT
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=payment
+    depends_on:
+      otel-collector:
+        condition: service_started
+      flagd:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Product Catalog service
+  product-catalog:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-product-catalog
+    container_name: product-catalog
+    deploy:
+      resources:
+        limits:
+          memory: 20M
+    restart: unless-stopped
+    ports:
+      - "${PRODUCT_CATALOG_PORT}"
+    environment:
+      - PRODUCT_CATALOG_PORT
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - GOMEMLIMIT=16MiB
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=product-catalog
+      - OTEL_SEMCONV_STABILITY_OPT_IN=database
+      - DB_CONNECTION_STRING=postgres://otelu:otelp@${POSTGRES_HOST}/${POSTGRES_DB}?sslmode=disable
+    depends_on:
+      otel-collector:
+        condition: service_started
+      flagd:
+        condition: service_started
+      postgresql:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Product reviews service
+  product-reviews:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-product-reviews
+    container_name: product-reviews
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    restart: unless-stopped
+    ports:
+      - "${PRODUCT_REVIEWS_PORT}"
+    environment:
+      - PRODUCT_REVIEWS_PORT
+      - OTEL_PYTHON_LOG_CORRELATION=true
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=product-reviews
+      - OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true
+      - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+      - DB_CONNECTION_STRING=host=${POSTGRES_HOST} user=otelu password=otelp dbname=${POSTGRES_DB}
+      - LLM_BASE_URL
+      - OPENAI_API_KEY
+      - LLM_MODEL
+      - PRODUCT_CATALOG_ADDR
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - LLM_HOST
+      - LLM_PORT
+    depends_on:
+      product-catalog:
+        condition: service_started
+      llm:
+        condition: service_started
+      postgresql:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Quote service
+  quote:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-quote
+    container_name: quote
+    deploy:
+      resources:
+        limits:
+          memory: 40M
+    restart: unless-stopped
+    ports:
+      - "${QUOTE_PORT}"
+    environment:
+      - IPV6_ENABLED
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_PHP_AUTOLOAD_ENABLED=true
+      - QUOTE_PORT
+      - OTEL_PHP_INTERNAL_METRICS_ENABLED=true
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=quote
+    depends_on:
+      otel-collector:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Recommendation service
+  recommendation:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-recommendation
+    container_name: recommendation
+    deploy:
+      resources:
+        limits:
+          memory: 500M               # This is high to enable supporting the recommendationCache feature flag use case
+    restart: unless-stopped
+    ports:
+      - "${RECOMMENDATION_PORT}"
+    environment:
+      - RECOMMENDATION_PORT
+      - PRODUCT_CATALOG_ADDR
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - OTEL_PYTHON_LOG_CORRELATION=true
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=recommendation
+      - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+    depends_on:
+      product-catalog:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+      flagd:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Shipping service
+  shipping:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-shipping
+    container_name: shipping
+    deploy:
+      resources:
+        limits:
+          memory: 20M
+    restart: unless-stopped
+    ports:
+      - "${SHIPPING_PORT}"
+    environment:
+      - IPV6_ENABLED
+      - SHIPPING_PORT
+      - QUOTE_ADDR
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=shipping
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+    depends_on:
+      otel-collector:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # ******************
+  # Dependent Services
+  # ******************
+  # Flagd, feature flagging service
+  flagd:
+    image: ${FLAGD_IMAGE}
+    container_name: flagd
+    deploy:
+      resources:
+        limits:
+          memory: 75M
+    restart: unless-stopped
+    environment:
+      - FLAGD_OTEL_COLLECTOR_URI=${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
+      - FLAGD_METRICS_EXPORTER=otel
+      - GOMEMLIMIT=60MiB
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=flagd
+    command: [
+      "start",
+      "--uri",
+      "file:./etc/flagd/demo.flagd.json"
+    ]
+    ports:
+      - "${FLAGD_PORT}"
+      - "${FLAGD_OFREP_PORT}"
+    volumes:
+      - ./docker-compose/opentelemetry-demo/src/flagd:/etc/flagd
+    <<: *network
+    logging:
+      *logging
+
+  # Flagd UI for configuring the feature flag service
+  flagd-ui:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-flagd-ui
+    container_name: flagd-ui
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    restart: always
+    environment:
+      - FLAGD_UI_PORT
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=flagd-ui
+      - SECRET_KEY_BASE=yYrECL4qbNwleYInGJYvVnSkwJuSQJ4ijPTx5tirGUXrbznFIBFVJdPl5t6O9ASw
+      - PHX_HOST=localhost
+    ports:
+      - "${FLAGD_UI_PORT}"
+    depends_on:
+      otel-collector:
+        condition: service_started
+      flagd:
+        condition: service_started
+    volumes:
+      - ./docker-compose/opentelemetry-demo/src/flagd:/app/data
+    <<: *network
+
+  # Kafka used by Checkout, Accounting, and Fraud Detection services
+  kafka:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-kafka
+    container_name: kafka
+    deploy:
+      resources:
+        limits:
+          memory: 620M
+    restart: unless-stopped
+    environment:
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${KAFKA_HOST}:9092
+      - KAFKA_LISTENERS=PLAINTEXT://${KAFKA_HOST}:9092,CONTROLLER://${KAFKA_HOST}:9093
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@${KAFKA_HOST}:9093
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=kafka
+      - KAFKA_HEAP_OPTS=-Xmx400m -Xms400m
+      # Workaround on OSX for https://bugs.openjdk.org/browse/JDK-8345296
+      - _JAVA_OPTIONS
+    healthcheck:
+      test: nc -z kafka 9092
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    <<: *network
+    logging: *logging
+
+  # LLM used by Product Review service
+  llm:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-llm
+    container_name: llm
+    deploy:
+      resources:
+        limits:
+          memory: 50M
+    restart: unless-stopped
+    environment:
+      - FLAGD_HOST
+      - FLAGD_PORT
+    ports:
+      - "${LLM_PORT}"
+    depends_on:
+      flagd:
+        condition: service_started
+    <<: *network
+    logging: *logging
+
+  # Postgresql used by Accounting service
+  postgresql:
+    image: ${POSTGRES_IMAGE}
+    container_name: postgresql
+    deploy:
+      resources:
+        limits:
+          memory: 80M
+    restart: unless-stopped
+    ports:
+      - ${POSTGRES_PORT}
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    volumes:
+      - ./docker-compose/opentelemetry-demo/src/postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    <<: *network
+    logging: *logging
+
+  # Valkey used by Cart service
+  valkey-cart:
+    image: ${VALKEY_IMAGE}
+    container_name: valkey-cart
+    user: valkey
+    deploy:
+      resources:
+        limits:
+          memory: 20M
+    restart: unless-stopped
+    ports:
+      - "${VALKEY_PORT}"
+    <<: *network
+    logging: *logging
+
+

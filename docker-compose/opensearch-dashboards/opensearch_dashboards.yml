@@ -1,0 +1,83 @@
+# OpenSearch Dashboards Configuration
+# Web UI for visualizing and exploring logs and traces
+
+# Server configuration
+# Host and port for the Dashboards web server
+server.host: '0.0.0.0'
+server.port: 5601
+server.name: 'agentops-dashboards'
+
+# OpenSearch connection configuration
+# URL of the OpenSearch cluster to connect to
+opensearch.hosts: ["https://opensearch:9200"]
+
+# Authentication credentials for OpenSearch
+# These will be overridden by environment variables from docker-compose
+opensearch.username: "${OPENSEARCH_USER}"
+opensearch.password: "${OPENSEARCH_PASSWORD}"
+
+# SSL/TLS configuration
+# Disable certificate verification for development with self-signed certs
+opensearch.ssl.verificationMode: 'none'
+
+# Request timeout for OpenSearch queries (in milliseconds)
+# Increase if working with large datasets
+opensearch.requestTimeout: 30000
+
+# Ping timeout for health checks (in milliseconds)
+opensearch.pingTimeout: 3000
+
+# Security configuration
+# Allow requests from any origin for development
+opensearch.requestHeadersAllowlist: [authorization, securitytenant]
+
+# Multi-tenancy configuration
+# Disabled for simpler development setup
+opensearch_security.multitenancy.enabled: false
+opensearch_security.multitenancy.tenants.preferred: ["Private", "Global"]
+
+# Read-only mode roles
+opensearch_security.readonly_mode.roles: ["kibana_read_only"]
+
+# Logging configuration
+# Controls what gets logged and at what level
+logging:
+  quiet: false
+  verbose: false
+  dest: stdout
+
+# Console settings for Dev Tools
+# Allows direct interaction with OpenSearch API
+console.enabled: true
+
+# Vega visualizations
+# Enable external URLs for Vega visualizations
+vis_type_vega.enableExternalUrls: true
+
+# Advanced settings
+# Maximum payload size for requests (in bytes)
+server.maxPayloadBytes: 1048576
+
+# Compression for responses
+server.compression.enabled: true
+
+# CORS configuration for development
+# Allows requests from any origin - restrict in production!
+server.cors: true
+
+# CSP (Content Security Policy) settings
+# Relaxed for development, should be stricter in production
+csp.strict: false
+csp.warnLegacyBrowsers: false
+
+# Saved objects configuration
+# Maximum number of saved objects to import at once (in bytes)
+savedObjects.maxImportPayloadBytes: 26214400
+
+explore.enabled: true
+workspace.enabled: true
+data_source.enabled: true
+data_source.ssl.verificationMode: none
+explore.discoverTraces.enabled: true
+# explore.discoverMetrics.enabled: true
+datasetManagement.enabled: true

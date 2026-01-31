@@ -1,0 +1,4 @@
+# Empty compose file used as a fallback for optional include directives.
+# nerdctl/Finch compose does not handle empty paths in include sections,
+# so this file serves as a no-op default when optional compose files are disabled.
+services: {}

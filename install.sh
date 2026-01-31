@@ -9,7 +9,7 @@ set -e
 set -o pipefail
 
 # Configuration
-REPO_URL="https://github.com/kylehounslow/agentops.git"
+REPO_URL="https://github.com/opensearch-project/agentops.git"
 TEMP_DIR=$(mktemp -d)
 INSTALL_METHOD="auto"
 CURRENT_STEP=""  # Track current installation step

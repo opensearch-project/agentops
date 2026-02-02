@@ -7,3 +7,6 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Maintainer | GitHub ID | Affiliation |
 |------------|-----------|-------------|
 | Kyle Hounslow | [kylehounslow](https://github.com/kylehounslow) | Amazon |
+| Megha Goyal | [goyamegh](https://github.com/goyamegh) | Amazon |
+| Vamsi Manohar | [vamsimanohar](https://github.com/vamsimanohar) | Amazon |
+| Anirudha (Ani) Jadhav | [anirudha](https://github.com/anirudha) | Amazon |

@@ -12,8 +12,6 @@ AgentOps is a configuration-based repository that provides a quickstart observab
 - Example code for instrumenting agent applications
 - Documentation optimized for both humans and AI assistants
 
-See [TENETS.md](TENETS.md) for guiding principles.
-
 ## Repository Structure
 
 ```

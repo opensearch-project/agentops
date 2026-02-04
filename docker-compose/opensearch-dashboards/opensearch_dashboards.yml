@@ -79,5 +79,4 @@ workspace.enabled: true
 data_source.enabled: true
 data_source.ssl.verificationMode: none
 explore.discoverTraces.enabled: true
-# explore.discoverMetrics.enabled: true
 datasetManagement.enabled: true

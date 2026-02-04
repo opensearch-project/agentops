@@ -280,13 +280,13 @@ configure_installation() {
     
     # Installation directory
     echo -ne "${BOLD}Installation directory${RESET} ${DIM}(default: $DEFAULT_INSTALL_DIR)${RESET}: "
-    read -r install_dir
+    read -r install_dir < /dev/tty
     INSTALL_DIR="${install_dir:-$DEFAULT_INSTALL_DIR}"
     
     # Check if directory exists
     if [ -d "$INSTALL_DIR" ]; then
         echo -ne "${YELLOW}Directory exists. Overwrite?${RESET} ${DIM}(y/N)${RESET}: "
-        read -r overwrite
+        read -r overwrite < /dev/tty
         if [[ ! "$overwrite" =~ ^[Yy]$ ]]; then
             print_error "Installation cancelled"
             exit 0
@@ -296,24 +296,24 @@ configure_installation() {
     
     # Include examples
     echo -ne "${BOLD}Include example services?${RESET} ${DIM}(weather-agent, travel-planner, canary)${RESET} ${DIM}(Y/n)${RESET}: "
-    read -r include_examples
+    read -r include_examples < /dev/tty
     INCLUDE_EXAMPLES="${include_examples:-Y}"
     
     # Include OTel Demo
     echo -ne "${BOLD}Include OpenTelemetry Demo?${RESET} ${DIM}(requires ~2GB additional memory)${RESET} ${DIM}(Y/n)${RESET}: "
-    read -r include_otel_demo
+    read -r include_otel_demo < /dev/tty
     INCLUDE_OTEL_DEMO="${include_otel_demo:-Y}"
     
     # Custom credentials
     echo -ne "${BOLD}Customize OpenSearch credentials?${RESET} ${DIM}(y/N)${RESET}: "
-    read -r custom_creds
+    read -r custom_creds < /dev/tty
     if [[ "$custom_creds" =~ ^[Yy]$ ]]; then
         echo -ne "${BOLD}OpenSearch username${RESET} ${DIM}(default: admin)${RESET}: "
-        read -r opensearch_user
+        read -r opensearch_user < /dev/tty
         OPENSEARCH_USER="${opensearch_user:-admin}"
         
         echo -ne "${BOLD}OpenSearch password${RESET} ${DIM}(default: My_password_123!@#)${RESET}: "
-        read -rs opensearch_password
+        read -rs opensearch_password < /dev/tty
         echo ""
         OPENSEARCH_PASSWORD="${opensearch_password:-My_password_123!@#}"
     else

@@ -85,6 +85,16 @@ By default, the stack includes example services (weather-agent and canary) via `
    docker-compose down -v
    ```
 
+## Development
+
+When making changes to example services or other components, rebuild and restart with:
+
+```bash
+docker compose up -d --build
+```
+
+This rebuilds any modified containers and restarts them with the new changes.
+
 ## Services
 
 ### Core Services

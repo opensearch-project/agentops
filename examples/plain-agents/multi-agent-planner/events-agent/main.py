@@ -4,12 +4,15 @@ Events Agent - Fetches local events for a destination.
 Supports fault injection for testing observability.
 """
 
+import json
 import os
 import random
 import time
 from datetime import datetime
 from typing import Optional
+from uuid import uuid4
 
+import httpx
 from fastapi import FastAPI
 from opentelemetry import trace, metrics
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -21,11 +24,46 @@ from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.trace import SpanKind, Status, StatusCode
 from opentelemetry.instrumentation.asgi import OpenTelemetryMiddleware
+from opentelemetry.propagate import inject
 from pydantic import BaseModel, Field
+
+
+# MCP Server configuration
+MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", "http://mcp-server:8003")
+MCP_PROTOCOL_VERSION = "2025-06-18"
 
 
 AGENT_ID = "events-agent-001"
 AGENT_NAME = "Events Agent"
+
+# Tool definitions for this agent
+TOOL_DEFINITIONS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "fetch_events_api",
+            "description": "Fetch local events from the events database for a destination",
+            "parameters": {"type": "object", "properties": {"destination": {"type": "string"}, "date": {"type": "string"}}, "required": ["destination"]}
+        }
+    }
+]
+
+# Model rotation for realistic traces
+MODELS = [
+    "claude-opus-4.5", "claude-sonnet-4.5", "claude-haiku-4.5", "claude-sonnet-4", "claude-haiku",
+    "gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4o", "gpt-4o-mini", "o4-mini",
+    "gemini-3-flash", "gemini-2.5-pro", "gemini-2.5-flash",
+    "nova-2-pro", "nova-2-lite", "nova-premier", "nova-pro", "nova-lite",
+]
+SYSTEMS = {
+    "claude-opus-4.5": "anthropic", "claude-sonnet-4.5": "anthropic", "claude-haiku-4.5": "anthropic",
+    "claude-sonnet-4": "anthropic", "claude-haiku": "anthropic",
+    "gpt-5": "openai", "gpt-4.1": "openai", "gpt-4.1-mini": "openai",
+    "gpt-4o": "openai", "gpt-4o-mini": "openai", "o4-mini": "openai",
+    "gemini-3-flash": "google", "gemini-2.5-pro": "google", "gemini-2.5-flash": "google",
+    "nova-2-pro": "amazon", "nova-2-lite": "amazon", "nova-premier": "amazon",
+    "nova-pro": "amazon", "nova-lite": "amazon",
+}
 
 SAMPLE_EVENTS = {
     "paris": [
@@ -143,6 +181,8 @@ async def health():
 
 @inner_app.post("/events")
 async def get_events(request: EventsRequest):
+    model = random.choice(MODELS)
+    
     with tracer.start_as_current_span(
         "invoke_agent",
         kind=SpanKind.INTERNAL,
@@ -150,11 +190,24 @@ async def get_events(request: EventsRequest):
             "gen_ai.operation.name": "invoke_agent",
             "gen_ai.agent.id": AGENT_ID,
             "gen_ai.agent.name": AGENT_NAME,
+            "gen_ai.system": SYSTEMS[model],
+            "gen_ai.request.model": model,
+            "gen_ai.tool.definitions": json.dumps(TOOL_DEFINITIONS),
         },
     ) as span:
         destination = request.destination.lower()
         date = request.date or datetime.now().strftime("%Y-%m-%d")
         fault = request.fault
+
+        # Synthetic "thinking" LLM call
+        with tracer.start_as_current_span("chat", kind=SpanKind.INTERNAL) as chat_span:
+            chat_span.set_attribute("gen_ai.operation.name", "chat")
+            chat_span.set_attribute("gen_ai.system", SYSTEMS[model])
+            chat_span.set_attribute("gen_ai.request.model", model)
+            chat_span.set_attribute("gen_ai.usage.input_tokens", random.randint(100, 500))
+            chat_span.set_attribute("gen_ai.usage.output_tokens", random.randint(50, 200))
+            chat_span.set_attribute("gen_ai.response.finish_reasons", ["tool_calls"])
+            time.sleep(random.uniform(0.05, 0.15))
 
         # Check for fault injection
         if should_inject_fault(fault):
@@ -167,7 +220,7 @@ async def get_events(request: EventsRequest):
 
             elif fault.type == "timeout":
                 span.set_status(Status(StatusCode.ERROR, "Tool execution timed out"))
-                time.sleep(30)  # Simulate timeout
+                time.sleep(30)
                 return ErrorResponse(
                     error={"type": "timeout", "message": "Events lookup timed out"},
                     destination=request.destination,
@@ -191,7 +244,6 @@ async def get_events(request: EventsRequest):
                 )
 
             elif fault.type == "wrong_city":
-                # Return events from a different city
                 wrong = fault.wrong_city or random.choice([c for c in SAMPLE_EVENTS.keys() if c != destination])
                 span.set_attribute("fault.wrong_city", wrong)
                 events_data = SAMPLE_EVENTS.get(wrong, SAMPLE_EVENTS["paris"])
@@ -200,26 +252,38 @@ async def get_events(request: EventsRequest):
                 return EventsResponse(destination=request.destination, events=events, agent_id=AGENT_ID)
 
             elif fault.type == "empty":
-                # Return no events
                 return EventsResponse(destination=request.destination, events=[], agent_id=AGENT_ID)
 
-        # Normal execution
+        # Tool execution via MCP server
+        session_id = uuid4().hex
+        request_id = uuid4().hex[:8]
         with tracer.start_as_current_span(
-            "execute_tool",
-            kind=SpanKind.INTERNAL,
+            "tools/call fetch_events_api",
+            kind=SpanKind.CLIENT,
             attributes={
+                "mcp.method.name": "tools/call",
+                "mcp.session.id": session_id,
+                "mcp.protocol.version": MCP_PROTOCOL_VERSION,
+                "jsonrpc.request.id": request_id,
                 "gen_ai.operation.name": "execute_tool",
-                "gen_ai.tool.name": "lookup_events",
-                "gen_ai.request.model": "us.anthropic.claude-sonnet-4-20250514-v1:0",
-                "gen_ai.system": "aws.bedrock",
-                "destination": destination,
+                "gen_ai.tool.name": "fetch_events_api",
+                "network.transport": "tcp",
+                "network.protocol.name": "http",
             },
         ):
-            events_data = SAMPLE_EVENTS.get(destination, SAMPLE_EVENTS["paris"])
-            selected = random.sample(events_data, min(len(events_data), random.randint(1, 3)))
-            events = [Event(name=e["name"], type=e["type"], venue=e["venue"], date=date) for e in selected]
+            headers = {"mcp-session-id": session_id}
+            inject(headers)
+            payload = {
+                "jsonrpc": "2.0", "method": "tools/call", "id": request_id,
+                "params": {"name": "fetch_events_api", "arguments": {"destination": destination}}
+            }
+            resp = httpx.post(f"{MCP_SERVER_URL}/mcp", json=payload, headers=headers, timeout=30)
+            mcp_result = resp.json().get("result", {})
+            events_list = mcp_result.get("events", [])
+            events = [Event(name=e["name"], type=e["type"], venue=e.get("venue", "TBD"), date=e.get("date", date)) for e in events_list]
 
         span.set_attribute("events.count", len(events))
+        
         return EventsResponse(destination=request.destination, events=events, agent_id=AGENT_ID)
 
 

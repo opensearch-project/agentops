@@ -6,6 +6,7 @@ COPY . .
 RUN pip install --no-cache-dir \
     fastapi \
     uvicorn \
+    httpx \
     opentelemetry-api \
     opentelemetry-sdk \
     opentelemetry-exporter-otlp-proto-grpc \

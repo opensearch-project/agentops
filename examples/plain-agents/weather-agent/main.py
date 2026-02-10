@@ -24,10 +24,15 @@ References:
 from dataclasses import dataclass
 import json
 import logging
+import os
 import random
 import time
 from typing import Dict, Any, List, Optional
+from uuid import uuid4
+import httpx
 from opentelemetry import trace, metrics
+from opentelemetry.trace import SpanKind
+from opentelemetry.propagate import inject
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.metrics import MeterProvider
@@ -73,6 +78,24 @@ class FaultConfig:
     delay_ms: int = 0
     probability: float = 1.0
     tool: Optional[str] = None
+
+
+# Model rotation for realistic traces
+MODELS = [
+    "claude-opus-4.5", "claude-sonnet-4.5", "claude-haiku-4.5", "claude-sonnet-4", "claude-haiku",
+    "gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4o", "gpt-4o-mini", "o4-mini",
+    "gemini-3-flash", "gemini-2.5-pro", "gemini-2.5-flash",
+    "nova-2-pro", "nova-2-lite", "nova-premier", "nova-pro", "nova-lite",
+]
+SYSTEMS = {
+    "claude-opus-4.5": "anthropic", "claude-sonnet-4.5": "anthropic", "claude-haiku-4.5": "anthropic",
+    "claude-sonnet-4": "anthropic", "claude-haiku": "anthropic",
+    "gpt-5": "openai", "gpt-4.1": "openai", "gpt-4.1-mini": "openai",
+    "gpt-4o": "openai", "gpt-4o-mini": "openai", "o4-mini": "openai",
+    "gemini-3-flash": "google", "gemini-2.5-pro": "google", "gemini-2.5-flash": "google",
+    "nova-2-pro": "amazon", "nova-2-lite": "amazon", "nova-premier": "amazon",
+    "nova-pro": "amazon", "nova-lite": "amazon",
+}
 
 
 # Configure OpenTelemetry with OTLP exporters
@@ -128,6 +151,11 @@ def setup_telemetry(
     logger = logging.getLogger(__name__)
     
     return tracer, meter, logger
+
+
+# MCP Server configuration
+MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", "http://mcp-server:8003")
+MCP_PROTOCOL_VERSION = "2025-06-18"
 
 
 # Simulated weather tool
@@ -253,7 +281,7 @@ class WeatherAgent:
         self.agent_id = "asst_weather_001"
         self.agent_name = "Weather Assistant"
         self.agent_description = "Helps users get weather information for any location"
-        self.model = "gpt-4"
+        self.model = random.choice(MODELS)  # Rotate model per instance
         
         # Create metrics
         self.token_counter = meter.create_counter(
@@ -351,7 +379,8 @@ class WeatherAgent:
             try:
                 # Required attributes
                 span.set_attribute("gen_ai.operation.name", "invoke_agent")
-                span.set_attribute("gen_ai.provider.name", "openai")
+                span.set_attribute("gen_ai.provider.name", SYSTEMS.get(self.model, "openai"))
+                span.set_attribute("gen_ai.system", SYSTEMS.get(self.model, "openai"))
                 
                 # Conditionally required attributes
                 span.set_attribute("gen_ai.agent.id", self.agent_id)
@@ -560,20 +589,41 @@ class WeatherAgent:
                 span.record_exception(e)
                 raise
     
+    def _call_mcp_tool(self, tool_name: str, arguments: dict, session_id: str) -> dict:
+        """Call MCP server with proper CLIENT span and trace propagation."""
+        request_id = uuid4().hex[:8]
+        with self.tracer.start_as_current_span(
+            f"tools/call {tool_name}",
+            kind=SpanKind.CLIENT,
+            attributes={
+                "mcp.method.name": "tools/call",
+                "mcp.session.id": session_id,
+                "mcp.protocol.version": MCP_PROTOCOL_VERSION,
+                "jsonrpc.request.id": request_id,
+                "gen_ai.operation.name": "execute_tool",
+                "gen_ai.tool.name": tool_name,
+                "network.transport": "tcp",
+                "network.protocol.name": "http",
+            },
+        ):
+            headers = {"mcp-session-id": session_id}
+            inject(headers)  # Propagate trace context
+            payload = {
+                "jsonrpc": "2.0", "method": "tools/call", "id": request_id,
+                "params": {"name": tool_name, "arguments": arguments}
+            }
+            resp = httpx.post(f"{MCP_SERVER_URL}/mcp", json=payload, headers=headers, timeout=30)
+            data = resp.json()
+            if "error" in data:
+                raise ToolExecutionError(data["error"].get("message", "MCP tool error"))
+            return data.get("result", {})
+
     def execute_tool(self, tool_name: str, arguments: Dict[str, Any], tool_call_id: str = None, fault: Optional[FaultConfig] = None) -> Dict[str, Any]:
         """
         Execute a tool with proper instrumentation.
         
         This method creates an execute_tool span following gen-ai semantic conventions.
-        
-        Args:
-            tool_name: Name of the tool to execute
-            arguments: Tool arguments
-            tool_call_id: The tool call identifier from the LLM response
-            fault: Optional fault injection configuration
-        
-        Returns:
-            Tool execution result
+        For weather tools, delegates to MCP server for actual execution.
         """
         # Create execute_tool span with gen-ai semantic conventions
         with self.tracer.start_as_current_span(
@@ -581,93 +631,57 @@ class WeatherAgent:
             kind=trace.SpanKind.INTERNAL
         ) as span:
             try:
-                # Required attribute
                 span.set_attribute("gen_ai.operation.name", "execute_tool")
-                
-                # Recommended attributes
                 span.set_attribute("gen_ai.tool.name", tool_name)
                 span.set_attribute("gen_ai.tool.type", "function")
                 if tool_call_id:
                     span.set_attribute("gen_ai.tool.call.id", tool_call_id)
                 
-                # Find tool description
                 tool_def = next((t for t in self.tools if t["function"]["name"] == tool_name), None)
                 if tool_def:
                     span.set_attribute("gen_ai.tool.description", tool_def["function"]["description"])
-                
-                # Opt-in: Record tool call arguments
                 span.set_attribute("gen_ai.tool.call.arguments", json.dumps(arguments))
                 
-                # Check for tool-specific faults
+                # Check for fault injection
                 if self._should_inject_fault(fault) and fault.type in ("tool_timeout", "tool_error", "high_latency"):
                     target_tool = fault.tool or tool_name
                     if target_tool == tool_name:
                         if fault.delay_ms:
                             time.sleep(fault.delay_ms / 1000)
-                        
                         if fault.type == "tool_timeout":
                             span.set_status(Status(StatusCode.ERROR, "Tool execution timed out"))
-                            span.set_attribute("error.type", "timeout")
                             raise ToolTimeoutError(f"Tool '{tool_name}' timed out after 30000ms")
-                        
                         if fault.type == "tool_error":
                             span.set_status(Status(StatusCode.ERROR, "Tool execution failed"))
-                            span.set_attribute("error.type", "tool_error")
                             raise ToolExecutionError(f"Tool '{tool_name}' failed: External API returned 503")
-                        
-                        # high_latency: delay already applied, continue normally
                 
-                # Log tool execution start
-                self.logger.info(
-                    f"Executing tool: {tool_name}",
-                    extra={
-                        "gen_ai.operation.name": "execute_tool",
-                        "gen_ai.tool.name": tool_name,
-                        "gen_ai.tool.call.id": tool_call_id,
-                        "gen_ai.tool.call.arguments": json.dumps(arguments)
-                    }
-                )
+                self.logger.info(f"Executing tool: {tool_name}")
                 
-                # Execute the actual tool
-                if tool_name == "get_current_weather":
-                    result = get_weather(arguments["location"])
+                # Route to MCP server for weather API calls, local for others
+                session_id = uuid4().hex
+                if tool_name in ("get_current_weather", "get_weather"):
+                    result = self._call_mcp_tool("fetch_weather_api", {"location": arguments["location"]}, session_id)
                 elif tool_name == "get_forecast":
-                    result = get_forecast(arguments["location"], arguments.get("days", 3))
+                    # Local tool - no MCP
+                    with self.tracer.start_as_current_span(f"local_tool {tool_name}", kind=trace.SpanKind.INTERNAL) as local_span:
+                        local_span.set_attribute("gen_ai.tool.name", tool_name)
+                        local_span.set_attribute("tool.source", "local")
+                        result = get_forecast(arguments["location"], arguments.get("days", 3))
                 elif tool_name == "get_historical_weather":
-                    result = get_historical_weather(arguments["location"], arguments.get("date", "2026-01-01"))
-                # Legacy support
-                elif tool_name == "get_weather":
-                    result = get_weather(arguments["location"])
+                    # Local tool - no MCP
+                    with self.tracer.start_as_current_span(f"local_tool {tool_name}", kind=trace.SpanKind.INTERNAL) as local_span:
+                        local_span.set_attribute("gen_ai.tool.name", tool_name)
+                        local_span.set_attribute("tool.source", "local")
+                        result = get_historical_weather(arguments["location"], arguments.get("date", "2026-01-01"))
                 else:
                     raise ValueError(f"Unknown tool: {tool_name}")
                 
-                # Opt-in: Record tool call result
                 span.set_attribute("gen_ai.tool.call.result", json.dumps(result))
-                
-                # Log tool execution completion
-                self.logger.info(
-                    f"Tool execution completed: {tool_name}",
-                    extra={
-                        "gen_ai.operation.name": "execute_tool",
-                        "gen_ai.tool.name": tool_name,
-                        "gen_ai.tool.call.id": tool_call_id,
-                        "gen_ai.tool.call.result": json.dumps(result)
-                    }
-                )
-                
                 span.set_status(Status(StatusCode.OK))
                 return result
                 
             except Exception as e:
-                # Log error
-                self.logger.error(
-                    f"Tool execution failed: {tool_name} - {str(e)}",
-                    extra={
-                        "gen_ai.operation.name": "execute_tool",
-                        "gen_ai.tool.name": tool_name,
-                        "error": str(e)
-                    }
-                )
+                self.logger.error(f"Tool execution failed: {tool_name} - {str(e)}")
                 span.set_attribute("error.type", type(e).__name__)
                 span.set_status(Status(StatusCode.ERROR, str(e)))
                 span.record_exception(e)

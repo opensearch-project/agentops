@@ -29,6 +29,7 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib:${OTEL_COLLECTOR_VERSION}
     container_name: otel-collector
+    pull_policy: always
     command: ["--config=/etc/otelcol-config.yml"]
     volumes:
       - ./docker-compose/otel-collector/config.yaml:/etc/otelcol-config.yml
@@ -62,6 +63,7 @@ services:
   data-prepper:
     image: opensearchproject/data-prepper:${DATA_PREPPER_VERSION}
     container_name: data-prepper
+    pull_policy: always
     platform: linux/amd64
     volumes:
       - ./docker-compose/data-prepper/pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
@@ -92,6 +94,7 @@ services:
   opensearch:
     image: ${OPENSEARCH_DOCKER_REPO}/opensearch:${OPENSEARCH_VERSION}
     container_name: opensearch
+    pull_policy: always
     environment:
       # Single-node cluster for development
       - cluster.name=agentops-cluster
@@ -137,6 +140,7 @@ services:
   prometheus:
     image: prom/prometheus:${PROMETHEUS_VERSION}
     container_name: prometheus
+    pull_policy: always
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -170,6 +174,7 @@ services:
   opensearch-dashboards:
     image: ${OPENSEARCH_DOCKER_REPO}/opensearch-dashboards:${OPENSEARCH_DASHBOARDS_VERSION}
     container_name: opensearch-dashboards
+    pull_policy: always
     environment:
       - OPENSEARCH_HOSTS=["https://${OPENSEARCH_HOST}:${OPENSEARCH_PORT}"]
       - OPENSEARCH_DASHBOARD_PORT=${OPENSEARCH_DASHBOARDS_PORT}

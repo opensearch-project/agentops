@@ -382,6 +382,16 @@ Track progress: [OpenSearch 3.5.0 Release](https://github.com/opensearch-project
 - [examples/](examples/) - Language-specific instrumentation examples
 - [docs/](docs/) - Additional documentation and guides
 
+## Development
+
+When making changes to example services or other components, rebuild and restart with:
+
+```bash
+docker compose up -d --build
+```
+
+This rebuilds any modified containers and restarts them with the new changes.
+
 ## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:

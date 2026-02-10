@@ -29,8 +29,10 @@ services:
     environment:
       # Override OTLP endpoint to use docker network
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
+      - MCP_SERVER_URL=http://mcp-server:8003
     depends_on:
       - otel-collector
+      - example-mcp-server
     networks:
       - agentops-network
     restart: unless-stopped
@@ -72,10 +74,33 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
       - WEATHER_AGENT_URL=http://weather-agent:8000
       - EVENTS_AGENT_URL=http://events-agent:8002
+      - MCP_SERVER_URL=http://mcp-server:8003
     depends_on:
       - otel-collector
       - example-weather-agent
       - example-events-agent
+      - example-mcp-server
+    networks:
+      - agentops-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    logging: *logging
+
+  # Multi-Agent Planner: MCP Server (Mock MCP tool server)
+  example-mcp-server:
+    build:
+      context: ./examples/plain-agents/multi-agent-planner/mcp-server
+      dockerfile: Dockerfile
+    container_name: mcp-server
+    ports:
+      - "8004:8003"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
+    depends_on:
+      - otel-collector
     networks:
       - agentops-network
     restart: unless-stopped
@@ -95,8 +120,10 @@ services:
       - "8002:8002"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
+      - MCP_SERVER_URL=http://mcp-server:8003
     depends_on:
       - otel-collector
+      - example-mcp-server
     networks:
       - agentops-network
     restart: unless-stopped

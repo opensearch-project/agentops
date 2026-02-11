@@ -1,6 +1,6 @@
 # Plain Python Agent Examples
 
-This directory contains plain Python agent examples with OpenTelemetry instrumentation for the AgentOps observability stack.
+This directory contains plain Python agent examples with OpenTelemetry instrumentation for the Observability Stack.
 
 ## Examples
 
@@ -29,11 +29,11 @@ A standalone weather assistant demonstrating full Gen-AI semantic convention cov
 
 - Python 3.9 or higher
 - [uv](https://docs.astral.sh/uv/) package manager
-- AgentOps stack running (see root [README](../../README.md))
+- Observability Stack running (see root [README](../../README.md))
 
 ## Quick Start
 
-1. Start the AgentOps stack (includes all examples by default):
+1. Start the Observability Stack (includes all examples by default):
 ```bash
 docker compose up -d
 ```
@@ -52,4 +52,4 @@ uv run python main.py
 
 - [OpenTelemetry Python Documentation](https://opentelemetry.io/docs/languages/python/)
 - [Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)
-- [AgentOps Documentation](../../README.md)
+- [Observability Stack Documentation](../../README.md)

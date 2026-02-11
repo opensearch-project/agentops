@@ -12,7 +12,7 @@ Collection of saved queries that are automatically created during initialization
 
 ### `init/init-opensearch-dashboards.py`
 Python script that runs once during stack startup to:
-- Create the AgentOps workspace
+- Create the Observability Stack workspace
 - Create index patterns for logs, traces, and service maps
 - Set up APM correlation between traces and logs
 - Create Prometheus and OpenSearch datasources

@@ -1,4 +1,4 @@
-# AgentOps Example Services
+# Observability Stack Example Services
 # Docker Compose configuration for example instrumented agents
 # 
 # ⚠️  This is NOT a standalone Docker Compose file!
@@ -34,7 +34,7 @@ services:
       - otel-collector
       - example-mcp-server
     networks:
-      - agentops-network
+      - observability-stack-network
     restart: unless-stopped
     deploy:
       resources:
@@ -54,7 +54,7 @@ services:
     depends_on:
       - example-travel-planner
     networks:
-      - agentops-network
+      - observability-stack-network
     restart: unless-stopped
     deploy:
       resources:
@@ -102,7 +102,7 @@ services:
     depends_on:
       - otel-collector
     networks:
-      - agentops-network
+      - observability-stack-network
     restart: unless-stopped
     deploy:
       resources:
@@ -125,7 +125,7 @@ services:
       - otel-collector
       - example-mcp-server
     networks:
-      - agentops-network
+      - observability-stack-network
     restart: unless-stopped
     deploy:
       resources:

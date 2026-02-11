@@ -1,10 +1,10 @@
 # AGENTS.md - AI-Optimized Repository Documentation
 
-This document provides structured information about the AgentOps repository specifically designed for AI coding assistants. It explains the repository structure, conventions, and common development tasks to enable efficient code generation and modification.
+This document provides structured information about the Observability Stack repository specifically designed for AI coding assistants. It explains the repository structure, conventions, and common development tasks to enable efficient code generation and modification.
 
 ## Repository Purpose
 
-AgentOps is a configuration-based repository that provides a quickstart observability stack for AI agent development. The repository contains:
+Observability Stack is a configuration-based repository that provides a quickstart observability stack for AI agent development. The repository contains:
 
 - Docker Compose configurations for local deployment
 - Helm charts for Kubernetes deployment
@@ -15,7 +15,7 @@ AgentOps is a configuration-based repository that provides a quickstart observab
 ## Repository Structure
 
 ```
-agentops/
+observability-stack/
 ├── docker-compose.yml           # Main Docker Compose service definitions
 ├── docker-compose.examples.yml  # Example services (included via .env)
 ├── .env                         # Environment variables for Docker Compose
@@ -35,7 +35,7 @@ agentops/
 │       ├── Dockerfile
 │       └── canary.py
 ├── helm/                        # Kubernetes Helm charts
-│   └── agentops/                # Main Helm chart
+│   └── observability-stack/                # Main Helm chart
 │       ├── Chart.yaml           # Chart metadata
 │       ├── values.yaml          # Configurable parameters
 │       └── templates/           # Kubernetes resource templates
@@ -98,7 +98,7 @@ global:
   scrape_timeout: 10s
   evaluation_interval: 60s
   external_labels:
-    cluster: 'agentops-dev'
+    cluster: 'observability-stack-dev'
     environment: 'development'
 
 # OTLP configuration for receiving metrics
@@ -137,7 +137,7 @@ scrape_configs:
 - Configured out-of-order time window for handling delayed metrics
 - Simplified scrape configuration
 
-### helm/agentops/
+### helm/observability-stack/
 
 Contains Kubernetes Helm chart for production-like deployments.
 
@@ -166,7 +166,7 @@ Contains working code examples for instrumenting agent applications with OpenTel
 Contains context-specific guidance for AI coding assistants. These files are automatically included when relevant files are in context.
 
 **Steering Files**:
-- `agentops-development.md`: Always included, explains AgentOps conventions
+- `observability-stack-development.md`: Always included, explains Observability Stack conventions
 - `docker-compose-patterns.md`: Included when editing docker-compose files
 - `helm-chart-patterns.md`: Included when editing Helm charts
 - `observability-patterns.md`: Always included, explains OpenTelemetry patterns
@@ -246,7 +246,7 @@ service-name:
     dependency-service:
       condition: service_healthy  # Wait for health check
   networks:
-    - agentops-network
+    - observability-stack-network
   restart: unless-stopped
   deploy:
     resources:
@@ -441,8 +441,8 @@ opensearch:
   image: opensearchproject/opensearch:3.4.0
   container_name: opensearch
   environment:
-    - cluster.name=agentops-cluster
-    - node.name=agentops-node
+    - cluster.name=observability-stack-cluster
+    - node.name=observability-stack-node
     - discovery.type=single-node
     - bootstrap.memory_lock=true
     - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -647,7 +647,7 @@ new-service:
   depends_on:
     - existing-service
   networks:
-    - agentops-network
+    - observability-stack-network
 ```
 
 2. Create configuration directory: `mkdir -p docker-compose/new-service`
@@ -794,17 +794,17 @@ docker compose up -d --build canary
 
 1. Validate chart syntax:
 ```bash
-helm lint helm/agentops
+helm lint helm/observability-stack
 ```
 
 2. Render templates locally:
 ```bash
-helm template agentops helm/agentops
+helm template observability-stack helm/observability-stack
 ```
 
 3. Deploy to test cluster:
 ```bash
-helm install agentops-test helm/agentops
+helm install observability-stack-test helm/observability-stack
 ```
 
 4. Verify pods:
@@ -815,7 +815,7 @@ kubectl logs <pod-name>
 
 5. Clean up:
 ```bash
-helm uninstall agentops-test
+helm uninstall observability-stack-test
 ```
 
 ## Code Style Guidelines
@@ -952,4 +952,4 @@ Always document security implications of configuration changes.
 
 ---
 
-This document is maintained to help AI coding assistants understand and work effectively with the AgentOps repository. When in doubt, prioritize clarity, consistency, and comprehensive documentation.
+This document is maintained to help AI coding assistants understand and work effectively with the Observability Stack repository. When in doubt, prioritize clarity, consistency, and comprehensive documentation.

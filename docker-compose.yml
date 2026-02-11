@@ -1,4 +1,4 @@
-# AgentOps
+# Observability Stack
 # Docker Compose configuration for local development
 # WARNING: This configuration is for development/testing only - not production-ready
 
@@ -14,8 +14,8 @@ x-default-logging: &logging
     tag: "{{.Name}}"
 
 networks:
-  agentops-network:
-    name: agentops-network
+  observability-stack-network:
+    name: observability-stack-network
     driver: bridge
 
 volumes:
@@ -41,7 +41,7 @@ services:
       # Metrics endpoint for collector self-monitoring
       - "${OTEL_COLLECTOR_METRICS_PORT}:8888"
     networks:
-      - agentops-network
+      - observability-stack-network
     restart: unless-stopped
     deploy:
       resources:
@@ -82,7 +82,7 @@ services:
       opensearch:
         condition: service_healthy
     networks:
-      - agentops-network
+      - observability-stack-network
     restart: unless-stopped
     deploy:
       resources:
@@ -97,8 +97,8 @@ services:
     pull_policy: always
     environment:
       # Single-node cluster for development
-      - cluster.name=agentops-cluster
-      - node.name=agentops-node
+      - cluster.name=observability-stack-cluster
+      - node.name=observability-stack-node
       - discovery.type=single-node
       - bootstrap.memory_lock=true
       # Set heap size (adjust based on available memory)
@@ -115,7 +115,7 @@ services:
       # Performance analyzer
       - "9600:9600"
     networks:
-      - agentops-network
+      - observability-stack-network
     restart: unless-stopped
     deploy:
       resources:
@@ -162,7 +162,7 @@ services:
       # Web UI and API endpoint
       - "${PROMETHEUS_PORT}:9090"
     networks:
-      - agentops-network
+      - observability-stack-network
     restart: unless-stopped
     deploy:
       resources:
@@ -189,7 +189,7 @@ services:
       opensearch:
         condition: service_healthy
     networks:
-      - agentops-network
+      - observability-stack-network
     restart: unless-stopped
     deploy:
       resources:
@@ -220,6 +220,6 @@ services:
       - ./docker-compose/opensearch-dashboards/saved-queries-traces.yaml:/config/saved-queries-traces.yaml
       - ./docker-compose/opensearch-dashboards/saved-queries-metrics.yaml:/config/saved-queries-metrics.yaml
     networks:
-      - agentops-network
+      - observability-stack-network
     restart: "no"
     logging: *logging

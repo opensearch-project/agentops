@@ -29,7 +29,7 @@ def wait_for_dashboards():
         time.sleep(5)
 
 def get_existing_workspace():
-    """Check if AgentOps workspace already exists"""
+    """Check if Observability Stack workspace already exists"""
     try:
         response = requests.post(
             f"{BASE_URL}/api/workspaces/_list",
@@ -45,7 +45,7 @@ def get_existing_workspace():
             if result.get("success"):
                 workspaces = result.get("result", {}).get("workspaces", [])
                 for workspace in workspaces:
-                    if workspace.get("name") == "AgentOps Observability":
+                    if workspace.get("name") == "Observability Stack":
                         return workspace.get("id")
         elif response.status_code == 404:
             print("⚠️  Workspace API not available - workspaces may not be supported in this version")
@@ -55,12 +55,12 @@ def get_existing_workspace():
     return None
 
 def create_workspace():
-    """Create new AgentOps workspace"""
-    print("🏗️  Creating AgentOps workspace...")
+    """Create new Observability Stack workspace"""
+    print("🏗️  Creating Observability Stack workspace...")
 
     payload = {
         "attributes": {
-            "name": "AgentOps Observability",
+            "name": "Observability Stack",
             "description": "AI Agent observability workspace with logs, traces, and metrics",
             "features": ["use-case-observability"]
         }
@@ -212,7 +212,7 @@ def get_existing_prometheus_datasource(datasource_name):
 
 def create_prometheus_datasource(workspace_id):
     """Create Prometheus datasource using direct query API"""
-    datasource_name = "AgentOps_Prometheus"
+    datasource_name = "ObservabilityStack_Prometheus"
 
     # Check if datasource already exists
     existing_id = get_existing_prometheus_datasource(datasource_name)
@@ -932,7 +932,7 @@ def main():
     workspace_id = get_existing_workspace()
 
     if workspace_id:
-        print("✅ AgentOps workspace already exists")
+        print("✅ Observability Stack workspace already exists")
     else:
         workspace_id = create_workspace()
 
@@ -969,7 +969,7 @@ def main():
 
     # Output summary
     print()
-    print("🎉 AgentOps Stack Ready!")
+    print("🎉 Observability Stack Ready!")
     print(f"👤 Username: {USERNAME}")
     print(f"🔑 Password: {PASSWORD}")
 

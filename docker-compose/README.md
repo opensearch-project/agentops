@@ -1,6 +1,6 @@
-# AgentOps Docker Compose Deployment
+# Observability Stack Docker Compose Deployment
 
-This directory contains the Docker Compose configuration for running the AgentOps observability stack locally.
+This directory contains the Docker Compose configuration for running the Observability Stack locally.
 
 ## Directory Structure
 

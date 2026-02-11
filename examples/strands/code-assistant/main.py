@@ -45,7 +45,7 @@ os.environ["STRANDS_TOOL_CONSOLE_MODE"] = "enabled"
 # - Model inference calls (gen_ai.operation.name = "chat")
 telemetry = StrandsTelemetry()
 
-# Configure OTLP gRPC exporter to send traces to AgentOps stack
+# Configure OTLP gRPC exporter to send traces to Observability Stack
 # The exporter sends telemetry data to the OpenTelemetry Collector
 # running at localhost:4317 (default OTLP gRPC port)
 #
@@ -161,7 +161,7 @@ if __name__ == "__main__":
         "a,b=0,1; for _ in range(n): a,b=b,a+b; return a"
     )
     print("  - Create a Python script that sorts a list")
-    print("\n📊 Telemetry: All operations are traced to AgentOps stack")
+    print("\n📊 Telemetry: All operations are traced to Observability Stack")
     print("   View traces at: http://localhost:5601 (OpenSearch Dashboards)")
 
     # Interactive loop - each agent invocation creates telemetry spans

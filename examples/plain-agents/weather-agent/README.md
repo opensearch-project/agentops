@@ -1,6 +1,6 @@
 # Weather Agent - Plain Python Example
 
-This example demonstrates how to instrument a plain Python AI agent with OpenTelemetry to send telemetry data to the AgentOps observability stack, including fault injection for debugging scenarios.
+This example demonstrates how to instrument a plain Python AI agent with OpenTelemetry to send telemetry data to the Observability Stack, including fault injection for debugging scenarios.
 
 ## Features
 
@@ -64,7 +64,7 @@ curl -X POST http://localhost:8000/invoke \
 
 ## Quick Start
 
-1. Make sure the AgentOps stack is running:
+1. Make sure the Observability Stack is running:
 ```bash
 cd ../../../
 docker compose up -d
@@ -117,4 +117,4 @@ docker compose up -d example-weather-agent
 
 - [OpenTelemetry Gen-AI Semantic Conventions](https://github.com/open-telemetry/semantic-conventions/tree/main/docs/gen-ai)
 - [Fault Injection Design](../../../docs/fault-injection-design.md)
-- [AgentOps Documentation](../../../README.md)
+- [Observability Stack Documentation](../../../README.md)

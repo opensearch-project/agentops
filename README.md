@@ -1,8 +1,7 @@
-# 🔭 AgentOps
+# 🔭 Observability Stack
 
-AgentOps is an open-source observability stack designed for modern distributed systems. Built on OpenTelemetry, OpenSearch, and Prometheus, AgentOps provides a complete, pre-configured infrastructure for monitoring microservices, web applications, and AI agents—with first-class support for agent observability through [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/).
+Observability Stack is an open-source observability stack designed for modern distributed systems. Built on OpenTelemetry, OpenSearch, and Prometheus, Observability Stack provides a complete, pre-configured infrastructure for monitoring microservices, web applications, and AI agents—with first-class support for agent observability through [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/).
 
-![](./docs/agentops-arch-compose.excalidraw.png)
 
 ## Components
 
@@ -19,7 +18,7 @@ AgentOps is an open-source observability stack designed for modern distributed s
 Use our interactive installer for the best experience:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/opensearch-project/agentops/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/opensearch-project/observability-stack/main/install.sh | bash
 ```
 
 The installer will:
@@ -42,8 +41,8 @@ To get started manually with Docker Compose:
 
 ### 1️⃣ Clone the repository:
 ```bash
-git clone https://github.com/opensearch-project/agentops.git
-cd agentops
+git clone https://github.com/opensearch-project/observability-stack.git
+cd observability-stack
 ```
 
 ### **Optional**: Configure stack
@@ -82,7 +81,7 @@ docker compose down -v
 
 ## Instrumenting Your Agent
 
-AgentOps accepts telemetry data via the OpenTelemetry Protocol (OTLP) and follows the [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) for standardized attribute naming and structure for AI agents. 
+Observability Stack accepts telemetry data via the OpenTelemetry Protocol (OTLP) and follows the [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) for standardized attribute naming and structure for AI agents. 
 
 ### Example: Manual Instrumentation with OpenTelemetry  
 For complete example, see [examples/plain-agents/weather-agent](./examples/plain-agents/weather-agent)  
@@ -194,7 +193,7 @@ INCLUDE_COMPOSE_EXAMPLES=docker-compose.examples.yml
 
 ### Running with OpenTelemetry Demo
 
-AgentOps can run alongside the [OpenTelemetry Demo](https://opentelemetry.io/docs/demo/) application, a full microservices e-commerce app that generates realistic telemetry data.
+Observability Stack can run alongside the [OpenTelemetry Demo](https://opentelemetry.io/docs/demo/) application, a full microservices e-commerce app that generates realistic telemetry data.
 
 **To enable OpenTelemetry Demo**, uncomment in `.env`:
 ```env
@@ -248,10 +247,10 @@ To change the OpenSearch username and password:
 
 | Configuration | Memory Usage | Recommended Minimum |
 |---------------|--------------|---------------------|
-| Core AgentOps only | ~1.1 GB | 4 GB RAM |
+| Core stack only | ~1.1 GB | 4 GB RAM |
 | Core + OTel Demo | ~3.0 GB | 8 GB RAM |
 
-**Core AgentOps services** (~1.1 GB total):
+**Core services** (~1.1 GB total):
 - OpenSearch: ~1.6 GB
 - Data Prepper: ~650 MB
 - OpenSearch Dashboards: ~230 MB
@@ -274,7 +273,7 @@ finch stats --no-stream
 
 ## Production Readiness
 
-⚠️ **AgentOps is NOT production-ready out of the box.** The default configuration prioritizes ease of use for development and testing. Before deploying to production, you must address the following:
+⚠️ **Observability Stack is NOT production-ready out of the box.** The default configuration prioritizes ease of use for development and testing. Before deploying to production, you must address the following:
 
 ### Security Hardening Required
 
@@ -347,7 +346,7 @@ Adjust resource limits in docker-compose.yml or values.yaml for Helm.
 
 If `docker compose down` fails with an error like:
 ```
-failed to remove network agentops-network: Error response from daemon: error while removing network: network agentops-network id ab129adaabcd7ab35cddb1fbe8dc2a68b3c730b9fb9384c5c1e7f5ca015c27d9 has active endpoints
+failed to remove network observability-stack-network: Error response from daemon: error while removing network: network observability-stack-network id ab129adaabcd7ab35cddb1fbe8dc2a68b3c730b9fb9384c5c1e7f5ca015c27d9 has active endpoints
 ```
 
 This typically occurs when containers from other compose files are still running. Try:
@@ -357,7 +356,7 @@ docker compose down --remove-orphans
 
 Or stop all containers using the network first:
 ```bash
-docker network inspect agentops-network --format '{{range .Containers}}{{.Name}} {{end}}' | xargs -r docker stop
+docker network inspect observability-stack-network --format '{{range .Containers}}{{.Name}} {{end}}' | xargs -r docker stop
 docker compose down
 ```
 
@@ -407,13 +406,13 @@ This project is licensed under the Apache License 2.0 - see the LICENSE file for
 
 ## Support
 
-- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/opensearch-project/agentops/issues)
-- **Discussions**: Ask questions in [GitHub Discussions](https://github.com/opensearch-project/agentops/discussions)
+- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/opensearch-project/observability-stack/issues)
+- **Discussions**: Ask questions in [GitHub Discussions](https://github.com/opensearch-project/observability-stack/discussions)
 - **Documentation**: See the [docs/](docs/) directory
 
 ## Acknowledgments
 
-AgentOps is built on top of excellent open-source projects:
+Observability Stack is built on top of excellent open-source projects:
 
 - [OpenTelemetry](https://opentelemetry.io/)
 - [OpenSearch](https://opensearch.org/)
@@ -422,4 +421,4 @@ AgentOps is built on top of excellent open-source projects:
 
 ---
 
-**Remember**: AgentOps is for development and testing. Harden security and operations before production use.
+**Remember**: Observability Stack is for development and testing. Harden security and operations before production use.

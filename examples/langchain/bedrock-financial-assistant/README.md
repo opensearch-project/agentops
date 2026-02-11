@@ -1,12 +1,12 @@
 # LangChain Bedrock Agent - OpenTelemetry Instrumentation Example
 
-This example demonstrates how to instrument a LangChain agent application with OpenTelemetry to send telemetry data to the AgentOps observability stack using OTLP protocol.
+This example demonstrates how to instrument a LangChain agent application with OpenTelemetry to send telemetry data to the Observability Stack using OTLP protocol.
 
 ## Features
 
 - **LangChain Instrumentation**: Uses `opentelemetry-instrumentation-langchain` for automatic tracing
 - **AWS Bedrock Integration**: Claude Sonnet 4 model with tool calling
-- **OTLP Export**: Sends traces to AgentOps stack via gRPC
+- **OTLP Export**: Sends traces to Observability Stack via gRPC
 - **Gen-AI Semantic Conventions**: Captures LLM operations with standardized attributes
 - **Tool Execution Tracing**: Automatic instrumentation of tool calls
 
@@ -23,7 +23,7 @@ User Query → LangChain Agent → AWS Bedrock (Claude)
                    ↓
           OTLP gRPC Exporter
                    ↓
-        AgentOps Stack (localhost:4317)
+        Observability Stack (localhost:4317)
 ```
 
 ## How It Works
@@ -33,7 +33,7 @@ The instrumentation works by:
 1. **LangChainInstrumentor** wraps LangChain's `BaseCallbackManager.__init__`
 2. Injects `OpenTelemetryLangChainCallbackHandler` into all LLM calls
 3. Callback handler creates spans for LLM operations with Gen-AI attributes
-4. Spans are batched and exported via OTLP to the AgentOps observability stack
+4. Spans are batched and exported via OTLP to the Observability Stack
 
 ## Telemetry Captured
 
@@ -52,7 +52,7 @@ The instrumentation works by:
 
 ## Prerequisites
 
-1. **AgentOps Stack Running**: Ensure the AgentOps observability stack is running
+1. **Observability Stack Running**: Ensure the Observability Stack is running
    ```bash
    cd ../../docker-compose
    docker compose up -d
@@ -202,7 +202,7 @@ LangChainInstrumentor().uninstrument()
 
 ### No traces appearing
 
-1. Check AgentOps stack is running: `docker-compose ps`
+1. Check Observability Stack is running: `docker-compose ps`
 2. Verify OTLP collector is accessible: `curl http://localhost:4317`
 3. Check for errors in console output
 

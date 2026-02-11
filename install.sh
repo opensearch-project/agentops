@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 #
-# AgentOps Installer
+# Observability Stack Installer
 # Downloads and runs the interactive TUI installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/opensearch-project/agentops/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/opensearch-project/observability-stack/main/install.sh | bash
 #
 
 set -e
 set -o pipefail
 
 # Configuration
-REPO_URL="https://github.com/kylehounslow/agentops.git"
+REPO_URL="https://github.com/opensearch-project/observability-stack.git"
 TEMP_DIR=$(mktemp -d)
 INSTALL_METHOD="auto"
 CURRENT_STEP=""  # Track current installation step
@@ -28,7 +28,7 @@ cleanup() {
             echo "Saving installation logs to: $log_file"
             
             {
-                echo "=== AgentOps Installation Error Log ==="
+                echo "=== Observability Stack Installation Error Log ==="
                 echo "Date: $(date)"
                 echo "Installation Directory: $INSTALL_DIR"
                 echo "Container Runtime: $CONTAINER_RUNTIME"
@@ -78,9 +78,9 @@ cleanup() {
             echo "  1. Check logs: cat $log_file"
             echo "  2. Verify Docker is running: docker info"
             echo "  3. Check disk space: df -h"
-            echo "  4. Visit: https://github.com/opensearch-project/agentops/issues"
+            echo "  4. Visit: https://github.com/opensearch-project/observability-stack/issues"
         else
-            print_info "For help, visit: https://github.com/opensearch-project/agentops/issues"
+            print_info "For help, visit: https://github.com/opensearch-project/observability-stack/issues"
         fi
     fi
     
@@ -136,13 +136,13 @@ ARROW="→"
 STAR="★"
 
 # Configuration
-DEFAULT_INSTALL_DIR="agentops"
+DEFAULT_INSTALL_DIR="observability-stack"
 
 # Print functions
 print_header() {
     echo -e "\n${CYAN}${BOLD}╔════════════════════════════════════════════════════════════╗${RESET}"
     echo -e "${CYAN}${BOLD}║                                                            ║${RESET}"
-    echo -e "${CYAN}${BOLD}║              🔭 AgentOps Installer v0.1                    ║${RESET}"
+    echo -e "${CYAN}${BOLD}║              🔭 Observability Stack Installer v0.1                    ║${RESET}"
     echo -e "${CYAN}${BOLD}║                                                            ║${RESET}"
     echo -e "${CYAN}${BOLD}║            Open-source Agent Observability                 ║${RESET}"
     echo -e "${CYAN}${BOLD}║                                                            ║${RESET}"
@@ -327,7 +327,7 @@ configure_installation() {
 # Clone repository
 clone_repository() {
     CURRENT_STEP="Cloning repository"
-    print_step "Cloning AgentOps repository..."
+    print_step "Cloning Observability Stack repository..."
     
     # Convert to absolute path
     if [[ "$INSTALL_DIR" != /* ]]; then
@@ -465,9 +465,9 @@ EOF
     local images=()
     if [ "$CONTAINER_RUNTIME" = "docker" ]; then
         # Get all images from compose config, excluding those with 'build' directive
-        images=($(docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^agentops-' | sort -u))
+        images=($(docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^observability-stack-' | sort -u))
     else
-        images=($(finch compose config | grep 'image:' | awk '{print $2}' | grep -v '^agentops-' | sort -u))
+        images=($(finch compose config | grep 'image:' | awk '{print $2}' | grep -v '^observability-stack-' | sort -u))
     fi
     
     local total=${#images[@]}
@@ -586,7 +586,7 @@ EOF
 
 # Start services
 start_services() {
-    print_step "Starting AgentOps services..."
+    print_step "Starting Observability Stack services..."
     echo ""
     
     cd "$INSTALL_DIR"
@@ -699,7 +699,7 @@ print_summary() {
     echo -e "  3. Read ${CYAN}$INSTALL_DIR/README.md${RESET} for detailed documentation"
     
     echo ""
-    echo -e "${DIM}For support, visit: https://github.com/opensearch-project/agentops${RESET}"
+    echo -e "${DIM}For support, visit: https://github.com/opensearch-project/observability-stack${RESET}"
     echo ""
 }
 
@@ -733,13 +733,13 @@ main() {
 run_tui_installer() {
     print_step "Downloading TUI installer..."
     
-    if ! git clone --depth 1 "$REPO_URL" "$TEMP_DIR/agentops" >/dev/null 2>&1; then
+    if ! git clone --depth 1 "$REPO_URL" "$TEMP_DIR/observability-stack" >/dev/null 2>&1; then
         print_error "Failed to clone repository"
         exit 1
     fi
     
     # Check if installer directory exists
-    if [ ! -d "$TEMP_DIR/agentops/installer" ]; then
+    if [ ! -d "$TEMP_DIR/observability-stack/installer" ]; then
         print_warning "TUI installer not available yet, falling back to manual installation"
         echo ""
         INSTALL_METHOD="manual"
@@ -748,7 +748,7 @@ run_tui_installer() {
     fi
     
     print_step "Installing dependencies..."
-    if ! (cd "$TEMP_DIR/agentops/installer" && npm install --silent >/dev/null 2>&1); then
+    if ! (cd "$TEMP_DIR/observability-stack/installer" && npm install --silent >/dev/null 2>&1); then
         print_error "Failed to install dependencies"
         print_warning "Falling back to manual installation"
         echo ""
@@ -758,7 +758,7 @@ run_tui_installer() {
     fi
     
     print_step "Launching TUI..."
-    cd "$TEMP_DIR/agentops/installer" && npm run dev
+    cd "$TEMP_DIR/observability-stack/installer" && npm run dev
 }
 
 # Run manual installer (original bash script logic)

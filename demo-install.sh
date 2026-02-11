@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# AgentOps Installer Demo
+# Observability Stack Installer Demo
 # Shows what the installer looks like without actually installing
 #
 
@@ -25,7 +25,7 @@ clear
 
 echo -e "\n${CYAN}${BOLD}╔════════════════════════════════════════════════════════════╗${RESET}"
 echo -e "${CYAN}${BOLD}║                                                            ║${RESET}"
-echo -e "${CYAN}${BOLD}║              🔭 AgentOps Installer v0.1                    ║${RESET}"
+echo -e "${CYAN}${BOLD}║              🔭 Observability Stack Installer v0.1                    ║${RESET}"
 echo -e "${CYAN}${BOLD}║                                                            ║${RESET}"
 echo -e "${CYAN}${BOLD}║            Open-source Agent Observability                 ║${RESET}"
 echo -e "${CYAN}${BOLD}║                                                            ║${RESET}"
@@ -48,7 +48,7 @@ echo ""
 echo -e "${BLUE}${BOLD}${ARROW}${RESET} ${BOLD}Configuration${RESET}"
 echo ""
 sleep 0.5
-echo -e "${BOLD}Installation directory${RESET} ${DIM}(default: agentops)${RESET}: agentops"
+echo -e "${BOLD}Installation directory${RESET} ${DIM}(default: observability-stack)${RESET}: observability-stack"
 sleep 0.5
 echo -e "${BOLD}Include example services?${RESET} ${DIM}(Y/n)${RESET}: Y"
 sleep 0.5
@@ -58,9 +58,9 @@ echo -e "${BOLD}Customize OpenSearch credentials?${RESET} ${DIM}(y/N)${RESET}: N
 sleep 0.5
 
 echo ""
-echo -e "${BLUE}${BOLD}${ARROW}${RESET} ${BOLD}Cloning AgentOps repository...${RESET}"
+echo -e "${BLUE}${BOLD}${ARROW}${RESET} ${BOLD}Cloning Observability Stack repository...${RESET}"
 sleep 1
-echo -e "${GREEN}${CHECK}${RESET} Repository cloned to agentops"
+echo -e "${GREEN}${CHECK}${RESET} Repository cloned to observability-stack"
 sleep 0.5
 
 echo ""
@@ -116,14 +116,14 @@ echo -e "${GREEN}${CHECK}${RESET} Images ready: 6 pulled, 0 cached"
 sleep 0.5
 
 echo ""
-echo -e "${BLUE}${BOLD}${ARROW}${RESET} ${BOLD}Starting AgentOps services...${RESET}"
+echo -e "${BLUE}${BOLD}${ARROW}${RESET} ${BOLD}Starting Observability Stack services...${RESET}"
 echo ""
 sleep 1
 
 echo -e "${DIM}[+] Running 8/8${RESET}"
-echo -e "${DIM} ✔ Network agentops-network           Created${RESET}"
-echo -e "${DIM} ✔ Volume \"agentops_opensearch-data\"  Created${RESET}"
-echo -e "${DIM} ✔ Volume \"agentops_prometheus-data\"  Created${RESET}"
+echo -e "${DIM} ✔ Network observability-stack-network           Created${RESET}"
+echo -e "${DIM} ✔ Volume \"observability-stack_opensearch-data\"  Created${RESET}"
+echo -e "${DIM} ✔ Volume \"observability-stack_prometheus-data\"  Created${RESET}"
 echo -e "${DIM} ✔ Container opensearch               Started${RESET}"
 echo -e "${DIM} ✔ Container otel-collector           Started${RESET}"
 echo -e "${DIM} ✔ Container data-prepper             Started${RESET}"
@@ -185,20 +185,20 @@ echo -e "  ${CYAN}${ARROW}${RESET} Password: ${BOLD}My_password_123!@#${RESET}"
 echo ""
 echo -e "${BOLD}Useful Commands:${RESET}"
 echo -e "  ${DIM}# View logs${RESET}"
-echo -e "  ${BOLD}cd agentops && docker compose logs -f${RESET}"
+echo -e "  ${BOLD}cd observability-stack && docker compose logs -f${RESET}"
 echo ""
 echo -e "  ${DIM}# Stop services${RESET}"
-echo -e "  ${BOLD}cd agentops && docker compose down${RESET}"
+echo -e "  ${BOLD}cd observability-stack && docker compose down${RESET}"
 echo ""
 echo -e "  ${DIM}# Stop and remove data${RESET}"
-echo -e "  ${BOLD}cd agentops && docker compose down -v${RESET}"
+echo -e "  ${BOLD}cd observability-stack && docker compose down -v${RESET}"
 
 echo ""
 echo -e "${BOLD}Next Steps:${RESET}"
 echo -e "  1. Visit ${CYAN}http://localhost:5601${RESET} to explore your data"
-echo -e "  2. Check out ${CYAN}agentops/examples/${RESET} for instrumentation examples"
-echo -e "  3. Read ${CYAN}agentops/README.md${RESET} for detailed documentation"
+echo -e "  2. Check out ${CYAN}observability-stack/examples/${RESET} for instrumentation examples"
+echo -e "  3. Read ${CYAN}observability-stack/README.md${RESET} for detailed documentation"
 
 echo ""
-echo -e "${DIM}For support, visit: https://github.com/opensearch-project/agentops${RESET}"
+echo -e "${DIM}For support, visit: https://github.com/opensearch-project/observability-stack${RESET}"
 echo ""

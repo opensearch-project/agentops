@@ -1,7 +1,7 @@
 [project]
 name = "weather-agent"
 version = "1.0.0"
-description = "Plain Python weather agent with OpenTelemetry instrumentation for AgentOps"
+description = "Plain Python weather agent with OpenTelemetry instrumentation for Observability Stack"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [

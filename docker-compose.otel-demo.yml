@@ -1,8 +1,8 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 #
-# AgentOps OpenTelemetry Demo Services
-# Runs the OpenTelemetry Demo application and sends telemetry to the AgentOps OTLP endpoint.
+# Observability Stack OpenTelemetry Demo Services
+# Runs the OpenTelemetry Demo application and sends telemetry to the Observability Stack OTLP endpoint.
 #
 # ⚠️  This is NOT a standalone Docker Compose file!
 # This file is included by docker-compose.yml via the 'include:' directive.
@@ -21,7 +21,7 @@ x-default-logging: &logging
 
 x-network: &network
   networks:
-    - agentops-network
+    - observability-stack-network
 
 services:
   # ******************

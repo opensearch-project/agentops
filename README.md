@@ -2,7 +2,6 @@
 
 Observability Stack is an open-source observability stack designed for modern distributed systems. Built on OpenTelemetry, OpenSearch, and Prometheus, Observability Stack provides a complete, pre-configured infrastructure for monitoring microservices, web applications, and AI agents—with first-class support for agent observability through [OpenTelemetry Gen-AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/).
 
-![](./docs/observability-stack-arch-compose.excalidraw.png)
 
 ## Components
 

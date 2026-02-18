@@ -137,6 +137,16 @@ async def health():
 async def plan_trip(request: PlanRequest):
     model = random.choice(MODELS)
     
+    # Promote gen_ai attributes to the root HTTP span so the UI can read them
+    root_span = trace.get_current_span()
+    root_span.set_attribute("gen_ai.system", SYSTEMS[model])
+    root_span.set_attribute("gen_ai.agent.name", AGENT_NAME)
+    root_span.set_attribute("gen_ai.request.model", model)
+    root_span.set_attribute("gen_ai.operation.name", "invoke_agent")
+    root_span.set_attribute("gen_ai.input.messages", json.dumps(
+        [{"role": "user", "parts": [{"type": "text", "content": f"Plan a trip to {request.destination}"}]}]
+    ))
+    
     with tracer.start_as_current_span(
         "invoke_agent",
         kind=SpanKind.INTERNAL,
@@ -250,6 +260,10 @@ async def plan_trip(request: PlanRequest):
             span.set_status(Status(StatusCode.ERROR, f"Partial failure: {len(errors)} sub-agent(s) failed"))
 
         recommendation = build_recommendation(request.destination, weather_data, events_data, partial)
+
+        root_span.set_attribute("gen_ai.output.messages", json.dumps(
+            [{"role": "assistant", "parts": [{"type": "text", "content": recommendation}]}]
+        ))
 
         return PlanResponse(
             destination=request.destination,

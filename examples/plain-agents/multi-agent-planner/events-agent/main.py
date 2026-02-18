@@ -183,6 +183,16 @@ async def health():
 async def get_events(request: EventsRequest):
     model = random.choice(MODELS)
     
+    # Promote gen_ai attributes to the root HTTP span so the UI can read them
+    root_span = trace.get_current_span()
+    root_span.set_attribute("gen_ai.system", SYSTEMS[model])
+    root_span.set_attribute("gen_ai.agent.name", AGENT_NAME)
+    root_span.set_attribute("gen_ai.request.model", model)
+    root_span.set_attribute("gen_ai.operation.name", "invoke_agent")
+    root_span.set_attribute("gen_ai.input.messages", json.dumps(
+        [{"role": "user", "parts": [{"type": "text", "content": f"Find events in {request.destination}"}]}]
+    ))
+    
     with tracer.start_as_current_span(
         "invoke_agent",
         kind=SpanKind.INTERNAL,
@@ -283,6 +293,10 @@ async def get_events(request: EventsRequest):
             events = [Event(name=e["name"], type=e["type"], venue=e.get("venue", "TBD"), date=e.get("date", date)) for e in events_list]
 
         span.set_attribute("events.count", len(events))
+        
+        root_span.set_attribute("gen_ai.output.messages", json.dumps(
+            [{"role": "assistant", "parts": [{"type": "text", "content": json.dumps([e.model_dump() for e in events])}]}]
+        ))
         
         return EventsResponse(destination=request.destination, events=events, agent_id=AGENT_ID)
 

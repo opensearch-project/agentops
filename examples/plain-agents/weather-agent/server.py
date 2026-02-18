@@ -6,6 +6,7 @@ FastAPI server that exposes the weather agent through REST API endpoints.
 Includes OpenTelemetry instrumentation for trace context propagation.
 """
 
+import json
 import os
 import uuid
 from typing import Optional
@@ -13,9 +14,10 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from opentelemetry import trace as trace_api
 from opentelemetry.instrumentation.asgi import OpenTelemetryMiddleware
 
-from main import WeatherAgent, setup_telemetry, FaultConfig, AgentError
+from main import WeatherAgent, setup_telemetry, FaultConfig, AgentError, SYSTEMS
 
 
 # Request/Response models
@@ -83,8 +85,21 @@ async def invoke(request: InvokeRequest):
             tool=request.fault.tool
         )
     
+    # Promote gen_ai attributes to the root HTTP span so the UI can read them
+    root_span = trace_api.get_current_span()
+    root_span.set_attribute("gen_ai.system", agent.model and SYSTEMS.get(agent.model, "openai") or "openai")
+    root_span.set_attribute("gen_ai.agent.name", agent.agent_name)
+    root_span.set_attribute("gen_ai.request.model", agent.model)
+    root_span.set_attribute("gen_ai.operation.name", "invoke_agent")
+    root_span.set_attribute("gen_ai.input.messages", json.dumps(
+        [{"role": "user", "parts": [{"type": "text", "content": request.message}]}]
+    ))
+    
     try:
         response = agent.invoke(request.message, conversation_id, fault_config)
+        root_span.set_attribute("gen_ai.output.messages", json.dumps(
+            [{"role": "assistant", "parts": [{"type": "text", "content": response}]}]
+        ))
         return InvokeResponse(response=response, conversation_id=conversation_id)
     except AgentError as e:
         return JSONResponse(

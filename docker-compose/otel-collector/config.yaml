@@ -55,6 +55,8 @@ processors:
           - delete_key(attributes, "error.type")
           - set(attributes["upstream_cluster"], attributes["upstream_cluster"]) where attributes["upstream_cluster"] != nil
           - delete_key(attributes, "upstream_cluster")
+          - set(attributes["rpc_system"], attributes["rpc.system"]) where attributes["rpc.system"] != nil
+          - delete_key(attributes, "rpc.system")
     log_statements:
       - context: log
         statements:

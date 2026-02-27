@@ -80,3 +80,4 @@ data_source.enabled: true
 data_source.ssl.verificationMode: none
 explore.discoverTraces.enabled: true
 datasetManagement.enabled: true
+explore.agentTraces.enabled: true

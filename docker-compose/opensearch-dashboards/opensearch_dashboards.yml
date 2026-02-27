@@ -75,9 +75,17 @@ csp.warnLegacyBrowsers: false
 savedObjects.maxImportPayloadBytes: 26214400
 
 explore.enabled: true
+explore.discoverTraces.enabled: true
+explore.discoverMetrics.enabled: true
+explore.agentTraces.enabled: true
 workspace.enabled: true
 data_source.enabled: true
 data_source.ssl.verificationMode: none
-explore.discoverTraces.enabled: true
 datasetManagement.enabled: true
-explore.agentTraces.enabled: true
+data.savedQueriesNewUI.enabled: true
+opensearchDashboards.branding.useExpandedHeader: false
+
+uiSettings.overrides.theme:darkMode: true
+uiSettings.overrides.theme:enableUserControl: false
+uiSettings.overrides.home:useNewHomePage: true
+uiSettings.overrides.query:enhancements:enabled: true

@@ -127,7 +127,8 @@ def get_existing_index_pattern(workspace_id, title):
 
 
 def create_index_pattern(
-    workspace_id, title, time_field=None, signal_type=None, schema_mappings=None
+    workspace_id, title, time_field=None, signal_type=None, schema_mappings=None,
+    display_name=None
 ):
     """Create index pattern in workspace and return its ID"""
     # Check if index pattern already exists
@@ -142,17 +143,14 @@ def create_index_pattern(
         }
     }
 
-    # Only add timeFieldName if time_field is provided
     if time_field:
         payload["attributes"]["timeFieldName"] = time_field
-
-    # Only add signalType if signal_type is provided
     if signal_type:
         payload["attributes"]["signalType"] = signal_type
-
-    # Only add schemaMappings if schema_mappings is provided (as a JSON string)
     if schema_mappings:
         payload["attributes"]["schemaMappings"] = schema_mappings
+    if display_name:
+        payload["attributes"]["displayName"] = display_name
 
     # Use workspace-specific URL if workspace exists, otherwise use default
     if workspace_id and workspace_id != "default":
@@ -456,13 +454,11 @@ def set_default_index_pattern(workspace_id, pattern_id):
         print(f"⚠️  Error setting default index pattern: {e}")
 
 
-def get_existing_correlation(workspace_id):
-    """Check if APM correlation already exists"""
+def get_existing_correlation(workspace_id, correlation_type_prefix):
+    """Check if a correlation with the given type prefix already exists"""
     try:
         if workspace_id and workspace_id != "default":
-            url = (
-                f"{BASE_URL}/w/{workspace_id}/api/saved_objects/_find?type=correlations"
-            )
+            url = f"{BASE_URL}/w/{workspace_id}/api/saved_objects/_find?type=correlations"
         else:
             url = f"{BASE_URL}/api/saved_objects/_find?type=correlations"
 
@@ -479,7 +475,8 @@ def get_existing_correlation(workspace_id):
             saved_objects = result.get("saved_objects", [])
             for obj in saved_objects:
                 attributes = obj.get("attributes", {})
-                if attributes.get("correlationType") == "APM-Correlation":
+                ct = attributes.get("correlationType", "")
+                if ct.startswith(correlation_type_prefix):
                     return obj.get("id")
         return None
     except requests.exceptions.RequestException as e:
@@ -487,40 +484,27 @@ def get_existing_correlation(workspace_id):
         return None
 
 
-def create_apm_correlation(workspace_id, traces_pattern_id, logs_pattern_id):
-    """Create APM correlation between traces and logs"""
-    # Check if correlation already exists
-    existing_id = get_existing_correlation(workspace_id)
+def create_correlation(workspace_id, correlation_type, title, entities, references):
+    """Create a correlation saved object (idempotent)"""
+    # Determine prefix for existence check (APM-Config- or trace-to-logs-)
+    prefix = correlation_type.split("-")[0] + "-" + correlation_type.split("-")[1] if "-" in correlation_type else correlation_type
+    existing_id = get_existing_correlation(workspace_id, prefix)
     if existing_id:
-        print(f"✅ APM correlation already exists: {existing_id}")
+        print(f"✅ Correlation already exists ({prefix}*): {existing_id}")
         return existing_id
 
-    print("🔗 Creating APM correlation between traces and logs...")
+    print(f"🔗 Creating correlation: {title}...")
 
     payload = {
         "attributes": {
-            "correlationType": "APM-Correlation",
+            "correlationType": correlation_type,
+            "title": title,
             "version": "1.0.0",
-            "entities": [
-                {"tracesDataset": {"id": "references[0].id"}},
-                {"logsDataset": {"id": "references[1].id"}},
-            ],
+            "entities": entities,
         },
-        "references": [
-            {
-                "name": "entities[0].index",
-                "type": "index-pattern",
-                "id": traces_pattern_id,
-            },
-            {
-                "name": "entities[1].index",
-                "type": "index-pattern",
-                "id": logs_pattern_id,
-            },
-        ],
+        "references": references,
     }
 
-    # Add workspaces field if workspace exists
     if workspace_id and workspace_id != "default":
         payload["workspaces"] = [workspace_id]
         url = f"{BASE_URL}/w/{workspace_id}/api/saved_objects/correlations"
@@ -537,20 +521,57 @@ def create_apm_correlation(workspace_id, traces_pattern_id, logs_pattern_id):
             timeout=10,
         )
 
-        print(f"APM correlation creation: {response.status_code}")
-
         if response.status_code == 200:
             result = response.json()
             correlation_id = result.get("id")
-            if correlation_id:
-                print(f"✅ Created APM correlation: {correlation_id}")
-                return correlation_id
+            print(f"✅ Created correlation: {title} ({correlation_id})")
+            return correlation_id
         else:
-            print(f"⚠️  APM correlation creation failed: {response.text}")
+            print(f"⚠️  Correlation creation failed: {response.text}")
             return None
     except requests.exceptions.RequestException as e:
-        print(f"⚠️  Error creating APM correlation: {e}")
+        print(f"⚠️  Error creating correlation: {e}")
         return None
+
+
+def create_trace_to_logs_correlation(workspace_id, traces_pattern_id, logs_pattern_id):
+    """Create trace-to-logs correlation for cross-signal navigation"""
+    return create_correlation(
+        workspace_id,
+        correlation_type=f"trace-to-logs-otel-v1-apm-span*",
+        title="trace-to-logs_otel-v1-apm-span*",
+        entities=[
+            {"tracesDataset": {"id": "references[0].id"}},
+            {"logsDataset": {"id": "references[1].id"}},
+        ],
+        references=[
+            {"name": "entities[0].index", "type": "index-pattern", "id": traces_pattern_id},
+            {"name": "entities[1].index", "type": "index-pattern", "id": logs_pattern_id},
+        ],
+    )
+
+
+def create_apm_config_correlation(workspace_id, traces_pattern_id, service_map_pattern_id, prometheus_datasource_id):
+    """Create APM config correlation that ties traces, service map, and Prometheus together"""
+    if not prometheus_datasource_id:
+        print("⚠️  Skipping APM config - no Prometheus datasource ID")
+        return None
+
+    return create_correlation(
+        workspace_id,
+        correlation_type=f"APM-Config-{workspace_id}",
+        title="apm-config",
+        entities=[
+            {"tracesDataset": {"id": "references[0].id"}},
+            {"serviceMapDataset": {"id": "references[1].id"}},
+            {"prometheusDataSource": {"id": "references[2].id"}},
+        ],
+        references=[
+            {"name": "entities[0].index", "type": "index-pattern", "id": traces_pattern_id},
+            {"name": "entities[1].index", "type": "index-pattern", "id": service_map_pattern_id},
+            {"name": "entities[2].dataConnection", "type": "data-connection", "id": prometheus_datasource_id},
+        ],
+    )
 
 
 def create_or_update_saved_query(
@@ -937,14 +958,19 @@ def main():
         workspace_id = create_workspace()
 
     # Create index patterns (idempotent - will skip if already exist)
+    # Titles must match exactly what the APM plugin expects
     logs_schema_mappings = '{"otelLogs":{"timestamp":"time","traceId":"traceId","spanId":"spanId","serviceName":"resource.attributes.service.name"}}'
     logs_pattern_id = create_index_pattern(
-        workspace_id, "logs-otel-v1-*", "time", "logs", logs_schema_mappings
+        workspace_id, "logs-otel-v1*", "time", "logs", logs_schema_mappings,
+        display_name="Log Dataset - Local Cluster"
     )
     traces_pattern_id = create_index_pattern(
-        workspace_id, "otel-v1-apm-span-*", "startTime", "traces"
+        workspace_id, "otel-v1-apm-span*", "endTime", "traces",
+        display_name="Trace Dataset - Local Cluster"
     )
-    create_index_pattern(workspace_id, "otel-v1-apm-service-map")
+    service_map_pattern_id = create_index_pattern(
+        workspace_id, "otel-v2-apm-service-map*", "timestamp"
+    )
 
     print("📊 Created index patterns for spans, logs, and service map")
 
@@ -952,9 +978,9 @@ def main():
     if logs_pattern_id:
         set_default_index_pattern(workspace_id, logs_pattern_id)
 
-    # Create APM correlation between traces and logs
+    # Create trace-to-logs correlation for cross-signal navigation
     if traces_pattern_id and logs_pattern_id:
-        create_apm_correlation(workspace_id, traces_pattern_id, logs_pattern_id)
+        create_trace_to_logs_correlation(workspace_id, traces_pattern_id, logs_pattern_id)
 
     # Create Agent Observability dashboard
     if traces_pattern_id:
@@ -964,8 +990,16 @@ def main():
     create_default_saved_queries(workspace_id)
 
     # Create datasources
-    create_prometheus_datasource(workspace_id)
+    prometheus_datasource_id = create_prometheus_datasource(workspace_id)
     create_opensearch_datasource(workspace_id)
+
+    # Create APM config correlation (ties traces + service map + Prometheus)
+    if traces_pattern_id and service_map_pattern_id:
+        # Resolve Prometheus data-connection saved object ID
+        prom_so_id = get_existing_prometheus_datasource("ObservabilityStack_Prometheus")
+        create_apm_config_correlation(
+            workspace_id, traces_pattern_id, service_map_pattern_id, prom_so_id
+        )
 
     # Output summary
     print()

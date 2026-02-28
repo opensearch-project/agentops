@@ -1,11 +1,11 @@
 # Data Prepper Pipeline Configuration
-# Processes and transforms logs and traces before writing to OpenSearch
+# Processes and transforms logs, traces, and metrics before writing to OpenSearch
 
 # Main OTLP pipeline - receives all telemetry and routes by type
 otlp-pipeline:
   delay: 10
   source:
-    # OTLP source receives logs and traces via OpenTelemetry Protocol
+    # OTLP source receives telemetry via OpenTelemetry Protocol
     otlp:
       # Listen on port 21890 for gRPC connections from OpenTelemetry Collector
       port: 21890
@@ -69,7 +69,7 @@ traces-raw-pipeline:
       name: "otel-traces-pipeline"
   processor:
     # Process raw trace data for OpenSearch storage
-    - otel_trace_raw:
+    - otel_traces:
   sink:
     - opensearch:
         hosts: ["https://opensearch:9200"]
@@ -79,21 +79,25 @@ traces-raw-pipeline:
         # Use trace analytics index type for automatic index management
         index_type: trace-analytics-plain-raw
 
-# Service map generation pipeline
-# Builds service dependency maps from trace relationships
+# Service map generation pipeline (APM)
+# Builds service dependency maps and RED metrics from trace relationships
 service-map-pipeline:
   delay: 100
   source:
     pipeline:
       name: "otel-traces-pipeline"
   processor:
-    # Generate service map from trace spans
-    - service_map_stateful:
+    # APM service map processor - generates topology, service details, and RED metrics
+    - otel_apm_service_map:
+        group_by_attributes: [telemetry.sdk.language]
+        window_duration: 10s
+  route:
+    - otel_apm_service_map_route: 'getEventType() == "SERVICE_MAP"'
   sink:
     - opensearch:
         hosts: ["https://opensearch:9200"]
         username: admin
         password: "My_password_123!@#"
+        index_type: otel-v2-apm-service-map
+        routes: [otel_apm_service_map_route]
         insecure: true
-        # Use service map index type for automatic index management
-        index_type: trace-analytics-service-map

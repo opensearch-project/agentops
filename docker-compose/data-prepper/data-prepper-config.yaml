@@ -3,3 +3,11 @@
 
 # SSL/TLS configuration - disabled for development
 ssl: false
+
+# Enable experimental APM plugins
+experimental:
+  enabled_plugins:
+    processor:
+      - otel_apm_service_map
+    sink:
+      - prometheus

@@ -9,3 +9,9 @@ dependencies = [
     "opentelemetry-sdk",
     "opentelemetry-exporter-otlp-proto-grpc",
 ]
+
+[tool.uv]
+# CVE-2026-45409 (GHSA-65pc-fj4g-8rjx): idna.encode() DoS, fixed in 3.15.
+# idna is transitive (via requests, through the SDK) and not imported here,
+# so floor it as a constraint rather than a direct dependency.
+constraint-dependencies = ["idna>=3.15"]

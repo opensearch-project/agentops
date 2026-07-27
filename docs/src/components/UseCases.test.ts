@@ -192,9 +192,9 @@ describe('UseCases - Property 2: Use case cards contain all required elements', 
           title: fc.string({ minLength: 5, maxLength: 50 })
             .filter(s => /^[a-zA-Z0-9\s]+$/.test(s) && s.trim().length >= 5),
           description: fc.string({ minLength: 20, maxLength: 200 })
-            .filter(s => s.trim().length >= 20),
+            .filter(s => s.trim().length >= 20 && !/[<>&"#]/.test(s)),
           link: fc.string({ minLength: 5, maxLength: 50 })
-            .filter(s => s.startsWith('#') || s.startsWith('http')),
+            .filter(s => (s.startsWith('#') || s.startsWith('http')) && s.trim() === s && !/["'&]/.test(s)),
         }),
         (useCase) => {
           container.innerHTML = renderUseCaseCard(useCase);

@@ -16,10 +16,5 @@
     "mermaid": "^11.15.0",
     "sharp": "^0.34.2",
     "starlight-links-validator": "^0.24.0"
-  },
-  "overrides": {
-    "dompurify": "3.4.12",
-    "js-yaml": "4.3.0",
-    "postcss-selector-parser": "^6.1.3"
   }
 }

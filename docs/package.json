@@ -31,16 +31,7 @@
   },
   "overrides": {
     "yauzl": "^3.2.1",
-    "undici": "^7.29.0",
-    "tar": "^7.5.22",
-    "js-yaml": "^4.3.0",
-    "@babel/core": "^7.29.6",
-    "astro": {
-      "vite": "^7.3.6"
-    },
-    "@astrojs/react": {
-      "vite": "^7.3.6"
-    }
+    "undici": "^7.24.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

@@ -10,6 +10,7 @@ The **Logs** page in OpenSearch Dashboards is a log analytics tool that allows y
 The **Logs** page provides the following capabilities:
 
 - **PPL-based querying**: Use PPL syntax to filter, aggregate, and transform log data.
+- **Visual query building**: Build queries from menus with the [PPL Query Builder](/docs/ppl/query-builder/), writing no PPL.
 - **Automatic visualization**: When you use aggregation commands like `stats`, the interface automatically switches to a visualization view.
 - **Multiple visualization types**: Choose from various visualization types.
 - **Dashboard integration**: Save visualizations directly to new or existing dashboards.
@@ -63,6 +64,16 @@ You can combine multiple conditions by providing several `WHERE` clauses:
 | WHERE `resource.attributes.service.name` = 'frontend-proxy'
 | WHERE `attributes.url.path` in ("/api/cart","/api/checkout")
 ```
+
+### Building queries without PPL
+
+With the PPL Query Builder enabled, a new logs query opens in a visual builder instead of the PPL editor. You pick fields, values, aggregations, and a sort from menus, and the builder compiles the PPL.
+
+![PPL Query Builder on the Logs page, with a Where filter, a Count aggregation, an hourly time bucket, and the aggregation menu open](/docs/images/ppl/ppl-query-builder.png)
+
+The **Code** / **Builder** toggle at the upper right of the query panel switches between the visual builder and the PPL editor, so you can read and hand-edit the generated query at any point.
+
+See [PPL Query Builder](/docs/ppl/query-builder/) for the controls it offers and how to enable it.
 
 ### Managing queries
 

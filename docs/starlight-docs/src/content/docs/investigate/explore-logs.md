@@ -13,11 +13,6 @@ Use **Explore logs** when you know an index exists (for example `otel-frontend` 
 
 Before you can open **Explore logs**, the following must be true:
 
-- The Explore plugin and the Logs Drilldown feature are enabled in `config/opensearch_dashboards.yml`. Both are off by default:
-  ```yaml
-  explore.enabled: true
-  explore.logsDrilldown.enabled: true
-  ```
 - You are inside an observability workspace (one where the Explore experience is enabled).
 - When Multiple Data Sources is enabled, at least one OpenSearch data source is registered and associated with the workspace.
 

@@ -1,0 +1,16 @@
+{{- if index .Values "opensearch-dashboards" "enabled" }}
+# Dedicated, non-hook copy of the init script for the field-refresh backstop
+# Job. Kept separate from the hook-managed init-script ConfigMap so the
+# non-hook Job has no ordering/delete-recreate coupling with the post-install
+# hook phase. The refresh-loop mode only calls the OpenSearch Dashboards API,
+# so only the Python script is needed here (no /config assets).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "observability-stack.fullname" . }}-field-refresh-script
+  labels:
+    {{- include "observability-stack.labels" . | nindent 4 }}
+data:
+  init-opensearch-dashboards.py: |
+{{ .Files.Get "files/init-opensearch-dashboards.py" | indent 4 }}
+{{- end }}

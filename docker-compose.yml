@@ -272,7 +272,7 @@ services:
   opensearch-dashboards-init:
     image: python:3.11-alpine
     container_name: opensearch-dashboards-init
-    command: sh -c "pip install requests pyyaml && python /init.py"
+    command: sh -c "pip install requests pyyaml && python -u /init.py"
     environment:
       - OPENSEARCH_USER=${OPENSEARCH_USER}
       - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
@@ -306,6 +306,31 @@ services:
       - ./docker-compose/opensearch-dashboards/dashboard-pipeline-health.yaml:/config/dashboard-pipeline-health.yaml
       - ./docker-compose/opensearch-dashboards/init/architecture.png:/config/architecture.png
       - ./docker-compose/opensearch-dashboards/init/dashboard-astronomy-shop.ndjson:/config/dashboard-astronomy-shop.ndjson
+    networks:
+      - observability-stack-network
+    restart: "no"
+    logging: *logging
+
+  # Field-refresh backstop - populates index-pattern field lists as indices
+  # fill with data. Runs as a separate long-lived process (up to ~1 hour) so it
+  # never blocks the one-shot init above. Index patterns created on a fresh
+  # stack start empty because their indices have no documents yet; this loop
+  # refreshes them once telemetry lands.
+  opensearch-dashboards-field-refresh:
+    image: python:3.11-alpine
+    container_name: opensearch-dashboards-field-refresh
+    command: sh -c "pip install requests pyyaml && python -u /init.py refresh-loop"
+    environment:
+      - OPENSEARCH_USER=${OPENSEARCH_USER}
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+      - OPENSEARCH_DASHBOARDS_HOST=${OPENSEARCH_DASHBOARDS_HOST}
+      - OPENSEARCH_DASHBOARDS_PORT=${OPENSEARCH_DASHBOARDS_PORT}
+      - OPENSEARCH_DASHBOARDS_PROTOCOL=${OPENSEARCH_DASHBOARDS_PROTOCOL}
+    volumes:
+      - ./docker-compose/opensearch-dashboards/init/init-opensearch-dashboards.py:/init.py
+    depends_on:
+      opensearch-dashboards-init:
+        condition: service_completed_successfully
     networks:
       - observability-stack-network
     restart: "no"

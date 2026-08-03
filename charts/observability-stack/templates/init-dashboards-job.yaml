@@ -24,7 +24,7 @@ spec:
             - /bin/sh
             - -c
             - |
-              pip install -q requests pyyaml && python /scripts/init-opensearch-dashboards.py
+              pip install -q requests pyyaml && python -u /scripts/init-opensearch-dashboards.py
           env:
             - name: OPENSEARCH_USER
               valueFrom:

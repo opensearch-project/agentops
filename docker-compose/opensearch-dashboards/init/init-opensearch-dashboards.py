@@ -1761,6 +1761,22 @@ def main():
 
     print("📊 Created index patterns for spans, logs, and service map")
 
+    # Warm the field list immediately after creation. Patterns created via the
+    # raw saved-objects API land with an empty `fields` attribute (OSD only
+    # fetches fields lazily on first Discover/Explore visit, and the on-read
+    # auto-fetch safety net was removed upstream). Without this, pre-generated
+    # datasets show "Fields (0)" and charts error with "Could not locate that
+    # index-pattern-field" until a manual refresh. This mirrors what the
+    # dataset-creation wizard does (pre-fetch _fields_for_wildcard at create
+    # time). delayed_field_refresh() below remains the backstop for indices
+    # that are still empty at init time.
+    for pid, title in (
+        (logs_pattern_id, "logs-otel-v1*"),
+        (traces_pattern_id, "otel-v1-apm-span*"),
+        (service_map_pattern_id, "otel-v2-apm-service-map*"),
+    ):
+        refresh_index_pattern_fields(workspace_id, pid, title)
+
     # Set logs as the default index pattern
     if logs_pattern_id:
         set_default_index_pattern(workspace_id, logs_pattern_id)
@@ -1875,28 +1891,55 @@ def refresh_index_pattern_fields(workspace_id, pattern_id, title):
         return False
 
 
-def delayed_field_refresh(workspace_id, patterns):
-    """Wait for data to land in indices, then refresh field lists.
+def delayed_field_refresh(workspace_id, patterns, max_attempts=12, interval_minutes=5):
+    """Periodically refresh field lists until every pattern is populated.
 
-    Called after the main init completes. Waits 10 minutes for the otel-demo
-    and agent examples to populate indices with representative documents so
-    the field refresh picks up all mapped fields.
+    main() warms the field lists immediately, but indices that are still empty
+    at init time (otel-demo and agent examples take a while to send their first
+    documents) return no fields on that first pass. Rather than a single blind
+    wait, poll on an interval and retry only the patterns that haven't been
+    populated yet, stopping early once they all succeed. With the defaults this
+    covers a one-hour window (12 attempts × 5 minutes).
     """
-    delay_minutes = 10
-    print(f"\n⏳ Waiting {delay_minutes} minutes for indices to populate before refreshing fields...")
-    time.sleep(delay_minutes * 60)
+    pending = [(pid, title) for pid, title in patterns if pid]
+    if not pending:
+        print("⏭️  No index patterns to refresh")
+        return
 
-    print("🔄 Refreshing index pattern field lists...")
-    for pattern_id, title in patterns:
-        refresh_index_pattern_fields(workspace_id, pattern_id, title)
-    print("✅ Field refresh complete")
+    print(
+        f"\n⏳ Will refresh field lists as indices populate "
+        f"(up to {max_attempts} attempts every {interval_minutes} min)..."
+    )
+    for attempt in range(1, max_attempts + 1):
+        print(f"🔄 Field refresh attempt {attempt}/{max_attempts} ({len(pending)} pending)...")
+        still_pending = []
+        for pattern_id, title in pending:
+            if not refresh_index_pattern_fields(workspace_id, pattern_id, title):
+                still_pending.append((pattern_id, title))
+        pending = still_pending
+        if not pending:
+            print("✅ Field refresh complete — all patterns populated")
+            return
+        # Sleep between attempts (not before the first / after the last), so a
+        # stack whose indices are already populated exits promptly.
+        if attempt < max_attempts:
+            time.sleep(interval_minutes * 60)
+
+    print(
+        f"⚠️  Field refresh finished with {len(pending)} pattern(s) still empty: "
+        f"{', '.join(title for _, title in pending)}"
+    )
 
 
-if __name__ == "__main__":
-    main()
+def run_field_refresh_backstop():
+    """Re-read workspace + pattern IDs and run the delayed field-refresh loop.
 
-    # Re-read workspace and pattern IDs for the delayed refresh.
-    # main() already printed success, so this is a background follow-up.
+    Split out from main() so it can run as a separate, long-running process
+    (its own compose service / Kubernetes Job). main() is the fast, blocking
+    setup that a Helm post-install/upgrade hook waits on; this backstop can run
+    for up to an hour and must never block install/upgrade completion.
+    """
+    wait_for_dashboards()
     workspace_id = get_existing_workspace()
     logs_id = get_existing_index_pattern(workspace_id, "logs-otel-v1*")
     traces_id = get_existing_index_pattern(workspace_id, "otel-v1-apm-span*")
@@ -1908,3 +1951,17 @@ if __name__ == "__main__":
         (svc_map_id, "otel-v2-apm-service-map*"),
     ]
     delayed_field_refresh(workspace_id, patterns)
+
+
+if __name__ == "__main__":
+    import sys
+
+    # Two modes, run as separate processes so the long-running field-refresh
+    # backstop never blocks init completion (or a Helm hook):
+    #   (default)      → main(): fast one-shot setup + immediate field warm
+    #   refresh-loop   → periodic field refresh until indices populate
+    mode = sys.argv[1] if len(sys.argv) > 1 else "init"
+    if mode == "refresh-loop":
+        run_field_refresh_backstop()
+    else:
+        main()

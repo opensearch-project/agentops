@@ -1,5 +1,5 @@
 ---
-title: Explore logs
+title: Explore Logs
 description: Browse the indexes and datasets in a cluster, preview their logs, and turn a raw index into a queryable dataset
 sidebar:
   order: 20

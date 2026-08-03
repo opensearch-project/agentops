@@ -19,11 +19,7 @@ Before you can open **Explore logs**, the following must be true:
   explore.logsDrilldown.enabled: true
   ```
 - You are inside an observability workspace (one where the Explore experience is enabled).
-- When Multiple Data Sources is enabled, at least one OpenSearch data source is registered and associated with the workspace. The local cluster is intentionally hidden so you choose a real registered cluster.
-
-:::note
-The severity histogram and log-line previews run [Piped Processing Language (PPL)](/docs/ppl/) queries against the selected cluster, so a working PPL query engine is required to preview data. If PPL is unavailable, the previews degrade gracefully, and you can still create a dataset and query it.
-:::
+- When Multiple Data Sources is enabled, at least one OpenSearch data source is registered and associated with the workspace.
 
 ## Opening Explore logs
 

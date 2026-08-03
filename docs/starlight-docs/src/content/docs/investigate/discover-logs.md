@@ -16,6 +16,12 @@ The **Logs** page provides the following capabilities:
 - **Dashboard integration**: Save visualizations directly to new or existing dashboards.
 - **Query management**: Save queries for reuse and access recent queries.
 
+:::tip[Don't have a dataset yet?]
+If you know a log index exists but haven't created a dataset to query it, start from [Explore logs](/docs/investigate/explore-logs/). It shows the indexes and datasets in your cluster with a live severity histogram and log preview, and turns a raw index into a queryable dataset in a few clicks.
+:::
+
+![The Explore logs canvas listing datasets and indexes with per-card severity histograms and log previews](/docs/images/explore-logs/canvas-overview.png)
+
 ## Accessing the Logs page
 
 To access the **Logs** page:

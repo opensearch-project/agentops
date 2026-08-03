@@ -1964,7 +1964,7 @@ def refresh_index_pattern_fields(workspace_id, pattern_id, title):
         return False
 
 
-def delayed_field_refresh(workspace_id, patterns, max_attempts=12, interval_minutes=5):
+def delayed_field_refresh(workspace_id, titles, max_attempts=12, interval_minutes=5):
     """Periodically refresh field lists until every pattern is populated.
 
     main() warms the field lists immediately, but indices that are still empty
@@ -1973,11 +1973,17 @@ def delayed_field_refresh(workspace_id, patterns, max_attempts=12, interval_minu
     wait, poll on an interval and retry only the patterns that haven't been
     populated yet, stopping early once they all succeed. With the defaults this
     covers a one-hour window (12 attempts × 5 minutes).
+
+    Patterns are resolved by title on every attempt rather than once up front,
+    so this self-heals regardless of start order: if the backstop starts before
+    main() has created the index patterns, the early attempts simply find
+    nothing and retry until the patterns exist. This is what lets the compose
+    service / k8s Job run without a hard `depends_on` the init step — a
+    dependency that otherwise breaks `docker compose up --wait` (a
+    `service_completed_successfully` target exiting mid-startup makes --wait
+    abort with a non-zero code).
     """
-    pending = [(pid, title) for pid, title in patterns if pid]
-    if not pending:
-        print("⏭️  No index patterns to refresh")
-        return
+    pending = list(titles)
 
     print(
         f"\n⏳ Will refresh field lists as indices populate "
@@ -1986,9 +1992,14 @@ def delayed_field_refresh(workspace_id, patterns, max_attempts=12, interval_minu
     for attempt in range(1, max_attempts + 1):
         print(f"🔄 Field refresh attempt {attempt}/{max_attempts} ({len(pending)} pending)...")
         still_pending = []
-        for pattern_id, title in pending:
+        for title in pending:
+            pattern_id = get_existing_index_pattern(workspace_id, title)
+            if not pattern_id:
+                # Pattern not created yet (backstop outran init) — retry later.
+                still_pending.append(title)
+                continue
             if not refresh_index_pattern_fields(workspace_id, pattern_id, title):
-                still_pending.append((pattern_id, title))
+                still_pending.append(title)
         pending = still_pending
         if not pending:
             print("✅ Field refresh complete — all patterns populated")
@@ -2000,30 +2011,26 @@ def delayed_field_refresh(workspace_id, patterns, max_attempts=12, interval_minu
 
     print(
         f"⚠️  Field refresh finished with {len(pending)} pattern(s) still empty: "
-        f"{', '.join(title for _, title in pending)}"
+        f"{', '.join(pending)}"
     )
 
 
 def run_field_refresh_backstop():
-    """Re-read workspace + pattern IDs and run the delayed field-refresh loop.
+    """Run the delayed field-refresh loop as a standalone process.
 
     Split out from main() so it can run as a separate, long-running process
     (its own compose service / Kubernetes Job). main() is the fast, blocking
     setup that a Helm post-install/upgrade hook waits on; this backstop can run
     for up to an hour and must never block install/upgrade completion.
+
+    Intentionally has no hard ordering dependency on the init step: it waits for
+    dashboards, then delayed_field_refresh() resolves pattern IDs by title on
+    each attempt, so it works whether it starts before or after init.
     """
     wait_for_dashboards()
     workspace_id = get_existing_workspace()
-    logs_id = get_existing_index_pattern(workspace_id, "logs-otel-v1*")
-    traces_id = get_existing_index_pattern(workspace_id, "otel-v1-apm-span*")
-    svc_map_id = get_existing_index_pattern(workspace_id, "otel-v2-apm-service-map*")
-
-    patterns = [
-        (logs_id, "logs-otel-v1*"),
-        (traces_id, "otel-v1-apm-span*"),
-        (svc_map_id, "otel-v2-apm-service-map*"),
-    ]
-    delayed_field_refresh(workspace_id, patterns)
+    titles = ["logs-otel-v1*", "otel-v1-apm-span*", "otel-v2-apm-service-map*"]
+    delayed_field_refresh(workspace_id, titles)
 
 
 if __name__ == "__main__":

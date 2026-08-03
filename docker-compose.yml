@@ -328,9 +328,12 @@ services:
       - OPENSEARCH_DASHBOARDS_PROTOCOL=${OPENSEARCH_DASHBOARDS_PROTOCOL}
     volumes:
       - ./docker-compose/opensearch-dashboards/init/init-opensearch-dashboards.py:/init.py
-    depends_on:
-      opensearch-dashboards-init:
-        condition: service_completed_successfully
+    # No `depends_on` the init service on purpose. A
+    # `service_completed_successfully` dependency on a one-shot that exits
+    # mid-startup makes `docker compose up --wait` (test/e2e.sh) abort with a
+    # non-zero code. The refresh loop instead waits for dashboards itself and
+    # resolves index-pattern IDs by title on each attempt, so it self-heals
+    # whether it starts before or after init.
     networks:
       - observability-stack-network
     restart: "no"

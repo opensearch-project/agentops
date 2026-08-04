@@ -135,6 +135,31 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'Alerting',
+					collapsed: true,
+					items: [
+						{ label: 'Alerting', link: '/alerting/' },
+						{
+							label: 'Unified Alerts View',
+							collapsed: true,
+							items: [
+								{ label: 'Overview', link: '/alerting/unified-alerts/' },
+							],
+						},
+						{
+							label: 'SLOs',
+							collapsed: true,
+							items: [
+								{ label: 'Overview', link: '/slo/' },
+								{ label: 'Create an SLO', link: '/slo/create/' },
+								{ label: 'Explore an SLO', link: '/slo/detail/' },
+							],
+						},
+						{ label: 'Anomaly Detection', link: '/anomaly-detection/' },
+						{ label: 'Forecasting', link: '/forecasting/' },
+					],
+				},
+				{
 					label: 'PPL - Query Language',
 					collapsed: true,
 					items: [
@@ -297,15 +322,6 @@ export default defineConfig({
 								},
 							],
 						},
-					],
-				},
-				{
-					label: 'Alerting',
-					collapsed: true,
-					items: [
-						{ label: 'Alerting', link: '/alerting/' },
-						{ label: 'Anomaly Detection', link: '/anomaly-detection/' },
-						{ label: 'Forecasting', link: '/forecasting/' },
 					],
 				},
 				{

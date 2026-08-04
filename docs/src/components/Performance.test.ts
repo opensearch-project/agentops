@@ -171,7 +171,7 @@ describe('Performance - Property 6: Below-fold images are lazy-loaded', () => {
         fc.array(
           fc.record({
             name: fc.string({ minLength: 3, maxLength: 30 })
-              .map(s => s.replace(/[<>"'&]/g, '')),
+              .map(s => s.replace(/[<>"'&]/g, '') || 'company name'), // Sanitize with fallback
             logo: fc.oneof(
               fc.constant('/logos/company1.svg'),
               fc.constant('/logos/company2.svg'),

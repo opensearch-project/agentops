@@ -1920,14 +1920,19 @@ def refresh_index_pattern_fields(workspace_id, pattern_id, title):
         return False
 
     if workspace_id and workspace_id != "default":
-        url = f"{BASE_URL}/w/{workspace_id}/api/index_patterns/_fields_for_wildcard?pattern={title}&meta_fields=_source&meta_fields=_id&meta_fields=_type&meta_fields=_index&meta_fields=_score"
+        url = f"{BASE_URL}/w/{workspace_id}/api/index_patterns/_fields_for_wildcard"
     else:
-        url = f"{BASE_URL}/api/index_patterns/_fields_for_wildcard?pattern={title}&meta_fields=_source&meta_fields=_id&meta_fields=_type&meta_fields=_index&meta_fields=_score"
+        url = f"{BASE_URL}/api/index_patterns/_fields_for_wildcard"
 
+    # Only `pattern` is passed. Do NOT send `meta_fields` — this OSD version's
+    # route validation rejects the repeated meta_fields query params with a 400
+    # ("[request query.params]: definition for this key is missing"). requests
+    # URL-encodes the pattern's wildcard/special chars via the params dict.
     try:
         resp = requests.get(
             url, auth=(USERNAME, PASSWORD),
             headers={"Content-Type": "application/json", "osd-xsrf": "true"},
+            params={"pattern": title},
             verify=False, timeout=30,
         )
         if resp.status_code != 200:

@@ -1,0 +1,120 @@
+---
+title: Create Rules
+description: Build log rules (PPL) and metric rules (PromQL) in the Unified Alerts View
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+You create alert rules from the **Rules** tab of the [Unified Alerts View](/docs/alerting/unified-alerts/). Choose **Create alert rule**, then pick **Logs** or **Metrics**.
+
+![The Create alert rule menu open, offering Logs and Metrics](/docs/images/alerting/create-alert-rule-menu.png)
+
+Both rule types deploy to the correct engine and surface in the Rules catalog and the Alerts tab. See [Explore Alerts](/docs/alerting/unified-alerts/explore-alerts/) for what happens after they fire.
+
+## Log rule (PPL)
+
+A **log rule** alerts on data indexed in OpenSearch — your logs and traces. You write the query in **PPL** (Piped Processing Language), the same piped language you use in [Discover](/docs/investigate/) and the [PPL query builder](/docs/investigate/discover-logs/#building-queries-with-the-ppl-query-builder), and the rule fires when the query's results meet a condition you set.
+
+<Aside type="tip" title="No query DSL required">
+Log rules are OpenSearch Alerting monitors under the hood, but you no longer hand-write query DSL. The **Create logs rule** form takes a PPL query directly, and **Build query in logs** opens the query builder if you'd rather construct it visually.
+</Aside>
+
+![The Create logs rule form: data source, indices, and time field selectors above a PPL query editor with a Run preview button](/docs/images/alerting/create-logs-rule.png)
+
+<Steps>
+
+1. **Name the rule** and leave it **Enabled**.
+
+2. **Set the query.** Pick the **data source** (your OpenSearch cluster) and the **indices** to query — wildcards like `logs-otel-v1*` are kept verbatim — then select the **time field**.
+
+3. **Write the PPL query.** Press `Ctrl+Space` for field, command, and function suggestions. Use **Run preview** to confirm the query runs and returns rows.
+
+    ```
+    source=logs-otel-v1* | where severityNumber >= 17 | stats count() as error_count
+    ```
+
+4. **Set the schedule** — how often the rule runs (for example, every `1` minute).
+
+5. **Add a trigger** — a name, severity, and condition (see [Trigger conditions](#trigger-conditions)). Optionally add [notification actions](/docs/alerting/notifications/#opensearch-rules--notification-channels) to send the alert to Slack, email, or a webhook.
+
+6. **Save & enable.** The rule appears in the **Rules** catalog tagged **Log**, and firing alerts show up in the **Alerts** tab.
+
+</Steps>
+
+### Trigger conditions
+
+A log-rule trigger evaluates the PPL query and fires when its condition is met. Two condition types are available:
+
+![The trigger section of the logs rule form, showing the Number of results and Custom condition options with an operator and threshold](/docs/images/alerting/create-logs-rule-triggers.png)
+
+| Condition type | Fires when | Use it for |
+|---|---|---|
+| **Number of results** | The **count of rows** the query returns satisfies an operator/value (`>`, `>=`, `<`, `<=`, `==`, `!=`) | Alerting on how many rows come back — for example, one row per offending service from a `stats ... by service` query. |
+| **Custom condition** | A PPL `where` clause you supply (it must start with `where`) matches a row of the results — e.g. `where error_count > 100` | Threshold checks on an **aggregated** value. Pair with a `stats` query. |
+
+The most reliable shape is to **aggregate with `stats` first, then compare the aggregated value in a custom condition:**
+
+```
+source=logs-otel-v1* | where severityNumber >= 17 | stats count() as error_count
+```
+```
+where error_count > 100
+```
+
+When the query returns an `error_count` above 100, the trigger fires and runs its notification actions.
+
+### More log-rule examples
+
+**Alert when any service's error count crosses a threshold** — one row per service, custom condition on the aggregate:
+
+```
+source=logs-otel-v1* | where severityNumber >= 17 | stats count() as error_count by serviceName
+```
+```
+where error_count > 50
+```
+
+**Alert on slow traces from a specific service:**
+
+```
+source=otel-v1-apm-span* | where serviceName = "frontend" and durationInNanos > 500000000 | stats count() as slow_spans
+```
+```
+where slow_spans > 20
+```
+
+For the full PPL language reference, see [PPL — Query Language](/docs/ppl/).
+
+## Metric rule (PromQL)
+
+A **metric rule** alerts on Prometheus time series. You write a **PromQL** expression, then define the condition and evaluation timing.
+
+![The Create metrics rule form: a PromQL query editor with a live 'Alert fires when' preview and operator, value, and duration fields](/docs/images/alerting/create-metrics-rule.png)
+
+<Steps>
+
+1. **Name the rule** and leave it **Enabled**.
+
+2. **Write the PromQL query** against the Prometheus data source. Press `Ctrl+Space` for metric-name suggestions, or use the **Metric Browser** / **Build query in metrics** to construct it.
+
+    ```
+    rate(http_requests_total{job="api"}[5m]) > 100
+    ```
+
+3. **Set the alert condition** — an **operator**, **value**, optional **unit**, and a **For Duration** the condition must hold before firing. The form shows a live *"Alert fires when…"* summary.
+
+4. **Tune evaluation settings** — the eval interval, pending period, and firing period.
+
+5. **Add labels** (for routing and filtering), then **Save & enable**. The rule appears tagged **Metric**, and firing alerts join the **Alerts** tab.
+
+</Steps>
+
+Metric-rule alerts are delivered through the Prometheus Alertmanager — set up where they go in [Notifications](/docs/alerting/notifications/#prometheus-rules--alertmanager-receivers), and view the resulting [routing tree](/docs/alerting/unified-alerts/routing/). Because [SLOs](/docs/slo/) deploy their burn-rate alerts as Prometheus rules, SLO breaches show up here as **Metric** rules too.
+
+## Related
+
+- [Notifications](/docs/alerting/notifications/) — route firing alerts to Slack, email, PagerDuty, and webhooks.
+- [Unified Alerts View](/docs/alerting/unified-alerts/) — overview, rule types, and classic monitors.
+- [Explore Alerts](/docs/alerting/unified-alerts/explore-alerts/) — triage the alerts your rules produce.
+- [Explore Rules](/docs/alerting/unified-alerts/explore-rules/) — browse the rules catalog and view routing.
+- [PPL — Query Language](/docs/ppl/) — the language behind log rules.

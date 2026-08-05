@@ -1,0 +1,59 @@
+---
+title: Explore Rules
+description: Browse the rules catalog — inspect definitions by type, status, and health
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **Rules** tab of the [Unified Alerts View](/docs/alerting/unified-alerts/) is the catalog of everything that *can* fire: every alerting rule from both engines, plus the [anomaly detectors](/docs/anomaly-detection/) and [forecasters](/docs/forecasting/) you define elsewhere, side by side. Where the [Alerts tab](/docs/alerting/unified-alerts/explore-alerts/) shows what's firing now, the Rules tab shows what's defined.
+
+![The Rules tab listing OpenSearch and Prometheus rules together, with a Type column tagging each as Log, Metric, APM, or Cluster Metrics](/docs/images/alerting/unified-alerts-rules.png)
+
+## The rules catalog
+
+Each row shows a rule's name, status, severity, **type**, health, and owning data source. Filter by any facet to answer questions like "which log rules are unhealthy?" or "show me every critical metric rule on the Prometheus data source."
+
+The **Type** facet classifies each rule by the data it runs on — `Log`, `Metric`, `APM`, `Cluster Metrics`. See [Rule types](/docs/alerting/unified-alerts/#rule-types) for what each one means. To add a rule from here, use **Create alert rule** — see [Create Rules](/docs/alerting/unified-alerts/create-rules/).
+
+<Aside type="note" title="Which types you can create here">
+**Create alert rule** builds **Log** and **Metric** rules only. `APM` and `Cluster Metrics` rules also appear in this catalog and can be filtered on, but they are [classic monitors](/docs/alerting/unified-alerts/#classic-monitors-previous-experience) — created in the standalone Alerting app, not from the Create alert rule button.
+</Aside>
+
+## Inspect and manage a rule
+
+Select a rule to open its detail panel. It shows the rule's **query definition**, **conditions & evaluation** (evaluation interval, pending period, threshold), **labels**, a **condition preview**, and its **recent alerts** — everything you need to understand why a rule is (or isn't) firing.
+
+![A rule detail panel showing the query definition and Edit, Clone, Delete, and Disable rule actions](/docs/images/alerting/rule-detail-actions.png)
+
+The panel's toolbar carries the lifecycle actions:
+
+| Action | What it does |
+|---|---|
+| **Edit** | Change the query, schedule, conditions, or notification actions. |
+| **Clone** | Duplicate the rule as a starting point for a similar one. |
+| **Disable rule** / **Enable** | Stop or resume evaluation without deleting the rule — the fastest way to quiet a noisy rule while you tune it. |
+| **Delete** | Remove the rule permanently. |
+
+<Aside type="tip" title="Silence vs. disable">
+**Disable** stops a rule from evaluating at all. To keep a metric rule running but stop its *notifications* temporarily, use an Alertmanager **silence** instead — see [Notifications](/docs/alerting/notifications/#prometheus-rules--alertmanager-receivers).
+</Aside>
+
+## Filters
+
+The left rail is shared with the [Alerts tab](/docs/alerting/unified-alerts/explore-alerts/#filters) and scopes the catalog the same way:
+
+- **Datasource** — the OpenSearch cluster, the Prometheus data source, or both.
+- **Severity** — `critical`, `high`, `medium`, and so on.
+- **Type** — `Log`, `Metric`, `APM`, `Cluster Metrics`.
+- **Labels** — filter to one service, exporter, or component in a click.
+
+## Empty catalog
+
+If the **Rules** tab is empty, there are no rules for the selected data sources yet. Confirm the right data sources are selected in the filter, or [create a rule](/docs/alerting/unified-alerts/create-rules/).
+
+## Related
+
+- [Explore Alerts](/docs/alerting/unified-alerts/explore-alerts/) — triage the alerts these rules produce.
+- [Create Rules](/docs/alerting/unified-alerts/create-rules/) — build log and metric rules.
+- [Routing](/docs/alerting/unified-alerts/routing/) — the Prometheus Alertmanager route tree for metric alerts.
+- [Unified Alerts View](/docs/alerting/unified-alerts/) — overview, rule types, and classic monitors.

@@ -1,0 +1,53 @@
+---
+title: Alerting Overview
+description: Alert on your logs, traces, and metrics — how alerting works, and where to go next
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Alerting turns your observability data into action. Define the conditions that matter — an error spike in your logs, a latency regression across traces, a shrinking error budget — and the stack notifies your responders before those conditions reach users.
+
+## How alerting works
+
+Every alert follows the same path, whether it started from a log query or a metric:
+
+- **Rule** — a query that runs on a schedule. A log rule queries your OpenSearch indices with PPL; a metric rule queries Prometheus with PromQL.
+- **Trigger** — a condition on the rule's results that decides when to fire (for example, "error count over the last 5 minutes exceeds 100").
+- **Alert** — an active instance of a fired trigger. One rule can fan out into many alerts — one per service, host, or other dimension in the query.
+- **Notification** — where a firing alert is routed: Slack, PagerDuty, email, or a custom webhook.
+
+Firing alerts from **every** rule land in one place — the [Unified Alerts View](/docs/alerting/unified-alerts/) — so responders never have to know which engine produced an alert.
+
+## Log rules and metric rules
+
+You alert on two kinds of data, and the stack has a rule type for each:
+
+| Rule type | Runs on | Written in | Best for |
+|---|---|---|---|
+| **Log rules** | OpenSearch indices — logs and traces | **PPL** | Error-log spikes, trace-count thresholds, per-service conditions — anything you can query over your indexed telemetry |
+| **Metric rules** | Prometheus time series | PromQL | Metric thresholds, rate-based and RED-method alerts, SLO burn-rate alerts |
+
+Most teams run both, and both are created in the [Unified Alerts View](/docs/alerting/unified-alerts/): [log rules](/docs/alerting/unified-alerts/create-rules/#log-rule-ppl) for anything indexed in OpenSearch, [metric rules](/docs/alerting/unified-alerts/create-rules/#metric-rule-promql) for anything in Prometheus. Log rules are written in **PPL** — the same piped language you already use in Discover — so if you can query it, you can alert on it.
+
+## Choosing where to define an alert
+
+| Signal | Define it as |
+|---|---|
+| Error-log spikes, trace counts, per-service conditions — anything indexed in OpenSearch | [Log rule](/docs/alerting/unified-alerts/create-rules/#log-rule-ppl) (PPL) |
+| Metric thresholds, rate-based alerts, RED-method alerts | [Metric rule](/docs/alerting/unified-alerts/create-rules/#metric-rule-promql) (Prometheus PromQL) |
+| Reliability targets and error-budget burn | [SLO](/docs/slo/) (deploys PromQL burn-rate rules for you) |
+| Unexpected deviations without a fixed threshold | [Anomaly detector](/docs/anomaly-detection/) |
+| A metric trending toward a limit | [Forecast](/docs/forecasting/) |
+
+## Explore
+
+<CardGrid>
+  <LinkCard title="Unified Alerts View" href="/docs/alerting/unified-alerts/" description="See every alert in one place and create log rules (PPL) and metric rules (PromQL), with step-by-step walkthroughs." />
+  <LinkCard title="Create a Log Rule with PPL" href="/docs/alerting/unified-alerts/create-rules/#log-rule-ppl" description="Query your logs and traces with PPL, set triggers, and alert. With examples." />
+  <LinkCard title="Create a Metric Rule with PromQL" href="/docs/alerting/unified-alerts/create-rules/#metric-rule-promql" description="Alert on Prometheus metrics — define a PromQL condition and evaluation timing." />
+  <LinkCard title="Notifications" href="/docs/alerting/notifications/" description="Deliver firing alerts to Slack, email, PagerDuty, and webhooks — for OpenSearch and Prometheus rules." />
+  <LinkCard title="SLOs" href="/docs/slo/" description="Turn reliability targets into Prometheus burn-rate alerts that surface alongside everything else." />
+  <LinkCard title="Anomaly Detection" href="/docs/anomaly-detection/" description="Machine-learning detectors that alert on unexpected deviations instead of fixed thresholds." />
+  <LinkCard title="Forecasting" href="/docs/forecasting/" description="Project a metric forward and alert before it crosses a limit, rather than after." />
+  <LinkCard title="Classic Monitors" href="/docs/alerting/unified-alerts/#classic-monitors-previous-experience" description="The older OpenSearch Alerting monitor types, for users of the classic experience." />
+</CardGrid>

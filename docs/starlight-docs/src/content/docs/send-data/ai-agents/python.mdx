@@ -33,7 +33,7 @@ pip install "opensearch-genai-observability-sdk-py[all]"                 # every
 
 ## API overview
 
-The SDK exports these functions and classes. This page covers the instrumentation APIs. Evaluation APIs are documented in [Evaluation & Scoring](/docs/ai-observability/evaluation/).
+The SDK exports these functions and classes. This page covers the instrumentation APIs. Evaluation APIs are documented in [Evaluation & Scoring](/docs/agent-evals/evaluation/).
 
 | Export | Purpose | Docs |
 |---|---|---|
@@ -43,14 +43,14 @@ The SDK exports these functions and classes. This page covers the instrumentatio
 | `enrich()` | Set GenAI attributes on active span | [This page](#enrich) |
 | `score()` | Attach evaluation scores to traces | [This page](#score) |
 | `AWSSigV4OTLPExporter` | SigV4-signed OTLP exporter | [This page](#aws-authentication) |
-| `evaluate()` | Run agent against dataset with scorers | [Evaluation & Scoring](/docs/ai-observability/evaluation/#evaluate---run-experiments) |
-| `Benchmark` | Upload pre-computed eval results | [Evaluation & Scoring](/docs/ai-observability/evaluation/#benchmark---upload-pre-computed-results) |
-| `EvalScore` | Scorer return type | [Evaluation & Scoring](/docs/ai-observability/evaluation/#evalscore-dataclass) |
-| `BenchmarkResult` | Result from `evaluate()` | [Evaluation & Scoring](/docs/ai-observability/evaluation/#result-types) |
-| `BenchmarkSummary` | Aggregate score statistics | [Evaluation & Scoring](/docs/ai-observability/evaluation/#result-types) |
-| `TestCaseResult` | Per-case result | [Evaluation & Scoring](/docs/ai-observability/evaluation/#result-types) |
-| `ScoreSummary` | Per-metric statistics | [Evaluation & Scoring](/docs/ai-observability/evaluation/#result-types) |
-| `OpenSearchTraceRetriever` | Query stored traces from OpenSearch | [Evaluation & Scoring](/docs/ai-observability/evaluation/#opensearchtraceretriever---query-stored-traces) |
+| `evaluate()` | Run agent against dataset with scorers | [Evaluation & Scoring](/docs/agent-evals/evaluation/#evaluate---run-experiments) |
+| `Benchmark` | Upload pre-computed eval results | [Evaluation & Scoring](/docs/agent-evals/evaluation/#benchmark---upload-pre-computed-results) |
+| `EvalScore` | Scorer return type | [Evaluation & Scoring](/docs/agent-evals/evaluation/#evalscore-dataclass) |
+| `BenchmarkResult` | Result from `evaluate()` | [Evaluation & Scoring](/docs/agent-evals/evaluation/#result-types) |
+| `BenchmarkSummary` | Aggregate score statistics | [Evaluation & Scoring](/docs/agent-evals/evaluation/#result-types) |
+| `TestCaseResult` | Per-case result | [Evaluation & Scoring](/docs/agent-evals/evaluation/#result-types) |
+| `ScoreSummary` | Per-metric statistics | [Evaluation & Scoring](/docs/agent-evals/evaluation/#result-types) |
+| `OpenSearchTraceRetriever` | Query stored traces from OpenSearch | [Evaluation & Scoring](/docs/agent-evals/evaluation/#opensearchtraceretriever---query-stored-traces) |
 
 ## Quick start
 
@@ -313,7 +313,7 @@ score(name="accuracy", value=0.95, trace_id="abc123...", span_id="def456...",
 | `response_id` | `str` | LLM completion ID for correlation. |
 | `attributes` | `dict` | Additional span attributes. |
 
-For running evaluations at scale (`evaluate()`, `Benchmark`, `OpenSearchTraceRetriever`), see [Evaluation & Scoring](/docs/ai-observability/evaluation/).
+For running evaluations at scale (`evaluate()`, `Benchmark`, `OpenSearchTraceRetriever`), see [Evaluation & Scoring](/docs/agent-evals/evaluation/).
 
 ---
 
@@ -357,7 +357,7 @@ SigV4 + gRPC is not supported. Use `https://` for AWS endpoints.
 ## Related links
 
 - [AI Observability - Getting Started](/docs/ai-observability/getting-started/) - end-to-end walkthrough
-- [Evaluation & Scoring](/docs/ai-observability/evaluation/) - score traces, run experiments
-- [Trace Retrieval](/docs/ai-observability/evaluation/#opensearchtraceretriever---query-stored-traces) - query stored traces from OpenSearch
+- [Evaluation & Scoring](/docs/agent-evals/evaluation/) - score traces, run experiments
+- [Trace Retrieval](/docs/agent-evals/evaluation/#opensearchtraceretriever---query-stored-traces) - query stored traces from OpenSearch
 - [Agent Traces](/docs/ai-observability/agent-tracing/) - viewing traces in OpenSearch Dashboards
 - [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) - OTel spec reference

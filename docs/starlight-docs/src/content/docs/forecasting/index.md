@@ -33,7 +33,9 @@ Forecasting is useful for capacity planning and proactive operations:
 
 ## Pairing with alerting
 
-Combine forecasting with [Alerting](/docs/alerting/) to get notified when forecasts predict a threshold breach. For example, alert when forecasted disk usage is predicted to exceed 80% within the next 24 hours.
+Combine forecasting with [Alerting](/docs/alerting/) to get notified when forecasts predict a threshold breach — for example, when forecasted disk usage is predicted to exceed 80% within the next 24 hours. Create a [log rule](/docs/alerting/unified-alerts/create-rules/#log-rule-ppl) against the forecast results index, or a [metric rule](/docs/alerting/unified-alerts/create-rules/#metric-rule-promql) on a forecasted metric series.
+
+Forecasters also appear in the **Rules** catalog of the [Unified Alerts View](/docs/alerting/unified-alerts/), so their alerts surface alongside your log and metric rules.
 
 ## Learn more
 

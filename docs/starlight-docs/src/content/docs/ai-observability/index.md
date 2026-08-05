@@ -68,7 +68,7 @@ Explore traces in OpenSearch Dashboards:
 
 Score agent quality and run experiments:
 
-- [Evaluation & Scoring](/docs/ai-observability/evaluation/) - `score()`, `evaluate()`, `Benchmark`, trace retrieval
+- [Evaluation & Scoring](/docs/agent-evals/evaluation/) - `score()`, `evaluate()`, `Benchmark`, trace retrieval
 - **[Agent Health](/docs/agent-health/)** - Golden Path trajectory comparison, LLM judge scoring, batch experiments via UI and CLI
 
 ## Connect

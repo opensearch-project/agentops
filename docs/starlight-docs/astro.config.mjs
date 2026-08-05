@@ -3,17 +3,25 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
 import starlightLinksValidator from 'starlight-links-validator';
+import remarkGfm from 'remark-gfm';
 
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://observability.opensearch.org',
 	base: '/docs',
+	// GitHub-Flavored Markdown (tables, etc.). Applied explicitly so it also
+	// runs on .mdx pages — unlike .md, MDX does not enable GFM automatically.
+	markdown: {
+		remarkPlugins: [remarkGfm],
+	},
 	redirects: {
 		'/get-started': '/get-started/installation/',
 		'/sdks/python': '/send-data/ai-agents/python/',
 		'/sdks/javascript': '/send-data/ai-agents/typescript/',
-		'/sdks/python-experiments': '/ai-observability/evaluation/',
-		'/sdks/python-retrieval': '/ai-observability/evaluation/',
+		'/sdks/python-experiments': '/agent-evals/evaluation/',
+		'/sdks/python-retrieval': '/agent-evals/evaluation/',
+		'/ai-observability/evaluation': '/agent-evals/evaluation/',
+		'/ai-observability/evaluation-integrations': '/agent-evals/evaluation-integrations/',
 		'/sdks/faq': '/ai-observability/getting-started/',
 		'/sdks': '/send-data/ai-agents/',
 		'/send-data/ai-agents/javascript': '/send-data/ai-agents/typescript/',
@@ -138,12 +146,16 @@ export default defineConfig({
 					label: 'Alerting',
 					collapsed: true,
 					items: [
-						{ label: 'Alerting', link: '/alerting/' },
+						{ label: 'Overview', link: '/alerting/' },
 						{
 							label: 'Unified Alerts View',
 							collapsed: true,
 							items: [
 								{ label: 'Overview', link: '/alerting/unified-alerts/' },
+								{ label: 'Create Rules', link: '/alerting/unified-alerts/create-rules/' },
+								{ label: 'Explore Alerts', link: '/alerting/unified-alerts/explore-alerts/' },
+								{ label: 'Explore Rules', link: '/alerting/unified-alerts/explore-rules/' },
+									{ label: 'Routing', link: '/alerting/unified-alerts/routing/' },
 							],
 						},
 						{
@@ -155,7 +167,8 @@ export default defineConfig({
 								{ label: 'Explore an SLO', link: '/slo/detail/' },
 							],
 						},
-						{ label: 'Anomaly Detection', link: '/anomaly-detection/' },
+						{ label: 'Notifications', link: '/alerting/notifications/' },
+							{ label: 'Anomaly Detection', link: '/anomaly-detection/' },
 						{ label: 'Forecasting', link: '/forecasting/' },
 					],
 				},
@@ -260,8 +273,15 @@ export default defineConfig({
 						{ label: 'Framework Integrations', link: '/send-data/ai-agents/integrations/' },
 						{ label: 'Agent Tracing', link: '/ai-observability/agent-tracing/' },
 						{ label: 'Agent Graph & Path', link: '/ai-observability/agent-tracing/graph/' },
-						{ label: 'Evaluation & Scoring', link: '/ai-observability/evaluation/' },
-						{ label: 'Evaluation Integrations', link: '/ai-observability/evaluation-integrations/' },
+					],
+				},
+				{
+					label: 'Agent Evals',
+					collapsed: true,
+					items: [
+						{ label: 'Overview', link: '/agent-evals/' },
+						{ label: 'Evaluation & Scoring', link: '/agent-evals/evaluation/' },
+						{ label: 'Evaluation Integrations', link: '/agent-evals/evaluation-integrations/' },
 					],
 				},
 				{

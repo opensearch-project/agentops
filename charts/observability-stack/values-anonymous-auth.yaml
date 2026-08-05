@@ -178,6 +178,8 @@ opensearch-dashboards:
       explore.discoverTraces.enabled: true
       explore.discoverMetrics.enabled: true
       explore.agentTraces.enabled: true
+      explore.logsDrilldown.enabled: true
+      explore.logsQueryBuilder.enabled: true
       workspace.enabled: true
       data_source.enabled: true
       data_source.ssl.verificationMode: none

@@ -78,6 +78,8 @@ explore.enabled: true
 explore.discoverTraces.enabled: true
 explore.discoverMetrics.enabled: true
 explore.agentTraces.enabled: true
+explore.logsDrilldown.enabled: true
+explore.logsQueryBuilder.enabled: true
 # Surfaces the Alert Manager UI in the Observability plugin, backed by the
 # alertmanager.uri configured on the Prometheus datasource.
 observability.alertManager.enabled: true

@@ -2,8 +2,8 @@ apiVersion: v2
 name: observability-stack
 description: OpenTelemetry-native observability platform for microservices, web apps, and AI agents
 type: application
-version: 0.4.0
-appVersion: "3.7.0"
+version: 0.5.0
+appVersion: "3.8.0"
 
 home: https://github.com/opensearch-project/observability-stack
 sources:

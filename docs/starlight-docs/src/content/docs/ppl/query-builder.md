@@ -9,10 +9,6 @@ It covers a subset of PPL: search, filter, aggregate, and sort. For anything out
 
 ![PPL Query Builder on the Logs page, with a Where filter, a Count aggregation, an hourly time bucket, and the aggregation menu open](/docs/images/ppl/ppl-query-builder.png)
 
-:::note[Availability]
-The query builder ships in OpenSearch Dashboards 3.8.0, switched off by default. Set `explore.logsQueryBuilder.enabled: true` in `opensearch_dashboards.yml` to turn it on. See [Enabling the builder](#enabling-the-builder).
-:::
-
 ## Builder mode and Code mode
 
 You edit a logs query in one of two modes. The **Code** / **Builder** toggle at the upper right of the query panel switches between them.
@@ -102,17 +98,6 @@ generates:
 ```
 
 Because the query aggregates, Discover Logs switches to the **Visualization** tab to chart the result.
-
-## Enabling the builder
-
-A server-side setting gates the builder. Add this to `opensearch_dashboards.yml`:
-
-```yaml
-explore.enabled: true
-explore.logsQueryBuilder.enabled: true
-```
-
-Restart OpenSearch Dashboards to apply the change. With the setting off, the Discover Logs page shows the standard PPL query panel.
 
 ## See also
 

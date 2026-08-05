@@ -73,13 +73,13 @@ You can combine multiple conditions by providing several `WHERE` clauses:
 
 ### Building queries without PPL
 
-With the PPL Query Builder enabled, a new logs query opens in a visual builder instead of the PPL editor. You pick fields, values, aggregations, and a sort from menus, and the builder compiles the PPL.
+With the PPL Query Builder, a new logs query opens in a visual builder instead of the PPL editor. You pick fields, values, aggregations, and a sort from menus, and the builder compiles the PPL.
 
 ![PPL Query Builder on the Logs page, with a Where filter, a Count aggregation, an hourly time bucket, and the aggregation menu open](/docs/images/ppl/ppl-query-builder.png)
 
 The **Code** / **Builder** toggle at the upper right of the query panel switches between the visual builder and the PPL editor, so you can read and hand-edit the generated query at any point.
 
-See [PPL Query Builder](/docs/ppl/query-builder/) for the controls it offers and how to enable it.
+See [PPL Query Builder](/docs/ppl/query-builder/) for the controls it offers.
 
 ### Managing queries
 

@@ -1886,7 +1886,13 @@ def main():
         ndjson_id_mappings["545c7990-2938-11f1-84ad-e734b5ac5a91"] = logs_pattern_id
     if traces_pattern_id:
         ndjson_id_mappings["54f4c1f0-2938-11f1-84ad-e734b5ac5a91"] = traces_pattern_id
+    if service_map_pattern_id:
+        ndjson_id_mappings["55f4c1f0-2938-11f1-84ad-e734b5ac5a91"] = service_map_pattern_id
     import_ndjson_dashboard(workspace_id, "/config/dashboard-astronomy-shop.ndjson", ndjson_id_mappings)
+    # Astronomy shop - service telemetry: 12-panel dashboard with service-name and
+    # SDK-language variables; reuses the logs/span/service-map index patterns and
+    # the ObservabilityStack_Prometheus datasource created above.
+    import_ndjson_dashboard(workspace_id, "/config/dashboard-astronomy-service-telemetry.ndjson", ndjson_id_mappings)
 
     # Create APM config correlation (ties traces + service map + Prometheus)
     if traces_pattern_id and service_map_pattern_id:

@@ -306,6 +306,7 @@ services:
       - ./docker-compose/opensearch-dashboards/dashboard-pipeline-health.yaml:/config/dashboard-pipeline-health.yaml
       - ./docker-compose/opensearch-dashboards/init/architecture.png:/config/architecture.png
       - ./docker-compose/opensearch-dashboards/init/dashboard-astronomy-shop.ndjson:/config/dashboard-astronomy-shop.ndjson
+      - ./docker-compose/opensearch-dashboards/init/dashboard-astronomy-service-telemetry.ndjson:/config/dashboard-astronomy-service-telemetry.ndjson
     networks:
       - observability-stack-network
     restart: "no"

@@ -13,7 +13,7 @@
     "@astrojs/starlight": "^0.38.3",
     "astro": "^6.4.6",
     "astro-mermaid": "^1.4.0",
-    "mermaid": "^11.15.0",
+    "mermaid": "^11.16.1",
     "remark-gfm": "^4.0.1",
     "sharp": "^0.35.0",
     "starlight-links-validator": "^0.24.0"

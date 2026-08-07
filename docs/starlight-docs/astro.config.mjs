@@ -16,6 +16,7 @@ export default defineConfig({
 	},
 	redirects: {
 		'/get-started': '/get-started/installation/',
+		'/ppl/query-builder': '/investigate/discover-logs/#building-queries-with-the-ppl-query-builder',
 		'/sdks/python': '/send-data/ai-agents/python/',
 		'/sdks/javascript': '/send-data/ai-agents/typescript/',
 		'/sdks/python-experiments': '/agent-evals/evaluation/',

@@ -14,10 +14,6 @@ export default defineConfig({
 	markdown: {
 		remarkPlugins: [remarkGfm],
 	},
-	// NOTE: Astro does not prepend `base` ('/docs') to redirect destinations,
-	// so each target must include the `/docs` prefix explicitly. Without it the
-	// generated redirect points at the site root (e.g. `/investigate/...`),
-	// which 404s since all pages are served under `/docs`.
 	redirects: {
 		'/get-started': '/docs/get-started/installation/',
 		'/ppl/query-builder': '/docs/investigate/discover-logs/#building-queries-with-the-ppl-query-builder',

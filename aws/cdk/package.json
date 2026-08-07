@@ -13,7 +13,7 @@
     "@aws-crypto/sha256-js": "^5.0.0",
     "@aws-sdk/credential-provider-node": "^3.700.0",
     "@aws-sdk/signature-v4": "^3.374.0",
-    "@smithy/protocol-http": "^5.0.0",
+    "@smithy/protocol-http": "^5.5.16",
     "aws-cdk-lib": "^2.262.1",
     "constructs": "^10.0.0"
   },

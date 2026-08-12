@@ -180,6 +180,7 @@ opensearch-dashboards:
       explore.agentTraces.enabled: true
       explore.logsDrilldown.enabled: true
       explore.logsQueryBuilder.enabled: true
+      queryEnhancements.ppl.lint.enabled: true
       workspace.enabled: true
       data_source.enabled: true
       data_source.ssl.verificationMode: none

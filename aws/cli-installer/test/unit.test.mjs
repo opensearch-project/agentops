@@ -352,6 +352,10 @@ function baseCfg(overrides = {}) {
     region: 'us-east-1',
     osAction: 'create',
     osDomainName: 'obs-stack-test',
+    engineMode: 'GENERAL',
+    osInstanceType: 'r6g.large.search',
+    osVolumeSize: 100,
+    osEngineVersion: 'OpenSearch_3.5',
     iamAction: 'create',
     apsAction: 'create',
     dashboardsAction: 'create',
@@ -445,6 +449,140 @@ describe('validateConfig — OSI pipeline role', () => {
   it('still requires --iam-role-arn when reusing a role', () => {
     const errors = validateConfig(baseCfg({ iamAction: 'reuse', iamRoleArn: '' }));
     assert.ok(errors.some((e) => e.includes('--iam-role-arn required when reusing')));
+  });
+});
+
+import {
+  EngineMode,
+  instanceFamily,
+  isOptimizedInstanceType,
+  isNvmeOnlyInstanceType,
+  buildStorageAndEngineOptions,
+} from '../src/engine.mjs';
+import { normalizeEngineMode } from '../src/cli.mjs';
+
+describe('buildStorageAndEngineOptions — CreateDomain storage/engine fields', () => {
+  it('standard type keeps gp3 EBS and no engine mode', () => {
+    const o = buildStorageAndEngineOptions({ osInstanceType: 'r6g.large.search', osVolumeSize: 100, engineMode: 'GENERAL' });
+    assert.deepEqual(o.EBSOptions, { EBSEnabled: true, VolumeType: 'gp3', VolumeSize: 100 });
+    assert.equal(o.EngineMode, undefined);
+    assert.equal(o.UseCase, undefined);
+  });
+
+  it('OR1 keeps EBS and sets OPTIMIZED + OBSERVABILITY', () => {
+    const o = buildStorageAndEngineOptions({ osInstanceType: 'or1.2xlarge.search', osVolumeSize: 200, engineMode: 'OPTIMIZED' });
+    assert.deepEqual(o.EBSOptions, { EBSEnabled: true, VolumeType: 'gp3', VolumeSize: 200 });
+    assert.equal(o.EngineMode, 'OPTIMIZED');
+    assert.equal(o.UseCase, 'OBSERVABILITY');
+  });
+
+  it('OI2 omits EBSOptions (local NVMe) — fails without the conditional fix', () => {
+    const o = buildStorageAndEngineOptions({ osInstanceType: 'oi2.large.search', osVolumeSize: 100, engineMode: 'OPTIMIZED' });
+    assert.equal('EBSOptions' in o, false);
+    assert.equal(o.EngineMode, 'OPTIMIZED');
+    assert.equal(o.UseCase, 'OBSERVABILITY');
+  });
+});
+
+describe('engine — instance family helpers', () => {
+  it('derives the family prefix from an instance type', () => {
+    assert.equal(instanceFamily('or1.2xlarge.search'), 'or1');
+    assert.equal(instanceFamily('r6g.large.search'), 'r6g');
+    assert.equal(instanceFamily('OI2.large.search'), 'oi2');
+    assert.equal(instanceFamily(''), '');
+  });
+
+  it('recognizes optimized families (OR1/OR2/OM2/OI2)', () => {
+    for (const t of ['or1.large.search', 'or2.large.search', 'om2.large.search', 'oi2.large.search']) {
+      assert.equal(isOptimizedInstanceType(t), true, t);
+    }
+    assert.equal(isOptimizedInstanceType('r6g.large.search'), false);
+    assert.equal(isOptimizedInstanceType('m6g.large.search'), false);
+  });
+
+  it('recognizes OI2 as NVMe-only, others as EBS-backed', () => {
+    assert.equal(isNvmeOnlyInstanceType('oi2.large.search'), true);
+    assert.equal(isNvmeOnlyInstanceType('or1.large.search'), false);
+    assert.equal(isNvmeOnlyInstanceType('r6g.large.search'), false);
+  });
+
+  it('normalizes engine-mode flag values (case-insensitive)', () => {
+    assert.equal(normalizeEngineMode('optimized'), EngineMode.OPTIMIZED);
+    assert.equal(normalizeEngineMode('GENERAL'), EngineMode.GENERAL);
+    assert.equal(normalizeEngineMode('bogus'), '');
+    assert.equal(normalizeEngineMode(''), '');
+  });
+});
+
+describe('validateConfig — engine mode / optimized instances', () => {
+  it('standard general domain is unchanged (no errors)', () => {
+    assert.deepEqual(validateConfig(baseCfg()), []);
+  });
+
+  it('accepts an optimized OR2 domain with EBS', () => {
+    const errors = validateConfig(baseCfg({
+      engineMode: 'OPTIMIZED',
+      osInstanceType: 'or2.large.search',
+    }));
+    assert.deepEqual(errors, []);
+  });
+
+  it('accepts an optimized OI2 domain (no EBS)', () => {
+    const errors = validateConfig(baseCfg({
+      engineMode: 'OPTIMIZED',
+      osInstanceType: 'oi2.large.search',
+      osVolumeSizeExplicit: false,
+    }));
+    assert.deepEqual(errors, []);
+  });
+
+  it('rejects optimized mode with a standard instance type', () => {
+    const errors = validateConfig(baseCfg({
+      engineMode: 'OPTIMIZED',
+      osInstanceType: 'r6g.large.search',
+    }));
+    assert.ok(errors.some((e) => e.includes('optimized requires an optimized instance type')));
+  });
+
+  it('rejects general mode with an optimized instance type', () => {
+    const errors = validateConfig(baseCfg({
+      engineMode: 'GENERAL',
+      osInstanceType: 'or2.large.search',
+    }));
+    assert.ok(errors.some((e) => e.includes('pass --engine-mode optimized to use it')));
+  });
+
+  it('OI2 with an explicit EBS volume size is rejected', () => {
+    const errors = validateConfig(baseCfg({
+      engineMode: 'OPTIMIZED',
+      osInstanceType: 'oi2.large.search',
+      osVolumeSize: 100,
+      osVolumeSizeExplicit: true,
+    }));
+    assert.ok(errors.some((e) => e.includes('local NVMe') && e.includes('omit --os-volume-size')));
+  });
+
+  it('rejects an invalid engine mode', () => {
+    const errors = validateConfig(baseCfg({ engineMode: 'turbo', osInstanceType: 'or2.large.search' }));
+    assert.ok(errors.some((e) => e.includes("--engine-mode must be 'general' or 'optimized'")));
+  });
+
+  it('rejects optimized domains on an engine older than 3.5', () => {
+    const errors = validateConfig(baseCfg({
+      engineMode: 'OPTIMIZED',
+      osInstanceType: 'or2.large.search',
+      osEngineVersion: 'OpenSearch_2.11',
+    }));
+    assert.ok(errors.some((e) => e.includes('3.5 or newer')));
+  });
+
+  it('accepts optimized domains on OpenSearch 3.5', () => {
+    const errors = validateConfig(baseCfg({
+      engineMode: 'OPTIMIZED',
+      osInstanceType: 'or2.large.search',
+      osEngineVersion: 'OpenSearch_3.5',
+    }));
+    assert.deepEqual(errors, []);
   });
 });
 

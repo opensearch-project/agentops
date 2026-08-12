@@ -56,6 +56,7 @@ import {
   createSpinner,
   createAsciiAnimation,
 } from './ui.mjs';
+import { buildStorageAndEngineOptions } from './engine.mjs';
 import { SignatureV4 } from '@aws-sdk/signature-v4';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import { HttpRequest } from '@smithy/protocol-http';
@@ -318,11 +319,9 @@ async function createManagedDomain(cfg) {
         DomainName: cfg.osDomainName,
         EngineVersion: cfg.osEngineVersion,
         ClusterConfig: clusterConfig,
-        EBSOptions: {
-          EBSEnabled: true,
-          VolumeType: 'gp3',
-          VolumeSize: cfg.osVolumeSize,
-        },
+        // OI2 uses local NVMe; EBSOptions conflicts with it, so it is omitted for
+        // OI2 and kept (gp3) for OR1/OR2/OM2 and standard types.
+        ...buildStorageAndEngineOptions(cfg),
         // VPCOptions places the domain inside the selected subnets/SGs (private endpoint).
         // Omitting it leaves the domain on a public endpoint (default behavior).
         ...(inVpc ? {

@@ -39,6 +39,25 @@ node bin/cli-installer.mjs --managed \
   --region us-east-1
 ```
 
+By default this creates an optimized-engine domain (`or2.large.search`), recommended
+for log-analytics/observability workloads. Optimized domains require OpenSearch 3.5 or
+later. Pick a different optimized type with `--os-instance-type` (OR2/OM2 take an EBS
+volume via `--os-volume-size`; OI2 uses local NVMe and takes none):
+```bash
+node bin/cli-installer.mjs --managed \
+  --pipeline-name obs-stack-<your-alias> \
+  --region us-east-1 \
+  --engine-mode optimized --os-instance-type om2.xlarge.search
+```
+
+For a standard (non-optimized) domain, pass `--engine-mode general`:
+```bash
+node bin/cli-installer.mjs --managed \
+  --pipeline-name obs-stack-<your-alias> \
+  --region us-east-1 \
+  --engine-mode general --os-instance-type r6g.large.search
+```
+
 **Create a serverless (AOSS) deployment from scratch:**
 ```bash
 node bin/cli-installer.mjs --serverless \

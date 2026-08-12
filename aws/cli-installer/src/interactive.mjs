@@ -4,6 +4,7 @@ import {
   saveCursor, clearFromCursor,
 } from './ui.mjs';
 import { createDefaultConfig, DEFAULTS, DEFAULT_REGION } from './config.mjs';
+import { EngineMode, OPTIMIZED_FAMILY_CHOICES, DEFAULT_GENERAL_INSTANCE_TYPE, optimizedInstanceType, isNvmeOnlyInstanceType } from './engine.mjs';
 import { listDomains, listCollections, listWorkspaces, listApplications, listVpcs, listSubnets, listSecurityGroups } from './aws.mjs';
 
 const CUSTOM_INPUT = Symbol('custom');
@@ -242,7 +243,37 @@ async function stepOpenSearch(cfg) {
       if (domainName === GoBack) { clearFromCursor(); continue; }
       cfg.osDomainName = domainName;
 
-      const instType = await eInput({ message: 'Instance type', default: cfg.osInstanceType || DEFAULTS.osInstanceType });
+      const engineMode = await eSelect({
+        message: 'Engine mode',
+        choices: [
+          { name: `Optimized ${theme.muted('— OR2/OM2/OI2, recommended for log analytics/observability')}`, value: EngineMode.OPTIMIZED },
+          { name: `General  ${theme.muted('— standard instances (e.g. r6g), EBS storage')}`, value: EngineMode.GENERAL },
+        ],
+        default: cfg.engineMode || DEFAULTS.engineMode,
+      });
+      if (engineMode === GoBack) { clearFromCursor(); continue; }
+      cfg.engineMode = engineMode;
+
+      let instType;
+      if (engineMode === EngineMode.OPTIMIZED) {
+        // Select a family, then a size, and compose the instance type.
+        const family = await eSelect({
+          message: 'Optimized instance family',
+          choices: OPTIMIZED_FAMILY_CHOICES.map((f) => ({ name: f.label, value: f.family })),
+          default: OPTIMIZED_FAMILY_CHOICES[0].family,
+        });
+        if (family === GoBack) { clearFromCursor(); continue; }
+        const sizes = OPTIMIZED_FAMILY_CHOICES.find((f) => f.family === family).sizes;
+        const size = await eSelect({
+          message: 'Instance size',
+          choices: sizes.map((s) => ({ name: s, value: s })),
+          default: sizes[0],
+        });
+        if (size === GoBack) { clearFromCursor(); continue; }
+        instType = optimizedInstanceType(family, size);
+      } else {
+        instType = await eInput({ message: 'Instance type', default: DEFAULT_GENERAL_INSTANCE_TYPE });
+      }
       if (instType === GoBack) { clearFromCursor(); continue; }
       cfg.osInstanceType = instType;
 
@@ -254,13 +285,18 @@ async function stepOpenSearch(cfg) {
       if (instCount === GoBack) { clearFromCursor(); continue; }
       cfg.osInstanceCount = Number(instCount);
 
-      const volSize = await eInput({
-        message: 'EBS volume size (GB)',
-        default: String(cfg.osVolumeSize || DEFAULTS.osVolumeSize),
-        validate: (v) => /^\d+$/.test(v.trim()) && Number(v) >= 10 || 'Must be at least 10 GB',
-      });
-      if (volSize === GoBack) { clearFromCursor(); continue; }
-      cfg.osVolumeSize = Number(volSize);
+      // OI2 uses local NVMe and takes no EBS volume, so skip the size prompt.
+      if (isNvmeOnlyInstanceType(cfg.osInstanceType)) {
+        cfg.osVolumeSize = 0;
+      } else {
+        const volSize = await eInput({
+          message: 'EBS volume size (GB)',
+          default: String(cfg.osVolumeSize || DEFAULTS.osVolumeSize),
+          validate: (v) => /^\d+$/.test(v.trim()) && Number(v) >= 10 || 'Must be at least 10 GB',
+        });
+        if (volSize === GoBack) { clearFromCursor(); continue; }
+        cfg.osVolumeSize = Number(volSize);
+      }
 
       const engineVer = await eInput({ message: 'Engine version', default: cfg.osEngineVersion || DEFAULTS.osEngineVersion });
       if (engineVer === GoBack) { clearFromCursor(); continue; }

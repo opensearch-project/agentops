@@ -1,5 +1,6 @@
 import { writeFileSync } from 'node:fs';
 import { parseCli, applyQuickDefaults, validateConfig, fillDryRunPlaceholders } from './cli.mjs';
+import { EngineMode, isOptimizedInstanceType, isNvmeOnlyInstanceType } from './engine.mjs';
 import { renderPipeline } from './render.mjs';
 import {
   checkRequirements,
@@ -268,7 +269,13 @@ function printSummary(cfg) {
     osEntries.push(['Domain name', cfg.osDomainName]);
     osEntries.push(['Instance type', cfg.osInstanceType]);
     osEntries.push(['Instance count', String(cfg.osInstanceCount)]);
-    osEntries.push(['Volume size', `${cfg.osVolumeSize} GB`]);
+    if (isNvmeOnlyInstanceType(cfg.osInstanceType)) {
+      osEntries.push(['Volume size', 'local NVMe (no EBS)']);
+    } else {
+      osEntries.push(['Volume size', `${cfg.osVolumeSize} GB`]);
+    }
+    const optimized = cfg.engineMode === EngineMode.OPTIMIZED || isOptimizedInstanceType(cfg.osInstanceType);
+    osEntries.push(['Engine mode', optimized ? 'optimized' : 'general']);
     osEntries.push(['Engine version', cfg.osEngineVersion]);
     if (cfg.vpcId) {
       osEntries.push(['Network', `VPC ${cfg.vpcId}`]);

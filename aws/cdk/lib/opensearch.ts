@@ -4,10 +4,20 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
+// Optimized instance families. OR1/OR2/OM2 use gp3/io1 EBS; OI2 uses local NVMe.
+const OPTIMIZED_FAMILIES = ['or1', 'or2', 'om2', 'oi2'];
+const NVME_FAMILIES = ['oi2'];
+
+function instanceFamily(instanceType: string): string {
+  return (instanceType || '').split('.')[0].toLowerCase();
+}
+
 export interface OpenSearchConstructProps {
   instanceType: string;
   instanceCount: number;
   volumeSize: number;
+  // 'GENERAL' (default) or 'OPTIMIZED' (OR1/OR2/OM2/OI2 instances).
+  engineMode?: 'GENERAL' | 'OPTIMIZED';
 }
 
 export class OpenSearchConstruct extends Construct {
@@ -29,16 +39,24 @@ export class OpenSearchConstruct extends Construct {
       },
     });
 
+    const family = instanceFamily(props.instanceType);
+    const nvmeOnly = NVME_FAMILIES.includes(family);
+    const optimized = props.engineMode === 'OPTIMIZED' || OPTIMIZED_FAMILIES.includes(family);
+
     this.domain = new opensearch.Domain(this, 'Domain', {
       version: opensearch.EngineVersion.openSearch('3.5'),
       capacity: {
         dataNodeInstanceType: props.instanceType,
         dataNodes: props.instanceCount,
       },
-      ebs: {
-        volumeSize: props.volumeSize,
-        volumeType: cdk.aws_ec2.EbsDeviceVolumeType.GP3,
-      },
+      // OI2 uses local NVMe; EBS conflicts with it. The L2 defaults ebs.enabled
+      // to true, so disable it explicitly rather than omitting the prop.
+      ebs: nvmeOnly
+        ? { enabled: false }
+        : {
+            volumeSize: props.volumeSize,
+            volumeType: cdk.aws_ec2.EbsDeviceVolumeType.GP3,
+          },
       nodeToNodeEncryption: true,
       encryptionAtRest: { enabled: true },
       enforceHttps: true,
@@ -56,6 +74,13 @@ export class OpenSearchConstruct extends Construct {
       ],
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
+
+    // EngineMode/UseCase have no L2 props yet; set them on the underlying CfnDomain.
+    if (optimized) {
+      const cfnDomain = this.domain.node.defaultChild as opensearch.CfnDomain;
+      cfnDomain.addPropertyOverride('EngineMode', 'OPTIMIZED');
+      cfnDomain.addPropertyOverride('UseCase', 'OBSERVABILITY');
+    }
 
     // IAM role for OSIS pipeline
     this.pipelineRole = new iam.Role(this, 'PipelineRole', {

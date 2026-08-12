@@ -26,7 +26,7 @@
     "@aws-sdk/client-ec2": "^3.1021.0",
     "@aws-sdk/client-eks": "^3.1019.0",
     "@aws-sdk/client-iam": "^3.750.0",
-    "@aws-sdk/client-opensearch": "^3.750.0",
+    "@aws-sdk/client-opensearch": "^3.1078.0",
     "@aws-sdk/client-opensearchserverless": "^3.1018.0",
     "@aws-sdk/client-osis": "^3.750.0",
     "@aws-sdk/client-resource-groups-tagging-api": "^3.1019.0",

@@ -12,15 +12,22 @@ const env = {
 };
 
 const opensearchType = (app.node.tryGetContext('opensearchType') as 'managed' | 'serverless') || 'managed';
+// Defaults to the optimized engine (OR2). Pass -c engineMode=general -c osInstanceType=r6g.large.search for a standard domain.
+const engineMode = ((app.node.tryGetContext('engineMode') as string) || 'optimized').toUpperCase() === 'GENERAL'
+  ? 'GENERAL'
+  : 'OPTIMIZED';
+const osInstanceType = (app.node.tryGetContext('osInstanceType') as string)
+  || (engineMode === 'OPTIMIZED' ? 'or2.large.search' : 'r6g.large.search');
 
 // Slow-changing infra: OpenSearch domain/collection, AMP workspace, DQS data source
 const infra = new InfraStack(app, 'ObsInfra', {
   env,
   opensearchType,
   ...(opensearchType !== 'serverless' && {
-    osInstanceType: 'r6g.large.search',
+    osInstanceType,
     osInstanceCount: 1,
     osVolumeSize: 100,
+    osEngineMode: engineMode,
   }),
 });
 

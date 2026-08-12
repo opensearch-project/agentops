@@ -1,12 +1,18 @@
 /**
  * Default configuration values.
  */
+import { EngineMode, DEFAULT_OPTIMIZED_INSTANCE_TYPE } from './engine.mjs';
+
 export const DEFAULT_REGION = process.env.AWS_DEFAULT_REGION || process.env.AWS_REGION || 'us-east-2';
 
+// Quick-start defaults to the optimized engine (OR2), recommended for
+// log-analytics/observability workloads. r6g is a standard type and is not valid
+// under the optimized engine, so a general deployment must override both fields.
 export const DEFAULTS = {
   pipelineName: `obs-stack-${Math.floor(Date.now() / 1000)}`,
   opensearchType: 'managed',
-  osInstanceType: 'r6g.large.search',
+  engineMode: EngineMode.OPTIMIZED,
+  osInstanceType: DEFAULT_OPTIMIZED_INSTANCE_TYPE,
   osInstanceCount: 1,
   osVolumeSize: 100,
   osEngineVersion: 'OpenSearch_3.5',
@@ -24,6 +30,7 @@ export function createDefaultConfig() {
     pipelineName: DEFAULTS.pipelineName,
     region: '',
     opensearchType: DEFAULTS.opensearchType,
+    engineMode: DEFAULTS.engineMode,
     osAction: '',
     aossCollectionName: '',
     opensearchEndpoint: '',

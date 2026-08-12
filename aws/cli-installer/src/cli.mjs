@@ -1,6 +1,17 @@
 import { Command } from 'commander';
 import { createRequire } from 'node:module';
 import { DEFAULTS } from './config.mjs';
+import { EngineMode, isOptimizedInstanceType, isNvmeOnlyInstanceType, OPTIMIZED_MIN_VERSION, DEFAULT_GENERAL_INSTANCE_TYPE } from './engine.mjs';
+
+/**
+ * Normalize an engine-mode flag value (case-insensitive) to an EngineMode
+ * constant. Returns '' for an unrecognized value so validateConfig can flag it.
+ */
+export function normalizeEngineMode(value) {
+  const v = String(value || '').trim().toUpperCase();
+  if (v === EngineMode.OPTIMIZED || v === EngineMode.GENERAL) return v;
+  return '';
+}
 
 const require = createRequire(import.meta.url);
 const { version: PKG_VERSION } = require('../package.json');
@@ -47,6 +58,7 @@ export function parseCli(argv) {
   // OpenSearch — create (managed domain)
   program
     .option('--os-domain-name <name>', 'Domain name for new OpenSearch domain')
+    .option('--engine-mode <mode>', 'Engine mode: general or optimized (OR1/OR2/OM2/OI2 instances)', DEFAULTS.engineMode)
     .option('--os-instance-type <type>', 'Instance type', DEFAULTS.osInstanceType)
     .option('--os-instance-count <n>', 'Number of data nodes', DEFAULTS.osInstanceCount)
     .option('--os-volume-size <gb>', 'EBS volume size in GB', DEFAULTS.osVolumeSize)
@@ -94,7 +106,16 @@ export function parseCli(argv) {
 
   program.parse(argv);
 
-  return optsToConfig(program.opts());
+  const cfg = optsToConfig(program.opts());
+  // Whether --os-volume-size was passed explicitly (vs. the default). Used to
+  // reject an OI2 type combined with an explicit EBS volume size.
+  cfg.osVolumeSizeExplicit = program.getOptionValueSource('osVolumeSize') === 'cli';
+  // The default instance type is optimized (OR2). If the user selects general mode
+  // without naming a type, fall back to a standard type so the two agree.
+  if (cfg.engineMode === EngineMode.GENERAL && program.getOptionValueSource('osInstanceType') !== 'cli') {
+    cfg.osInstanceType = DEFAULT_GENERAL_INSTANCE_TYPE;
+  }
+  return cfg;
 }
 
 function parseDestroyArgs(argv) {
@@ -154,6 +175,7 @@ function optsToConfig(opts) {
     opensearchUser: opts.opensearchUser || 'admin',
     opensearchPassword: opts.opensearchPassword || '',
     osDomainName: opts.osDomainName || '',
+    engineMode: normalizeEngineMode(opts.engineMode),
     osInstanceType: opts.osInstanceType,
     osInstanceCount: Number(opts.osInstanceCount),
     osVolumeSize: Number(opts.osVolumeSize),
@@ -318,6 +340,41 @@ export function validateConfig(cfg) {
     // A VPC domain cannot be reused via a public endpoint reference; VPC only applies to newly created domains.
     if (cfg.osAction === 'reuse') {
       errors.push('VPC options apply only when creating a new OpenSearch domain; omit --vpc-id when reusing an existing endpoint');
+    }
+  }
+
+  // Engine mode / optimized instance family checks (only when creating a domain).
+  if (cfg.osAction === 'create' && cfg.opensearchType !== 'serverless') {
+    if (cfg.engineMode !== EngineMode.GENERAL && cfg.engineMode !== EngineMode.OPTIMIZED) {
+      errors.push(`--engine-mode must be 'general' or 'optimized' (got ${cfg.engineMode || '(empty)'})`);
+    }
+    const typeIsOptimized = isOptimizedInstanceType(cfg.osInstanceType);
+    // The engine mode and the instance family must agree: the optimized engine
+    // runs only on OR1/OR2/OM2/OI2; the general engine runs only on standard types.
+    if (cfg.engineMode === EngineMode.OPTIMIZED && cfg.osInstanceType && !typeIsOptimized) {
+      errors.push(`--engine-mode optimized requires an optimized instance type (OR2/OM2/OI2), got ${cfg.osInstanceType}`);
+    }
+    if (cfg.engineMode === EngineMode.GENERAL && typeIsOptimized) {
+      errors.push(`Instance type ${cfg.osInstanceType} is an optimized type; pass --engine-mode optimized to use it`);
+    }
+    // OI2 uses local NVMe and takes no EBS configuration. Only reject an EBS
+    // volume the user set explicitly; the default is ignored (EBS is omitted for OI2).
+    if (isNvmeOnlyInstanceType(cfg.osInstanceType) && cfg.osVolumeSizeExplicit) {
+      errors.push(`Instance type ${cfg.osInstanceType} uses local NVMe storage and cannot take an EBS volume; omit --os-volume-size`);
+    }
+    // Optimized domains require encryption at rest (always enabled here) and
+    // OpenSearch 3.5 or newer (verified against CreateDomain; the developer guide
+    // still lists 2.11). https://docs.aws.amazon.com/opensearch-service/latest/developerguide/or1.html
+    const optimized = cfg.engineMode === EngineMode.OPTIMIZED || typeIsOptimized;
+    if (optimized) {
+      const { major: minMajor, minor: minMinor } = OPTIMIZED_MIN_VERSION;
+      const m = /^OpenSearch_(\d+)\.(\d+)$/.exec(cfg.osEngineVersion || '');
+      const tooOld = m
+        ? (Number(m[1]) < minMajor || (Number(m[1]) === minMajor && Number(m[2]) < minMinor))
+        : Boolean(cfg.osEngineVersion);
+      if (tooOld) {
+        errors.push(`Optimized domains require OpenSearch ${minMajor}.${minMinor} or newer (got ${cfg.osEngineVersion})`);
+      }
     }
   }
 

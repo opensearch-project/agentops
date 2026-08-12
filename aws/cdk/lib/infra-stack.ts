@@ -9,6 +9,7 @@ export interface InfraStackProps extends cdk.StackProps {
   osInstanceType?: string;
   osInstanceCount?: number;
   osVolumeSize?: number;
+  osEngineMode?: 'GENERAL' | 'OPTIMIZED';
 }
 
 export class InfraStack extends cdk.Stack {
@@ -41,9 +42,10 @@ export class InfraStack extends cdk.Stack {
       this.pipelineRoleArn = serverless.pipelineRole.roleArn;
     } else {
       const opensearch = new OpenSearchConstruct(this, 'OpenSearch', {
-        instanceType: props.osInstanceType ?? 'r6g.large.search',
+        instanceType: props.osInstanceType ?? 'or2.large.search',
         instanceCount: props.osInstanceCount ?? 1,
         volumeSize: props.osVolumeSize ?? 100,
+        engineMode: props.osEngineMode ?? 'OPTIMIZED',
       });
 
       this.domainEndpoint = opensearch.domain.domainEndpoint;

@@ -1,22 +1,32 @@
 ---
 title: Explore Alerts
-description: Triage firing alerts in the Alerts tab — filter, read the alert timeline, and scope data sources
+description: Triage firing alerts and detected anomalies in the Alerts tab
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-The **Alerts** tab of the [Unified Alerts View](/docs/alerting/unified-alerts/) is where responders triage what's firing right now. It lists every alert produced by your [rules](/docs/alerting/unified-alerts/create-rules/) across the selected data sources — OpenSearch log alerts and Prometheus metric alerts in one queue.
+The **Alerts** tab of the [Unified Alerts View](/docs/alerting/unified-alerts/) is where responders triage active and historical signals. It combines OpenSearch log alerts, Prometheus metric alerts, and anomaly detector results from the selected data sources in one queue.
 
 ![The Unified Alerts View Alerts tab, with the filter rail, severity-colored alert timeline, and the list of active alerts](/docs/images/alerting/unified-alerts-overview.png)
 
 ## The alert list
 
-Each row shows an alert's severity, state, message, and how long it has been active. Sort or search to find a specific alert. Select an alert to open its detail panel — **Alert Details**, **Labels**, **Annotations**, and **Raw Alert Data** — with an **Open rule** button that jumps to the rule that produced it. To edit, disable, or delete that rule, use the [Rules tab](/docs/alerting/unified-alerts/explore-rules/#inspect-and-manage-a-rule).
+Each row shows a signal's severity, state, message, start time, and duration. The **State** value is `anomaly` for anomaly results. Sort or search to find a specific alert or anomaly.
+
+Select an alert to open its detail panel — **Alert Details**, **Labels**, **Annotations**, and **Raw Alert Data** — with an **Open rule** button that jumps to the rule that produced it. To edit, disable, or delete that rule, use the [Rules tab](/docs/alerting/unified-alerts/explore-rules/#inspect-and-manage-a-resource).
+
+## Inspect anomalies
+
+Anomaly results appear directly in **All Alerts**. Results from the same detector and entity are grouped into one row with an occurrence count. Expand the row to compare the message, relative start time, and duration of each occurrence, then select an occurrence to inspect that exact anomaly.
+
+The anomaly detail panel shows the selected occurrence's grade, confidence, time, detector context, and feature values. For a detector with a categorical field, the panel includes an entity heat map and highlights the selected result. For a single-stream detector, it shows the detector's metric series without an entity heat map.
+
+If an alert is triggered by a detector result, select the alert to see the **Associated anomaly** section. It embeds the same anomaly context in the alert detail panel, and the linked anomaly is not repeated as a separate row in **All Alerts**.
 
 <Aside type="note" title="Quieting an alert">
 Individual alerts aren't muted from this list. To stop an alert:
 
-- **Disable the rule** ([Rules tab](/docs/alerting/unified-alerts/explore-rules/#inspect-and-manage-a-rule)) to stop it evaluating entirely, or
+- **Disable the rule** ([Rules tab](/docs/alerting/unified-alerts/explore-rules/#inspect-and-manage-a-resource)) to stop it evaluating entirely, or
 - add an Alertmanager **silence** (at `http://localhost:9093` or via `amtool silence add`) to keep a metric rule running but suppress its notifications for a window — see [Notifications](/docs/alerting/notifications/#prometheus-rules--alertmanager-receivers).
 
 The `muted` state you see in the **State** filter reflects alerts suppressed this way.
@@ -24,16 +34,16 @@ The `muted` state you see in the **State** filter reflects alerts suppressed thi
 
 ## Alert timeline
 
-The histogram at the top of the tab buckets firing alerts over the selected time range (default **Last 24 hours**), colored by severity. Use it to spot bursts — a spike of `critical` bars usually lines up with an incident. Narrow the time range to zoom into a window of interest.
+The histogram at the top of the tab buckets alerts and anomalies over the selected time range (default **Last 24 hours**), colored by severity. Use it to spot bursts — a spike of `critical` bars usually lines up with an incident. Narrow the time range to zoom into a window of interest.
 
 ## Filters
 
 The left rail scopes the list without editing any query:
 
-- **Datasource** — pick the OpenSearch cluster (its monitors), the Prometheus data source (its alerts), or both.
+- **Datasource** — pick an OpenSearch data source (its alerts and anomaly results), a Prometheus data source (its alerts), or both.
 - **Severity** — `critical`, `high`, `medium`, and so on, with live counts.
-- **State** — `active`, `muted`, and (for OpenSearch) `resolved`.
-- **Type** — `Log`, `Metric`, `APM`, `Cluster Metrics` (see [Rule types](/docs/alerting/unified-alerts/#rule-types)).
+- **State** — `active`, `muted`, `anomaly`, and (for OpenSearch) `resolved`.
+- **Type** — `alert` or `anomaly`.
 - **Labels** — every label present on the current alert set (`alertname`, `component`, `service`, `job`, …) becomes a facet. This is where Prometheus label cardinality pays off: filter to one service, one exporter, or one component in a click.
 
 ## Selecting data sources
@@ -50,11 +60,11 @@ Firing **metric-rule** (Prometheus) alerts are grouped and delivered through the
 
 ## Empty list
 
-If the **Alerts** tab is empty, nothing is currently firing for the selected data sources. Confirm the right data sources are selected in the filter, [create a rule](/docs/alerting/unified-alerts/create-rules/), or generate some load so alerts have something to fire on.
+If the **Alerts** tab is empty, no alerts or anomalies exist in the selected time range for the selected data sources. Confirm the right data sources are selected, widen the time range, [create a rule or detector](/docs/alerting/unified-alerts/create-rules/), or generate some load so the resources have data to evaluate.
 
 ## Alert isn't firing
 
-If a rule exists and is enabled but never produces an alert, work through this checklist. Open the rule from the [Rules tab](/docs/alerting/unified-alerts/explore-rules/#inspect-and-manage-a-rule) to see its definition while you check:
+If a rule exists and is enabled but never produces an alert, work through this checklist. Open the rule from the [Rules tab](/docs/alerting/unified-alerts/explore-rules/#inspect-and-manage-a-resource) to see its definition while you check:
 
 1. **Is the rule enabled?** A disabled rule never evaluates. Check its status in the Rules catalog.
 2. **Does the query return data?** For a log rule, use **Run preview** in the rule editor — if it returns no rows, the condition can't trip. Confirm data is actually flowing into the queried indices (`logs-otel-v1*`, `otel-v1-apm-span*`) or Prometheus.
@@ -68,6 +78,6 @@ If the rule *fires* but no notification arrives, the rule is working and the pro
 ## Related
 
 - [Explore Rules](/docs/alerting/unified-alerts/explore-rules/) — browse the rules catalog and inspect definitions.
-- [Create Rules](/docs/alerting/unified-alerts/create-rules/) — build the log and metric rules that populate this list.
+- [Create Rules](/docs/alerting/unified-alerts/create-rules/) — build alerting rules, anomaly detectors, and forecasters.
 - [Notifications](/docs/alerting/notifications/) — route firing alerts to Slack, email, PagerDuty, and webhooks.
-- [Unified Alerts View](/docs/alerting/unified-alerts/) — overview, rule types, and classic monitors.
+- [Unified Alerts View](/docs/alerting/unified-alerts/) — overview, resource types, and classic monitors.

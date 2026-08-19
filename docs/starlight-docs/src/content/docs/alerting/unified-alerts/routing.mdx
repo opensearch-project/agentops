@@ -10,7 +10,7 @@ The **Routing** tab of the [Unified Alerts View](/docs/alerting/unified-alerts/)
 ![The Routing tab showing the Alertmanager status, a Source selector, the route tree, and the list of receivers with their integration types](/docs/images/alerting/routing-tab.png)
 
 <Aside type="note" title="Routing applies to Prometheus alerts only">
-The routing tree belongs to the **Prometheus Alertmanager** and governs only **metric-rule** (Prometheus) alerts. It does not route OpenSearch log-rule, APM, or cluster-metrics alerts — those notify through the actions you attach to each rule's triggers, not through this tree. So the Routing tab reflects how Prometheus alerts are grouped and delivered, not every alert in the view.
+The routing tree belongs to the **Prometheus Alertmanager** and governs only **metric-rule** (Prometheus) alerts. It does not route OpenSearch log-rule, APM, or cluster-metrics alerts — those notify through the actions you attach to each rule's triggers, not through this tree. Anomaly results and forecast results are model outputs, not Prometheus alerts, so they do not appear in this routing tree either. The Routing tab reflects how Prometheus alerts are grouped and delivered, not every signal in the view.
 </Aside>
 
 ## What the tab shows

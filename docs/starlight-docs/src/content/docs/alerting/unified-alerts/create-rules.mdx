@@ -111,6 +111,54 @@ A **metric rule** alerts on Prometheus time series. You write a **PromQL** expre
 
 Metric-rule alerts are delivered through the Prometheus Alertmanager — set up where they go in [Notifications](/docs/alerting/notifications/#prometheus-rules--alertmanager-receivers), and view the resulting [routing tree](/docs/alerting/unified-alerts/routing/). Because [SLOs](/docs/slo/) deploy their burn-rate alerts as Prometheus rules, SLO breaches show up here as **Metric** rules too.
 
+## Anomaly detection rule
+
+An **anomaly detection rule** creates an OpenSearch anomaly detector. The detector learns the expected behavior of one or more aggregated features and identifies data points that differ from that behavior.
+
+![The create anomaly detection rule form in Unified Alerts View](/docs/images/alerting/create-anomaly-detection-rule.png)
+
+<Aside type="note" title="Data source requirements">
+Anomaly detection and forecasting rules require a standard OpenSearch data source. Their creation forms list only compatible OpenSearch data sources and do not list Prometheus, OpenSearch Serverless, or other engine types. The data source field is initially unselected. If no compatible OpenSearch data source is available, these options are disabled in the **Create** menu.
+</Aside>
+
+The flyout follows four steps:
+
+<Steps>
+
+1. **Define the detector.** Enter a unique name and optional description. Select a compatible OpenSearch data source, one or more indices, an optional Query DSL filter, and the timestamp field. You can also store results in a custom result index.
+
+2. **Configure the model.** Add up to five features. For each feature, choose an aggregation method and field. Optionally add a categorical field to detect anomalies independently for each entity, then set the detection interval, frequency, window delay, and history. Use **Suggest parameters** for recommended operation settings, or open **Advanced settings** to configure the shingle size.
+
+3. **Set up detector jobs.** Choose whether to start real-time detection automatically after creation. Automatic start is enabled by default.
+
+4. **Review and create.** Confirm the data source, indices, timestamp, features, category field, and schedule, then choose **Create rule**. The detector appears in the **Rules** catalog. After the model initializes, detected anomalies appear in the **Alerts** tab.
+
+</Steps>
+
+For definitions of features, categorical detectors, anomaly grade, and confidence, see [Anomaly Detection](/docs/anomaly-detection/).
+
+## Forecasting rule
+
+A **forecasting rule** creates an OpenSearch forecaster that predicts an aggregated indicator over a future horizon. Creating the rule also starts the forecaster.
+
+![The create forecasting rule form in Unified Alerts View](/docs/images/alerting/create-forecasting-rule.png)
+
+<Aside type="note" title="Data source requirements">
+Anomaly detection and forecasting rules require a standard OpenSearch data source. Their creation forms list only compatible OpenSearch data sources and do not list Prometheus, OpenSearch Serverless, or other engine types. The data source field is initially unselected. If no compatible OpenSearch data source is available, these options are disabled in the **Create** menu.
+</Aside>
+
+The flyout follows two steps:
+
+<Steps>
+
+1. **Define the data source.** Enter a unique name and optional description. Select a compatible OpenSearch data source, indices, an optional Query DSL filter, and the timestamp field. Define the **indicator** by choosing its name, aggregation method, and field. You can also add a categorical field to generate forecasts per entity.
+
+2. **Add model parameters.** Set the forecasting interval, window delay, horizon, and history. Choose the default result index or configure a custom result index and its lifecycle settings, then choose **Create rule**. The forecaster starts and appears in the **Rules** catalog.
+
+</Steps>
+
+Forecasters do not add rows to the **Alerts** tab by themselves. Use the Rules catalog to check whether a forecaster is running and to inspect or manage its definition. For forecasting concepts and result interpretation, see [Forecasting](/docs/forecasting/).
+
 ## Related
 
 - [Notifications](/docs/alerting/notifications/) — route firing alerts to Slack, email, PagerDuty, and webhooks.

@@ -1,38 +1,45 @@
 ---
 title: Explore Rules
-description: Browse the rules catalog — inspect definitions by type, status, and health
+description: Browse and manage alerting rules, anomaly detectors, and forecasters
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-The **Rules** tab of the [Unified Alerts View](/docs/alerting/unified-alerts/) is the catalog of everything that *can* fire: every alerting rule from both engines, plus the [anomaly detectors](/docs/anomaly-detection/) and [forecasters](/docs/forecasting/) you define elsewhere, side by side. Where the [Alerts tab](/docs/alerting/unified-alerts/explore-alerts/) shows what's firing now, the Rules tab shows what's defined.
+The **Rules** tab of the [Unified Alerts View](/docs/alerting/unified-alerts/) is the catalog of everything you define for alerting, anomaly detection, and forecasting. Where the [Alerts tab](/docs/alerting/unified-alerts/explore-alerts/) shows alerts and detected anomalies, the Rules tab shows the resources that evaluate, model, or predict your data.
 
-![The Rules tab listing OpenSearch and Prometheus rules together, with a Type column tagging each as Log, Metric, APM, or Cluster Metrics](/docs/images/alerting/unified-alerts-rules.png)
+![The Rules tab listing resources with their status, severity, type, health, and data source](/docs/images/alerting/unified-alerts-rules.png)
 
 ## The rules catalog
 
-Each row shows a rule's name, status, severity, **type**, health, and owning data source. Filter by any facet to answer questions like "which log rules are unhealthy?" or "show me every critical metric rule on the Prometheus data source."
+Each row shows a resource's name, status, severity, **type**, health, and owning data source. Detector and forecaster statuses reflect their runtime state, such as `Running`, `Stopped`, or `Initializing`, rather than a generic active state.
 
-The **Type** facet classifies each rule by the data it runs on — `Log`, `Metric`, `APM`, `Cluster Metrics`. See [Rule types](/docs/alerting/unified-alerts/#rule-types) for what each one means. To add a rule from here, use **Create alert rule** — see [Create Rules](/docs/alerting/unified-alerts/create-rules/).
+The **Type** facet includes `Log`, `Metric`, `Anomaly Detector`, `Forecaster`, `APM`, and `Cluster Metrics`. See [Resource types](/docs/alerting/unified-alerts/#resource-types) for what each one means. To add a resource, use **Create** — see [Create Rules](/docs/alerting/unified-alerts/create-rules/).
 
 <Aside type="note" title="Which types you can create here">
-**Create alert rule** builds **Log** and **Metric** rules only. `APM` and `Cluster Metrics` rules also appear in this catalog and can be filtered on, but they are [classic monitors](/docs/alerting/unified-alerts/#classic-monitors-previous-experience) — created in the standalone Alerting app, not from the Create alert rule button.
+The **Create** menu builds **Log**, **Metric**, **Anomaly detection**, and **Forecasting** rules. `APM` and `Cluster Metrics` rules also appear in this catalog and can be filtered on, but they are [classic monitors](/docs/alerting/unified-alerts/#classic-monitors-previous-experience) created in the standalone Alerting app.
 </Aside>
 
-## Inspect and manage a rule
+## Inspect and manage a resource
 
-Select a rule to open its detail panel. It shows the rule's **query definition**, **conditions & evaluation** (evaluation interval, pending period, threshold), **labels**, a **condition preview**, and its **recent alerts** — everything you need to understand why a rule is (or isn't) firing.
+Select a resource to open its detail panel. The content and actions depend on its type.
+
+- An alerting rule shows its **query definition**, **conditions & evaluation**, **labels**, a **condition preview**, and **recent alerts**. Its actions include edit, clone, enable or disable, and delete.
+- An anomaly detector shows detector settings, model features, operation settings, additional settings, and job state. Use the panel to start or stop the detector, edit detector settings, or edit the model configuration.
+- A forecaster shows forecaster settings, its indicator and model configuration, operational settings, result index, and job state. Use the panel to start or stop the forecaster or edit its definition.
 
 ![A rule detail panel showing the query definition and Edit, Clone, Delete, and Disable rule actions](/docs/images/alerting/rule-detail-actions.png)
 
-The panel's toolbar carries the lifecycle actions:
+Available lifecycle actions include:
 
 | Action | What it does |
 |---|---|
-| **Edit** | Change the query, schedule, conditions, or notification actions. |
-| **Clone** | Duplicate the rule as a starting point for a similar one. |
-| **Disable rule** / **Enable** | Stop or resume evaluation without deleting the rule — the fastest way to quiet a noisy rule while you tune it. |
-| **Delete** | Remove the rule permanently. |
+| **Edit** | Change an alerting rule, detector, or forecaster definition. A running detector or active forecaster must be stopped before it can be edited. |
+| **Clone** | Duplicate a supported alerting rule as a starting point for a similar one. |
+| **Disable rule** / **Enable** | Stop or resume alert-rule evaluation without deleting the rule. |
+| **Start** / **Stop** | Start or stop a detector or forecaster job. |
+| **Delete** | Remove the selected resource permanently. |
+
+When you edit a running detector, the flyout asks to stop it before continuing and offers to start it again after the update. You can also select detector or forecaster rows in the table and apply start, stop, or delete actions to the selection.
 
 <Aside type="tip" title="Silence vs. disable">
 **Disable** stops a rule from evaluating at all. To keep a metric rule running but stop its *notifications* temporarily, use an Alertmanager **silence** instead — see [Notifications](/docs/alerting/notifications/#prometheus-rules--alertmanager-receivers).
@@ -44,16 +51,16 @@ The left rail is shared with the [Alerts tab](/docs/alerting/unified-alerts/expl
 
 - **Datasource** — the OpenSearch cluster, the Prometheus data source, or both.
 - **Severity** — `critical`, `high`, `medium`, and so on.
-- **Type** — `Log`, `Metric`, `APM`, `Cluster Metrics`.
+- **Type** — `Log`, `Metric`, `Anomaly Detector`, `Forecaster`, `APM`, or `Cluster Metrics`.
 - **Labels** — filter to one service, exporter, or component in a click.
 
 ## Empty catalog
 
-If the **Rules** tab is empty, there are no rules for the selected data sources yet. Confirm the right data sources are selected in the filter, or [create a rule](/docs/alerting/unified-alerts/create-rules/).
+If the **Rules** tab is empty, there are no alerting rules, detectors, or forecasters for the selected data sources yet. Confirm the right data sources are selected in the filter, or [create a resource](/docs/alerting/unified-alerts/create-rules/).
 
 ## Related
 
-- [Explore Alerts](/docs/alerting/unified-alerts/explore-alerts/) — triage the alerts these rules produce.
-- [Create Rules](/docs/alerting/unified-alerts/create-rules/) — build log and metric rules.
+- [Explore Alerts](/docs/alerting/unified-alerts/explore-alerts/) — triage alerts and detected anomalies.
+- [Create Rules](/docs/alerting/unified-alerts/create-rules/) — build alerting rules, anomaly detectors, and forecasters.
 - [Routing](/docs/alerting/unified-alerts/routing/) — the Prometheus Alertmanager route tree for metric alerts.
-- [Unified Alerts View](/docs/alerting/unified-alerts/) — overview, rule types, and classic monitors.
+- [Unified Alerts View](/docs/alerting/unified-alerts/) — overview, resource types, and classic monitors.

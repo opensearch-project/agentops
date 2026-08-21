@@ -193,9 +193,24 @@ flowchart LR
 
 </Steps>
 
+## Working examples
+
+Four fully instrumented agents ship with the repository, each with its own README:
+
+| Example | Framework | What it shows |
+| --- | --- | --- |
+| [weather-agent](https://github.com/opensearch-project/observability-stack/tree/main/examples/plain-agents/weather-agent) | OpenTelemetry SDK | Standalone assistant with fault injection, and OTLP traces, metrics and logs |
+| [multi-agent-planner](https://github.com/opensearch-project/observability-stack/tree/main/examples/plain-agents/multi-agent-planner) | OpenTelemetry SDK | Trace context propagation across sub-agents |
+| [code-assistant](https://github.com/opensearch-project/observability-stack/tree/main/examples/strands/code-assistant) | Strands SDK | Multi-agent coding assistant with auto-instrumented GenAI spans |
+| [bedrock-financial-assistant](https://github.com/opensearch-project/observability-stack/tree/main/examples/langchain/bedrock-financial-assistant) | LangChain | Automatic LangChain tracing against Bedrock Claude |
+
+The `plain-agents` examples run automatically with the stack. The others run standalone with `uv run python main.py` from the example directory.
+
+Exporter ports differ by framework: the OpenTelemetry SDK examples send over gRPC on **4317**, and the Strands SDK example sends over HTTP/protobuf on **4318**.
+
 ## What's next
 
 - [Python SDK reference](/docs/send-data/ai-agents/python/) - full API documentation for `register`, `observe`, `enrich`, and AWS auth
-- [Evaluation & Scoring](/docs/ai-observability/evaluation/) - `score()`, `evaluate()`, `Benchmark`, and `OpenSearchTraceRetriever` in depth
+- [Evaluation & Scoring](/docs/agent-evals/evaluation/) - `score()`, `evaluate()`, `Benchmark`, and `OpenSearchTraceRetriever` in depth
 - [Agent Tracing UI](/docs/ai-observability/agent-tracing/) - explore traces, graphs, and timelines in OpenSearch Dashboards
 - [Agent Health](/docs/agent-health/) - evaluate agents with Golden Path comparison, LLM judges, and batch experiments

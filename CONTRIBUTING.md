@@ -391,6 +391,15 @@ AI coding assistants are welcome to contribute! When contributing as an AI agent
 - Include configuration patterns
 - Keep AI-assistant focused
 
+### llms.txt
+
+`docs/public/llms.txt` is a first-class doc artifact, on the same footing as README.md and AGENTS.md. It lists every page in the docs site with a one-line description, served at the site root for AI assistants and other automated readers.
+
+Update it whenever you change something it reflects: adding, removing, or renaming a docs page, or changing a page's `title` or `description` frontmatter.
+
+- Do not hand-edit `docs/public/llms.txt`. It is generated; regenerate it instead using the config in `docs/starlight-docs/llms-txt/`.
+- After regenerating, check that every link is a fully qualified `https://observability.opensearch.org/...` URL, not a relative `/docs/...` path, and that the title and tagline lines at the top are unchanged.
+
 ### Code Comments
 
 - Explain *why*, not just *what*

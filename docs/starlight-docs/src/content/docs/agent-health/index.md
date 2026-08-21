@@ -53,5 +53,6 @@ For creating custom connectors, see [Connectors](/docs/agent-health/configuratio
 - [Getting Started](/docs/agent-health/getting-started/) - step-by-step walkthrough from install to first evaluation
 - [Evaluations](/docs/agent-health/evaluations/) - how evaluations, test cases, and experiments work
 - [Trace Visualization](/docs/agent-health/traces/) - real-time trace monitoring and comparison
+- [Agent Traces](/docs/ai-observability/agent-tracing/) - the separate OpenSearch Dashboards plugin for exploring trace data stored in OpenSearch indices. See [Trace Visualization](/docs/agent-health/traces/) for how the two differ
 - [Configuration](/docs/agent-health/configuration/) - connect your own agent and configure the environment
 - [CLI Reference](/docs/agent-health/cli/) - all CLI commands and options

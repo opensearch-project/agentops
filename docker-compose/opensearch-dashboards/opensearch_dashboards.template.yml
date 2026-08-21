@@ -78,6 +78,12 @@ explore.enabled: true
 explore.discoverTraces.enabled: true
 explore.discoverMetrics.enabled: true
 explore.agentTraces.enabled: true
+explore.logsDrilldown.enabled: true
+explore.logsQueryBuilder.enabled: true
+# PPL syntax linter in the query editor (Explore / PPL query builder). Ships in
+# OSD 3.8, off by default; the queryEnhancements plugin reads this via
+# DynamicConfigService, which falls back to this static value.
+queryEnhancements.ppl.lint.enabled: true
 # Surfaces the Alert Manager UI in the Observability plugin, backed by the
 # alertmanager.uri configured on the Prometheus datasource.
 observability.alertManager.enabled: true

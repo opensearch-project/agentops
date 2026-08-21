@@ -26,6 +26,8 @@ data:
 {{ .Files.Get "files/dashboard-opensearch-health.yaml" | indent 4 }}
   dashboard-astronomy-shop.ndjson: |
 {{ .Files.Get "files/dashboard-astronomy-shop.ndjson" | indent 4 }}
+  dashboard-astronomy-service-telemetry.ndjson: |
+{{ .Files.Get "files/dashboard-astronomy-service-telemetry.ndjson" | indent 4 }}
 binaryData:
   architecture.png: {{ .Files.Get "files/architecture.png" | b64enc }}
 {{- end }}

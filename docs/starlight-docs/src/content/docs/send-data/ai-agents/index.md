@@ -49,4 +49,4 @@ This produces a trace with `gen_ai.operation.name`, `gen_ai.agent.name`, `gen_ai
 
 - [Python SDK reference](/docs/send-data/ai-agents/python/) - full API documentation
 - [AI Observability - Getting Started](/docs/ai-observability/getting-started/) - end-to-end walkthrough from install to seeing traces
-- [Evaluation & Scoring](/docs/ai-observability/evaluation/) - score traces, run experiments, compare agent versions
+- [Evaluation & Scoring](/docs/agent-evals/evaluation/) - score traces, run experiments, compare agent versions

@@ -3,37 +3,46 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
 import starlightLinksValidator from 'starlight-links-validator';
+import remarkGfm from 'remark-gfm';
 
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://observability.opensearch.org',
 	base: '/docs',
+	// GitHub-Flavored Markdown (tables, etc.). Applied explicitly so it also
+	// runs on .mdx pages — unlike .md, MDX does not enable GFM automatically.
+	markdown: {
+		remarkPlugins: [remarkGfm],
+	},
 	redirects: {
-		'/get-started': '/get-started/installation/',
-		'/sdks/python': '/send-data/ai-agents/python/',
-		'/sdks/javascript': '/send-data/ai-agents/typescript/',
-		'/sdks/python-experiments': '/ai-observability/evaluation/',
-		'/sdks/python-retrieval': '/ai-observability/evaluation/',
-		'/sdks/faq': '/ai-observability/getting-started/',
-		'/sdks': '/send-data/ai-agents/',
-		'/send-data/ai-agents/javascript': '/send-data/ai-agents/typescript/',
-		'/dashboards/transformations': '/dashboards/visualize/transformations/',
-		'/dashboards/visualize/visualization-editor': '/dashboards/visualize/',
-		'/dashboards/visualize/visualization-editor/area-chart': '/dashboards/visualize/area-chart/',
-		'/dashboards/visualize/visualization-editor/bar-chart': '/dashboards/visualize/bar-chart/',
-		'/dashboards/visualize/visualization-editor/bar-gauge-chart': '/dashboards/visualize/bar-gauge-chart/',
-		'/dashboards/visualize/visualization-editor/configuring-visualizations': '/dashboards/visualize/configuring-visualizations/',
-		'/dashboards/visualize/visualization-editor/configuring-visualizations/thresholds': '/dashboards/visualize/configuring-visualizations/thresholds/',
-		'/dashboards/visualize/visualization-editor/configuring-visualizations/value-calculations': '/dashboards/visualize/configuring-visualizations/value-calculations/',
-		'/dashboards/visualize/visualization-editor/gauge-chart': '/dashboards/visualize/gauge-chart/',
-		'/dashboards/visualize/visualization-editor/heatmap-chart': '/dashboards/visualize/heatmap-chart/',
-		'/dashboards/visualize/visualization-editor/histogram-chart': '/dashboards/visualize/histogram-chart/',
-		'/dashboards/visualize/visualization-editor/line-chart': '/dashboards/visualize/line-chart/',
-		'/dashboards/visualize/visualization-editor/metric-chart': '/dashboards/visualize/metric-chart/',
-		'/dashboards/visualize/visualization-editor/pie-chart': '/dashboards/visualize/pie-chart/',
-		'/dashboards/visualize/visualization-editor/scatter-chart': '/dashboards/visualize/scatter-chart/',
-		'/dashboards/visualize/visualization-editor/state-timeline-chart': '/dashboards/visualize/state-timeline-chart/',
-		'/dashboards/visualize/visualization-editor/table-chart': '/dashboards/visualize/table-chart/',
+		'/get-started': '/docs/get-started/installation/',
+		'/ppl/query-builder': '/docs/investigate/discover-logs/#building-queries-with-the-ppl-query-builder',
+		'/sdks/python': '/docs/send-data/ai-agents/python/',
+		'/sdks/javascript': '/docs/send-data/ai-agents/typescript/',
+		'/sdks/python-experiments': '/docs/agent-evals/evaluation/',
+		'/sdks/python-retrieval': '/docs/agent-evals/evaluation/',
+		'/ai-observability/evaluation': '/docs/agent-evals/evaluation/',
+		'/ai-observability/evaluation-integrations': '/docs/agent-evals/evaluation-integrations/',
+		'/sdks/faq': '/docs/ai-observability/getting-started/',
+		'/sdks': '/docs/send-data/ai-agents/',
+		'/send-data/ai-agents/javascript': '/docs/send-data/ai-agents/typescript/',
+		'/dashboards/transformations': '/docs/dashboards/visualize/transformations/',
+		'/dashboards/visualize/visualization-editor': '/docs/dashboards/visualize/',
+		'/dashboards/visualize/visualization-editor/area-chart': '/docs/dashboards/visualize/area-chart/',
+		'/dashboards/visualize/visualization-editor/bar-chart': '/docs/dashboards/visualize/bar-chart/',
+		'/dashboards/visualize/visualization-editor/bar-gauge-chart': '/docs/dashboards/visualize/bar-gauge-chart/',
+		'/dashboards/visualize/visualization-editor/configuring-visualizations': '/docs/dashboards/visualize/configuring-visualizations/',
+		'/dashboards/visualize/visualization-editor/configuring-visualizations/thresholds': '/docs/dashboards/visualize/configuring-visualizations/thresholds/',
+		'/dashboards/visualize/visualization-editor/configuring-visualizations/value-calculations': '/docs/dashboards/visualize/configuring-visualizations/value-calculations/',
+		'/dashboards/visualize/visualization-editor/gauge-chart': '/docs/dashboards/visualize/gauge-chart/',
+		'/dashboards/visualize/visualization-editor/heatmap-chart': '/docs/dashboards/visualize/heatmap-chart/',
+		'/dashboards/visualize/visualization-editor/histogram-chart': '/docs/dashboards/visualize/histogram-chart/',
+		'/dashboards/visualize/visualization-editor/line-chart': '/docs/dashboards/visualize/line-chart/',
+		'/dashboards/visualize/visualization-editor/metric-chart': '/docs/dashboards/visualize/metric-chart/',
+		'/dashboards/visualize/visualization-editor/pie-chart': '/docs/dashboards/visualize/pie-chart/',
+		'/dashboards/visualize/visualization-editor/scatter-chart': '/docs/dashboards/visualize/scatter-chart/',
+		'/dashboards/visualize/visualization-editor/state-timeline-chart': '/docs/dashboards/visualize/state-timeline-chart/',
+		'/dashboards/visualize/visualization-editor/table-chart': '/docs/dashboards/visualize/table-chart/',
 	},
 	integrations: [
 		mermaid({
@@ -94,6 +103,7 @@ export default defineConfig({
 							items: [
 								{ label: 'Ingest Your First Traces', link: '/get-started/quickstart/first-traces/' },
 								{ label: 'Create Your First Dashboard', link: '/get-started/quickstart/first-dashboard/' },
+								{ label: 'OpenTelemetry Demo Application', link: '/get-started/quickstart/otel-demo/' },
 							],
 						},
 					],
@@ -114,23 +124,23 @@ export default defineConfig({
 						{ label: 'Overview', link: '/send-data/' },
 						{
 							label: 'OpenTelemetry',
-							autogenerate: { directory: 'send-data/opentelemetry' },
+							items: [{ autogenerate: { directory: 'send-data/opentelemetry' } }],
 						},
 						{
 							label: 'Applications',
-							autogenerate: { directory: 'send-data/applications' },
+							items: [{ autogenerate: { directory: 'send-data/applications' } }],
 						},
 						{
 							label: 'Infrastructure',
-							autogenerate: { directory: 'send-data/infrastructure' },
+							items: [{ autogenerate: { directory: 'send-data/infrastructure' } }],
 						},
 						{
 							label: 'From Vendor Agents',
-							autogenerate: { directory: 'send-data/from-vendor' },
+							items: [{ autogenerate: { directory: 'send-data/from-vendor' } }],
 						},
 						{
 							label: 'Data Pipeline',
-							autogenerate: { directory: 'send-data/data-pipeline' },
+							items: [{ autogenerate: { directory: 'send-data/data-pipeline' } }],
 						},
 					],
 				},
@@ -138,12 +148,16 @@ export default defineConfig({
 					label: 'Alerting',
 					collapsed: true,
 					items: [
-						{ label: 'Alerting', link: '/alerting/' },
+						{ label: 'Overview', link: '/alerting/' },
 						{
 							label: 'Unified Alerts View',
 							collapsed: true,
 							items: [
 								{ label: 'Overview', link: '/alerting/unified-alerts/' },
+								{ label: 'Create Rules', link: '/alerting/unified-alerts/create-rules/' },
+								{ label: 'Explore Alerts', link: '/alerting/unified-alerts/explore-alerts/' },
+								{ label: 'Explore Rules', link: '/alerting/unified-alerts/explore-rules/' },
+									{ label: 'Routing', link: '/alerting/unified-alerts/routing/' },
 							],
 						},
 						{
@@ -155,7 +169,8 @@ export default defineConfig({
 								{ label: 'Explore an SLO', link: '/slo/detail/' },
 							],
 						},
-						{ label: 'Anomaly Detection', link: '/anomaly-detection/' },
+						{ label: 'Notifications', link: '/alerting/notifications/' },
+							{ label: 'Anomaly Detection', link: '/anomaly-detection/' },
 						{ label: 'Forecasting', link: '/forecasting/' },
 					],
 				},
@@ -242,7 +257,6 @@ export default defineConfig({
 						},
 						{ label: 'Function Reference', link: '/ppl/functions/' },
 						{ label: 'Observability Examples', link: '/ppl/examples/' },
-						{ label: 'PPL Query Builder', link: '/ppl/query-builder/' },
 						{ label: 'PPL Inspect Query', link: '/ppl/inspect-query/' },
 						{ label: 'PPL for DQL/Lucene Users', link: '/ppl/dql-lucene-users/' },
 						{ label: 'PPL for SPL Users', link: '/ppl/spl-users/' },
@@ -251,7 +265,7 @@ export default defineConfig({
 				{
 					label: 'Discover',
 					collapsed: true,
-					autogenerate: { directory: 'investigate' },
+					items: [{ autogenerate: { directory: 'investigate' } }],
 				},
 				{
 					label: 'Agent Observability',
@@ -262,14 +276,21 @@ export default defineConfig({
 						{ label: 'Framework Integrations', link: '/send-data/ai-agents/integrations/' },
 						{ label: 'Agent Tracing', link: '/ai-observability/agent-tracing/' },
 						{ label: 'Agent Graph & Path', link: '/ai-observability/agent-tracing/graph/' },
-						{ label: 'Evaluation & Scoring', link: '/ai-observability/evaluation/' },
-						{ label: 'Evaluation Integrations', link: '/ai-observability/evaluation-integrations/' },
+					],
+				},
+				{
+					label: 'Agent Evals',
+					collapsed: true,
+					items: [
+						{ label: 'Overview', link: '/agent-evals/' },
+						{ label: 'Evaluation & Scoring', link: '/agent-evals/evaluation/' },
+						{ label: 'Evaluation Integrations', link: '/agent-evals/evaluation-integrations/' },
 					],
 				},
 				{
 					label: 'Application Monitoring',
 					collapsed: true,
-					autogenerate: { directory: 'apm' },
+					items: [{ autogenerate: { directory: 'apm' } }],
 				},
 				{
 					label: 'Dashboards & Visualize',
@@ -328,7 +349,7 @@ export default defineConfig({
 				{
 					label: 'Agent Health',
 					collapsed: true,
-					autogenerate: { directory: 'agent-health' },
+					items: [{ autogenerate: { directory: 'agent-health' } }],
 				},
 				{
 					label: 'SDKs, MCP & Clients',
@@ -342,7 +363,7 @@ export default defineConfig({
 				{
 					label: 'Claude Code',
 					collapsed: true,
-					autogenerate: { directory: 'claude-code' },
+					items: [{ autogenerate: { directory: 'claude-code' } }],
 				},
 			],
 		}),

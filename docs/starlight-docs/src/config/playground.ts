@@ -4,8 +4,8 @@
  * and every "Try in playground" link across all docs will update automatically.
  */
 export const PLAYGROUND = {
-  workspaceId: '8xYRJ9',
-  datasetId: '5e9ecdd0-5418-11f1-ba61-c93b4ff6c8ce',
+  workspaceId: 'JvWKe1',
+  datasetId: '85c9f700-905d-11f1-8e13-1fc52a695474',
   datasetName: 'logs-otel-v1*',
   timeField: 'time',
 };

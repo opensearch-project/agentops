@@ -1,0 +1,30 @@
+---
+title: Routing
+description: View the live Prometheus Alertmanager route tree and receivers for the Prometheus data source
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **Routing** tab of the [Unified Alerts View](/docs/alerting/unified-alerts/) is a read-only view of the **Prometheus Alertmanager** definition: which receiver gets which alerts, the grouping and timing settings, and the configured receivers (webhook, Slack, email, PagerDuty). It renders the *current* routing for the selected Prometheus data source, so you can confirm what's in effect without reading the config file.
+
+![The Routing tab showing the Alertmanager status, a Source selector, the route tree, and the list of receivers with their integration types](/docs/images/alerting/routing-tab.png)
+
+<Aside type="note" title="Routing applies to Prometheus alerts only">
+The routing tree belongs to the **Prometheus Alertmanager** and governs only **metric-rule** (Prometheus) alerts. It does not route OpenSearch log-rule, APM, or cluster-metrics alerts — those notify through the actions you attach to each rule's triggers, not through this tree. So the Routing tab reflects how Prometheus alerts are grouped and delivered, not every alert in the view.
+</Aside>
+
+## What the tab shows
+
+- **Status** — the Alertmanager version, uptime, and peer count, plus a **Source** selector to pick which Prometheus data source's routing to view.
+- **Route Tree** — the routing hierarchy, top-down (first match wins). Each route shows its **receiver**, the **matchers** that select alerts (e.g. `component="otel-demo"`, `severity="critical"`), the **Group By** labels, and the **Wait** / **Interval** / **Repeat** timing that controls how alerts are batched and re-sent.
+- **Receivers** — every configured receiver and its integration type (webhook, Slack, email, PagerDuty, …).
+
+## Editing routing
+
+This view is **read-only**. Routing is managed in the Alertmanager configuration file (or API) — in this stack, `docker-compose/alertmanager/alertmanager.template.yml`. Edit that file to change routes or receivers, then use this tab to confirm the change took effect. For the full walkthrough of adding receivers and routes, see [Notifications → Prometheus rules](/docs/alerting/notifications/#prometheus-rules--alertmanager-receivers).
+
+## Related
+
+- [Notifications](/docs/alerting/notifications/) — configure the receivers and routes shown here.
+- [Explore Alerts](/docs/alerting/unified-alerts/explore-alerts/) — triage the alerts this tree delivers.
+- [Explore Rules](/docs/alerting/unified-alerts/explore-rules/) — browse the rules that produce Prometheus alerts.

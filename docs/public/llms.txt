@@ -1,0 +1,199 @@
+# OpenSearch Observability Stack
+
+> Open-source, OpenTelemetry-native observability for services and AI agents.
+
+## Overview
+
+- [OpenSearch Observability Stack](https://observability.opensearch.org/docs/): Open-source, OpenTelemetry-native observability for services and AI agents.
+
+## Agent Evals
+
+- [Agent Evals](https://observability.opensearch.org/docs/agent-evals/): Measure the quality of your AI agents — score traces, run experiments against datasets, and bring in external eval frameworks
+- [Evaluation & Scoring](https://observability.opensearch.org/docs/agent-evals/evaluation/): Score agent traces, run experiments against datasets, and upload evaluation results
+- [Evaluation Integrations](https://observability.opensearch.org/docs/agent-evals/evaluation-integrations/): Bridge external evaluation frameworks like DeepEval, RAGAS, MLflow, and pytest into the observability stack
+
+## Agent Health
+
+- [Agent Health](https://observability.opensearch.org/docs/agent-health/): Evaluation and observability framework for AI agents with Golden Path trajectory comparison
+- [CLI Reference](https://observability.opensearch.org/docs/agent-health/cli/): Command-line interface reference for Agent Health
+- [Configuration](https://observability.opensearch.org/docs/agent-health/configuration/): Configure Agent Health to connect your AI agent, set up storage, and customize evaluation behavior
+- [Connectors](https://observability.opensearch.org/docs/agent-health/configuration/connectors/): Create custom connectors for Agent Health to support different AI agent protocols
+- [Evaluations](https://observability.opensearch.org/docs/agent-health/evaluations/): How Agent Health evaluates AI agents using Golden Path trajectory comparison and LLM judges
+- [Experiments](https://observability.opensearch.org/docs/agent-health/evaluations/experiments/): Run batch evaluations and compare AI agent performance across configurations
+- [Test Cases](https://observability.opensearch.org/docs/agent-health/evaluations/test-cases/): Create and manage test cases for AI agent evaluation in Agent Health
+- [Getting Started](https://observability.opensearch.org/docs/agent-health/getting-started/): Install Agent Health and run your first AI agent evaluation
+- [Trace Visualization](https://observability.opensearch.org/docs/agent-health/traces/): Real-time trace monitoring and comparison for AI agent executions in Agent Health
+
+## AI Observability
+
+- [AI Observability](https://observability.opensearch.org/docs/ai-observability/): Observe, debug, and evaluate AI agent workflows with OpenTelemetry GenAI conventions
+- [Agent Traces](https://observability.opensearch.org/docs/ai-observability/agent-tracing/): Explore, debug, and monitor AI agent execution traces in OpenSearch Dashboards
+- [Agent Graph & Path](https://observability.opensearch.org/docs/ai-observability/agent-tracing/graph/): Visualize agent execution as a directed graph with interactive flow diagrams, tree views, and timeline charts
+- [Getting Started](https://observability.opensearch.org/docs/ai-observability/getting-started/): Instrument an AI agent, view traces, and score quality - end to end in 5 minutes
+
+## Alerting
+
+- [Alerting Overview](https://observability.opensearch.org/docs/alerting/): Alert on your logs, traces, and metrics — how alerting works, and where to go next
+- [Notifications](https://observability.opensearch.org/docs/alerting/notifications/): Deliver firing alerts to Slack, email, PagerDuty, and webhooks — for both OpenSearch and Prometheus rules
+- [Unified Alerts View](https://observability.opensearch.org/docs/alerting/unified-alerts/): One place to see every alert and create log and metric rules — OpenSearch monitors and Prometheus alerts together
+- [Create Rules](https://observability.opensearch.org/docs/alerting/unified-alerts/create-rules/): Build log rules (PPL) and metric rules (PromQL) in the Unified Alerts View
+- [Explore Alerts](https://observability.opensearch.org/docs/alerting/unified-alerts/explore-alerts/): Triage firing alerts in the Alerts tab — filter, read the alert timeline, and scope data sources
+- [Explore Rules](https://observability.opensearch.org/docs/alerting/unified-alerts/explore-rules/): Browse the rules catalog — inspect definitions by type, status, and health
+- [Routing](https://observability.opensearch.org/docs/alerting/unified-alerts/routing/): View the live Prometheus Alertmanager route tree and receivers for the Prometheus data source
+
+## Anomaly Detection
+
+- [Anomaly Detection](https://observability.opensearch.org/docs/anomaly-detection/): Detect anomalies in your observability data using machine learning
+
+## Application Monitoring
+
+- [Application Monitoring](https://observability.opensearch.org/docs/apm/): Monitor application performance with service maps, RED metrics, and service-level views
+- [Configuring APM in OpenSearch Dashboards](https://observability.opensearch.org/docs/apm/configuring-apm/): Create datasets, index patterns, and connect data sources to enable APM features
+- [Configuring Telemetry Ingestion](https://observability.opensearch.org/docs/apm/configuring-telemetry-ingestion/): Set up the OpenTelemetry Collector and Data Prepper to ingest traces, logs, and metrics for APM
+- [Application Map](https://observability.opensearch.org/docs/apm/service-map/): Visualize service dependencies and communication patterns
+- [Services](https://observability.opensearch.org/docs/apm/services/): Browse the service catalog, inspect service health, and drill into operations and dependencies
+- [Sizing Calculator](https://observability.opensearch.org/docs/apm/sizing-calculator/): Estimate APM storage, metrics, and ingest requirements based on your workload
+
+## Claude Code
+
+- [Claude Code](https://observability.opensearch.org/docs/claude-code/): Give Claude observability skills for querying traces, logs, and metrics from your OpenSearch stack
+- [Showcase](https://observability.opensearch.org/docs/claude-code/showcase/): Real-world examples demonstrating the power of Claude Code with observability data
+- [Usage Guide](https://observability.opensearch.org/docs/claude-code/usage/): Sample questions and real-world workflows for each observability skill
+
+## Dashboards & Visualize
+
+- [Dashboards & Visualize](https://observability.opensearch.org/docs/dashboards/): Build, customize, and share observability dashboards in OpenSearch
+- [Build a Dashboard](https://observability.opensearch.org/docs/dashboards/build/): Create dashboards, add visualization panels, and arrange layouts for observability monitoring
+- [Sharing Dashboards](https://observability.opensearch.org/docs/dashboards/sharing/): Share dashboards, export reports, and manage dashboard best practices
+- [Troubleshooting Dashboards](https://observability.opensearch.org/docs/dashboards/troubleshooting/): Diagnose and fix common issues with dashboard panels, visualizations, and performance
+- [Dashboard Variables](https://observability.opensearch.org/docs/dashboards/variables/): Parameterize dashboards with dropdown variables that drive panel queries
+- [Managing dashboard variables](https://observability.opensearch.org/docs/dashboards/variables/managing-variables/): You can create, edit, delete, organize, and view dashboard variables from within a dashboard.
+- [Using dashboard variables](https://observability.opensearch.org/docs/dashboards/variables/using-variables/): You can reference dashboard variables in queries in the visualization editor to create dynamic, interactive dashboards.
+- [Creating visualizations using queries](https://observability.opensearch.org/docs/dashboards/visualize/): The _visualization editor_ lets you create visualizations by writing Piped Processing Language (PPL) or Prometheus Query Language (PromQL) queries. The editor automatically maps query result fields to chart axes and suggests a chart type based on the shape of your data.
+- [Area chart](https://observability.opensearch.org/docs/dashboards/visualize/area-chart/): An area chart plots data points connected by lines with the region below filled in, making it ideal for visualizing volume and composition over time. You can stack multiple series to see how each category contributes to the total.
+- [Bar chart](https://observability.opensearch.org/docs/dashboards/visualize/bar-chart/): A bar chart displays data as vertical or horizontal bars, making it ideal for comparing discrete categories. You can use a Color field to break categories into sub-groups and add threshold lines to flag values higher or lower than a target.
+- [Bar gauge chart](https://observability.opensearch.org/docs/dashboards/visualize/bar-gauge-chart/): A bar gauge chart displays numeric values as horizontal or vertical bars against a scale, reducing each field to a single value. Unlike a bar chart, a bar gauge chart is designed for comparing values against defined thresholds.
+- [Configuring visualizations](https://observability.opensearch.org/docs/dashboards/visualize/configuring-visualizations/): The visualization editor provides shared configuration options that apply across multiple visualization types. Each visualization type page documents its specific options. The following configurations are common to most visualizations.
+- [Thresholds](https://observability.opensearch.org/docs/dashboards/visualize/configuring-visualizations/thresholds/): A threshold is a boundary value that, when reached or exceeded by a data point, triggers a visual change in color. Use thresholds to define meaningful ranges so that you can immediately understand whether values are within normal, warning, or critical zones.
+- [Value calculations](https://observability.opensearch.org/docs/dashboards/visualize/configuring-visualizations/value-calculations/): When a visualization receives a numeric field, the data often contains a series of values rather than a single number. Use the **Calculation** setting to select a reducer function that aggregates the series into one representative value for display.
+- [Gauge chart](https://observability.opensearch.org/docs/dashboards/visualize/gauge-chart/): A gauge chart displays a single numeric value on a semicircular arc, making it ideal for showing how a metric compares against defined thresholds or a target range.
+- [Heatmap](https://observability.opensearch.org/docs/dashboards/visualize/heatmap-chart/): A heatmap uses color to represent the magnitude of values in a dataset. Each cell in the map corresponds to a combination of two dimensions, with the cell's color intensity reflecting the value associated with that combination.
+- [Histogram](https://observability.opensearch.org/docs/dashboards/visualize/histogram-chart/): A histogram chart displays the distribution of a numeric field by grouping values into bins (buckets) and showing the count of values in each bin as vertical bars.
+- [Line chart](https://observability.opensearch.org/docs/dashboards/visualize/line-chart/): A line chart plots data points connected by lines, making it ideal for visualizing trends and changes over time. You can compare multiple series on the same time axis and use a secondary Y-axis to correlate metrics with different scales.
+- [Metric chart](https://observability.opensearch.org/docs/dashboards/visualize/metric-chart/): A metric chart displays a single numeric value prominently, making it ideal for showing key performance indicators (KPIs) or summary statistics at a glance.
+- [Pie chart](https://observability.opensearch.org/docs/dashboards/visualize/pie-chart/): A pie chart displays data as proportional slices of a circle, making it ideal for visualizing part-to-whole relationships.
+- [Scatter plot](https://observability.opensearch.org/docs/dashboards/visualize/scatter-chart/): A scatter chart visualizes relationships between two numerical variables. Each point on the chart represents an observation from the dataset, with its position determined by the values of the two variables. You can split data by a categorical field to compare how different groups distribute across the same dimensions.
+- [State timeline](https://observability.opensearch.org/docs/dashboards/visualize/state-timeline-chart/): A state timeline displays a series of horizontal bars that represent state changes over time. Each bar, known as a state region, represents a specific state, and its length indicates the duration of that state.
+- [Table](https://observability.opensearch.org/docs/dashboards/visualize/table-chart/): A table chart displays query results in a tabular format with rows and columns, making it ideal for viewing raw data or summary statistics.
+- [Visualization Transformations](https://observability.opensearch.org/docs/dashboards/visualize/transformations/): Reshape query results with a user-defined transformation pipeline before they reach the chart
+
+## Deploy to Cloud
+
+- [Deploy to Cloud](https://observability.opensearch.org/docs/deploy/): The Observability Stack runs locally via Docker Compose out of the box. When you're ready to move to the cloud, you have two paths:
+- [AWS Managed Services](https://observability.opensearch.org/docs/deploy/aws/): Deploy the Observability Stack to AWS using managed services. This creates the same observability platform as the local Docker Compose stack, backed by:
+- [Kubernetes (Helm)](https://observability.opensearch.org/docs/deploy/kubernetes/): Deploy the Observability Stack to any Kubernetes cluster using the Helm umbrella chart. This creates the same observability platform as the local Docker Compose stack — OpenSearch, OpenSearch Dashboards, Data Prepper, OTel Collector, and Prometheus — as Kubernetes workloads.
+
+## Forecasting
+
+- [Forecasting](https://observability.opensearch.org/docs/forecasting/): Predict future values of time-series observability data
+
+## Get Started
+
+- [Core Concepts](https://observability.opensearch.org/docs/get-started/core-concepts/): Key terms and ideas for the OpenSearch Observability Stack
+- [Installation](https://observability.opensearch.org/docs/get-started/installation/): Install and run the OpenSearch Observability Stack
+- [Platform Overview](https://observability.opensearch.org/docs/get-started/overview/): Architecture and data flow overview for OpenSearch Observability Stack
+- [Create Your First Dashboard](https://observability.opensearch.org/docs/get-started/quickstart/first-dashboard/): Build your first observability dashboard in OpenSearch Dashboards
+- [Ingest Your First Traces](https://observability.opensearch.org/docs/get-started/quickstart/first-traces/): Instrument your application to send traces to the Observability Stack
+
+## Discover
+
+- [Investigate](https://observability.opensearch.org/docs/investigate/): Explore, query, and analyze your observability data across logs, traces, and metrics using Discover
+- [Correlations](https://observability.opensearch.org/docs/investigate/correlations/): Link trace datasets with logs datasets to accelerate root cause analysis
+- [Datasets](https://observability.opensearch.org/docs/investigate/datasets/): Create and manage datasets for organizing observability data in OpenSearch Dashboards
+- [Discover Logs](https://observability.opensearch.org/docs/investigate/discover-logs/): Explore and analyze application logs using PPL in OpenSearch Dashboards
+- [Discover Metrics](https://observability.opensearch.org/docs/investigate/discover-metrics/): Discover, query, and visualize time-series metric data using PromQL in OpenSearch Dashboards
+- [Discover Traces](https://observability.opensearch.org/docs/investigate/discover-traces/): Explore and analyze distributed trace data in OpenSearch Dashboards
+- [Explore Logs](https://observability.opensearch.org/docs/investigate/explore-logs/): Browse the indexes and datasets in a cluster, preview their logs, and turn a raw index into a queryable dataset
+- [Troubleshooting Queries](https://observability.opensearch.org/docs/investigate/troubleshooting/): Diagnose and fix common issues with PPL and PromQL queries in Discover
+
+## MCP
+
+- [MCP Server](https://observability.opensearch.org/docs/mcp/): Query OpenSearch using the built-in Model Context Protocol server
+
+## PPL - Query Language
+
+- [Piped Processing Language (PPL)](https://observability.opensearch.org/docs/ppl/): PPL is the native query language for OpenSearch Observability - a pipe-based, human-readable language for exploring logs, traces, and telemetry at scale.
+- [PPL Command Reference](https://observability.opensearch.org/docs/ppl/commands/): Complete reference for all PPL commands - syntax, parameters, and examples with live playground links for OpenTelemetry observability data.
+- [dedup](https://observability.opensearch.org/docs/ppl/commands/dedup/): Remove duplicate documents based on field values - deduplicate results for unique combinations.
+- [describe](https://observability.opensearch.org/docs/ppl/commands/describe/): Query index metadata - discover available fields, types, and schema information.
+- [eval](https://observability.opensearch.org/docs/ppl/commands/eval/): Create computed fields by evaluating expressions - arithmetic, string operations, conditionals, and more.
+- [eventstats](https://observability.opensearch.org/docs/ppl/commands/eventstats/): Add aggregation statistics as new fields to every event - enrich each row with group-level context.
+- [expand](https://observability.opensearch.org/docs/ppl/commands/expand/): Expand nested array fields into multiple documents - one row per array element.
+- [fields](https://observability.opensearch.org/docs/ppl/commands/fields/): Keep or remove fields from search results - control which columns appear in output.
+- [fillnull](https://observability.opensearch.org/docs/ppl/commands/fillnull/): Replace null values with specified defaults - clean up missing data for analysis and visualization.
+- [flatten](https://observability.opensearch.org/docs/ppl/commands/flatten/): Flatten struct or object fields into separate top-level fields - simplify nested data structures.
+- [grok](https://observability.opensearch.org/docs/ppl/commands/grok/): Extract fields using grok patterns - a higher-level alternative to regex with 200+ predefined patterns.
+- [head](https://observability.opensearch.org/docs/ppl/commands/head/): Return the first N results from the search - limit output for exploration and top-N queries.
+- [join](https://observability.opensearch.org/docs/ppl/commands/join/): Combine two datasets together - correlate logs with traces, enrich data from reference indices.
+- [lookup](https://observability.opensearch.org/docs/ppl/commands/lookup/): Enrich events with data from a lookup index - add context like team names, environment labels, or cost data.
+- [ml](https://observability.opensearch.org/docs/ppl/commands/ml/): Apply machine learning algorithms in your query pipeline - anomaly detection and clustering without external tools.
+- [parse](https://observability.opensearch.org/docs/ppl/commands/parse/): Extract fields from text using regular expressions - turn unstructured log data into structured fields.
+- [patterns](https://observability.opensearch.org/docs/ppl/commands/patterns/): Automatically discover log patterns - cluster similar log messages without writing regex.
+- [rare](https://observability.opensearch.org/docs/ppl/commands/rare/): Find the least common values of a field - surface anomalies and unusual patterns.
+- [rename](https://observability.opensearch.org/docs/ppl/commands/rename/): Rename fields in search results - simplify long OTel attribute names for readability.
+- [rex](https://observability.opensearch.org/docs/ppl/commands/rex/): Extract or substitute fields using regex - with support for sed-mode text replacement and multiple matches.
+- [search](https://observability.opensearch.org/docs/ppl/commands/search/): Retrieve documents from an index - the starting point of every PPL query.
+- [sort](https://observability.opensearch.org/docs/ppl/commands/sort/): Sort search results by one or more fields in ascending or descending order.
+- [spath](https://observability.opensearch.org/docs/ppl/commands/spath/): Extract fields from structured JSON data - parse nested JSON within log bodies without re-indexing.
+- [stats](https://observability.opensearch.org/docs/ppl/commands/stats/): Calculate aggregate statistics over search results - counts, averages, percentiles, and more with grouping.
+- [streamstats](https://observability.opensearch.org/docs/ppl/commands/streamstats/): Calculate cumulative and rolling window statistics - running totals, moving averages, and trend detection.
+- [timechart](https://observability.opensearch.org/docs/ppl/commands/timechart/): Create time-based aggregations and charts - the go-to command for time-series visualization.
+- [top](https://observability.opensearch.org/docs/ppl/commands/top/): Find the most common values of a field - quickly identify dominant patterns in your data.
+- [trendline](https://observability.opensearch.org/docs/ppl/commands/trendline/): Calculate moving averages - simple (SMA) and weighted (WMA) for trend analysis and smoothing.
+- [where](https://observability.opensearch.org/docs/ppl/commands/where/): Filter search results using boolean expressions - the primary filtering command in PPL.
+- [PPL for DQL/Lucene Users](https://observability.opensearch.org/docs/ppl/dql-lucene-users/): A transition guide for users familiar with DQL or Lucene query syntax - the only difference is : becomes = and you gain a full pipeline after the filter.
+- [PPL Observability Examples](https://observability.opensearch.org/docs/ppl/examples/): Real-world PPL queries for OpenTelemetry logs, traces, and AI agent observability - with live playground links to try each query instantly.
+- [PPL Function Reference](https://observability.opensearch.org/docs/ppl/functions/): Complete reference for PPL built-in functions - aggregations, string manipulation, date/time, math, conditionals, JSON, IP, collections, and more.
+- [PPL for SPL Users](https://observability.opensearch.org/docs/ppl/spl-users/): A transition guide for users familiar with Splunk Search Processing Language (SPL) - learn the PPL equivalents for the commands and patterns you already know.
+
+## Send Data
+
+- [Send Data](https://observability.opensearch.org/docs/send-data/): Learn how to send traces, metrics, and logs to OpenSearch Observability Stack
+- [AI Agents](https://observability.opensearch.org/docs/send-data/ai-agents/): Instrument AI agent applications with the GenAI Observability SDKs
+- [Integrations](https://observability.opensearch.org/docs/send-data/ai-agents/integrations/): Instrument popular AI agent frameworks with the GenAI Observability SDK
+- [Python SDK](https://observability.opensearch.org/docs/send-data/ai-agents/python/): Reference for opensearch-genai-observability-sdk-py - instrument AI agent applications with OpenTelemetry
+- [TypeScript SDK](https://observability.opensearch.org/docs/send-data/ai-agents/typescript/): Instrument TypeScript AI agent applications with the GenAI Observability SDK
+- [Instrument Applications](https://observability.opensearch.org/docs/send-data/applications/): Add OpenTelemetry instrumentation to your application code to send traces, metrics, and logs to the observability stack
+- [Browser / Frontend](https://observability.opensearch.org/docs/send-data/applications/browser/): Add real user monitoring to web applications with OpenTelemetry for browser-side traces and metrics
+- [.NET](https://observability.opensearch.org/docs/send-data/applications/dotnet/): Instrument .NET applications with OpenTelemetry to send traces, metrics, and logs to the observability stack
+- [Go](https://observability.opensearch.org/docs/send-data/applications/go/): Instrument Go applications with OpenTelemetry to send traces, metrics, and logs to the observability stack
+- [Java](https://observability.opensearch.org/docs/send-data/applications/java/): Instrument Java applications with OpenTelemetry to send traces, metrics, and logs to the observability stack
+- [Node.js](https://observability.opensearch.org/docs/send-data/applications/nodejs/): Instrument Node.js applications with OpenTelemetry to send traces, metrics, and logs to the observability stack
+- [Python](https://observability.opensearch.org/docs/send-data/applications/python/): Instrument Python applications with OpenTelemetry to send traces, metrics, and logs to the observability stack
+- [Ruby](https://observability.opensearch.org/docs/send-data/applications/ruby/): Instrument Ruby applications with OpenTelemetry to send traces, metrics, and logs to the observability stack
+- [Data Pipeline](https://observability.opensearch.org/docs/send-data/data-pipeline/): Understand how telemetry data flows from collectors through Data Prepper into OpenSearch
+- [Batching & Performance](https://observability.opensearch.org/docs/send-data/data-pipeline/batching/): Tune batch sizes, memory limits, and worker counts for production throughput
+- [Data Prepper](https://observability.opensearch.org/docs/send-data/data-pipeline/data-prepper/): Configure Data Prepper pipelines for trace and log ingestion into OpenSearch
+- [Ingest API](https://observability.opensearch.org/docs/send-data/data-pipeline/ingest-api/): Send pre-processed telemetry data directly to OpenSearch via the Bulk API
+- [From Vendor Agents](https://observability.opensearch.org/docs/send-data/from-vendor/): Accept telemetry from Datadog, Jaeger, and Splunk agents without re-instrumenting your applications
+- [Datadog](https://observability.opensearch.org/docs/send-data/from-vendor/datadog/): Accept Datadog agent and SDK telemetry in observability-stack
+- [Jaeger](https://observability.opensearch.org/docs/send-data/from-vendor/jaeger/): Migrate Jaeger-instrumented applications to observability-stack
+- [Splunk HEC](https://observability.opensearch.org/docs/send-data/from-vendor/splunk/): Route Splunk HTTP Event Collector traffic into OpenSearch
+- [Infrastructure Monitoring](https://observability.opensearch.org/docs/send-data/infrastructure/): Collect metrics, logs, and traces from your infrastructure components using OpenTelemetry
+- [AWS](https://observability.opensearch.org/docs/send-data/infrastructure/aws/): Integrate with AWS services using ADOT, CloudWatch, Lambda, ECS, and EKS
+- [Docker](https://observability.opensearch.org/docs/send-data/infrastructure/docker/): Collect metrics and logs from Docker containers using the OpenTelemetry Collector
+- [Fluentd & Fluent Bit](https://observability.opensearch.org/docs/send-data/infrastructure/fluentd/): Forward logs to OpenSearch using Fluentd or Fluent Bit lightweight agents
+- [Kubernetes](https://observability.opensearch.org/docs/send-data/infrastructure/kubernetes/): Monitor Kubernetes clusters, pods, and workloads with OpenTelemetry
+- [Logstash](https://observability.opensearch.org/docs/send-data/infrastructure/logstash/): Send logs and events through Logstash pipelines to OpenSearch
+- [Prometheus](https://observability.opensearch.org/docs/send-data/infrastructure/prometheus/): Scrape and store Prometheus metrics with OTLP integration and resource attribute promotion
+- [OpenTelemetry](https://observability.opensearch.org/docs/send-data/opentelemetry/): Understand OpenTelemetry signals, protocols, and how OTel integrates with the observability stack
+- [Auto-Instrumentation](https://observability.opensearch.org/docs/send-data/opentelemetry/auto-instrumentation/): Zero-code instrumentation for popular frameworks and languages using OpenTelemetry agents
+- [OTel Collector Configuration](https://observability.opensearch.org/docs/send-data/opentelemetry/collector/): Configure the OpenTelemetry Collector pipeline for traces, metrics, and logs
+- [Manual Instrumentation](https://observability.opensearch.org/docs/send-data/opentelemetry/manual-instrumentation/): Add custom spans, metrics, and logs with the OpenTelemetry SDK
+- [Sampling Strategies](https://observability.opensearch.org/docs/send-data/opentelemetry/sampling/): Control telemetry volume with head-based and tail-based sampling
+
+## SLO
+
+- [SLOs](https://observability.opensearch.org/docs/slo/): Define Service Level Objectives backed by Prometheus recording and burn-rate alerting rules, all from the OpenSearch Dashboards UI
+- [Create an SLO](https://observability.opensearch.org/docs/slo/create/): Walk through the template-first SLO wizard — pick a template, define the SLI, set objectives, and preview the generated Prometheus rules
+- [Explore an SLO](https://observability.opensearch.org/docs/slo/detail/): Understand the SLO detail page — attainment, error budget, multi-window burn-rate tiers, and the generated Prometheus rules

@@ -38,7 +38,16 @@ Anomaly detection works on any time-series data indexed in OpenSearch. Common ob
 
 ## Pairing with alerting
 
-Combine anomaly detection with [Alerting](/docs/alerting/) to get notified when anomalies are detected. Create a monitor that queries the anomaly results index and triggers when the anomaly grade exceeds a threshold.
+Combine anomaly detection with [Alerting](/docs/alerting/) to get notified when anomalies are detected. Create a [log rule](/docs/alerting/unified-alerts/create-rules/#log-rule-ppl) that queries the anomaly results index and fires when the anomaly grade exceeds a threshold — for example:
+
+```
+source=.opendistro-anomaly-results* | where anomaly_grade > 0.7 | stats count() as anomalies
+```
+```
+where anomalies > 0
+```
+
+Detectors also appear in the **Rules** catalog of the [Unified Alerts View](/docs/alerting/unified-alerts/), so their alerts surface alongside your log and metric rules.
 
 ## Learn more
 

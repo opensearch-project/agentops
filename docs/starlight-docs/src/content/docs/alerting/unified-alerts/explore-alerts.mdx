@@ -1,0 +1,73 @@
+---
+title: Explore Alerts
+description: Triage firing alerts in the Alerts tab — filter, read the alert timeline, and scope data sources
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **Alerts** tab of the [Unified Alerts View](/docs/alerting/unified-alerts/) is where responders triage what's firing right now. It lists every alert produced by your [rules](/docs/alerting/unified-alerts/create-rules/) across the selected data sources — OpenSearch log alerts and Prometheus metric alerts in one queue.
+
+![The Unified Alerts View Alerts tab, with the filter rail, severity-colored alert timeline, and the list of active alerts](/docs/images/alerting/unified-alerts-overview.png)
+
+## The alert list
+
+Each row shows an alert's severity, state, message, and how long it has been active. Sort or search to find a specific alert. Select an alert to open its detail panel — **Alert Details**, **Labels**, **Annotations**, and **Raw Alert Data** — with an **Open rule** button that jumps to the rule that produced it. To edit, disable, or delete that rule, use the [Rules tab](/docs/alerting/unified-alerts/explore-rules/#inspect-and-manage-a-rule).
+
+<Aside type="note" title="Quieting an alert">
+Individual alerts aren't muted from this list. To stop an alert:
+
+- **Disable the rule** ([Rules tab](/docs/alerting/unified-alerts/explore-rules/#inspect-and-manage-a-rule)) to stop it evaluating entirely, or
+- add an Alertmanager **silence** (at `http://localhost:9093` or via `amtool silence add`) to keep a metric rule running but suppress its notifications for a window — see [Notifications](/docs/alerting/notifications/#prometheus-rules--alertmanager-receivers).
+
+The `muted` state you see in the **State** filter reflects alerts suppressed this way.
+</Aside>
+
+## Alert timeline
+
+The histogram at the top of the tab buckets firing alerts over the selected time range (default **Last 24 hours**), colored by severity. Use it to spot bursts — a spike of `critical` bars usually lines up with an incident. Narrow the time range to zoom into a window of interest.
+
+## Filters
+
+The left rail scopes the list without editing any query:
+
+- **Datasource** — pick the OpenSearch cluster (its monitors), the Prometheus data source (its alerts), or both.
+- **Severity** — `critical`, `high`, `medium`, and so on, with live counts.
+- **State** — `active`, `muted`, and (for OpenSearch) `resolved`.
+- **Type** — `Log`, `Metric`, `APM`, `Cluster Metrics` (see [Rule types](/docs/alerting/unified-alerts/#rule-types)).
+- **Labels** — every label present on the current alert set (`alertname`, `component`, `service`, `job`, …) becomes a facet. This is where Prometheus label cardinality pays off: filter to one service, one exporter, or one component in a click.
+
+## Selecting data sources
+
+By default both the OpenSearch cluster and the Prometheus data source are selected. Untick one in the **Datasource** filter to scope to a single engine. The tab counts update immediately.
+
+<Aside type="note" title="Prometheus shows current alerts only">
+Prometheus does not retain historical alert instances the way OpenSearch does. When the Prometheus data source is selected you'll see a `Showing current alerts only` banner — the list reflects what is firing *right now*, evaluated every minute, rather than a historical record.
+</Aside>
+
+## Where alerts are routed
+
+Firing **metric-rule** (Prometheus) alerts are grouped and delivered through the Prometheus Alertmanager. You can inspect that route tree on the **Routing** tab — see [Routing](/docs/alerting/unified-alerts/routing/). OpenSearch log-rule, APM, and cluster-metrics alerts instead notify through the actions attached to each rule's triggers.
+
+## Empty list
+
+If the **Alerts** tab is empty, nothing is currently firing for the selected data sources. Confirm the right data sources are selected in the filter, [create a rule](/docs/alerting/unified-alerts/create-rules/), or generate some load so alerts have something to fire on.
+
+## Alert isn't firing
+
+If a rule exists and is enabled but never produces an alert, work through this checklist. Open the rule from the [Rules tab](/docs/alerting/unified-alerts/explore-rules/#inspect-and-manage-a-rule) to see its definition while you check:
+
+1. **Is the rule enabled?** A disabled rule never evaluates. Check its status in the Rules catalog.
+2. **Does the query return data?** For a log rule, use **Run preview** in the rule editor — if it returns no rows, the condition can't trip. Confirm data is actually flowing into the queried indices (`logs-otel-v1*`, `otel-v1-apm-span*`) or Prometheus.
+3. **Is the condition threshold right?** A `Number of results` trigger fires on the *row count*; a `Custom condition` fires when a `where` clause matches an aggregated value. Make sure your `stats`/threshold combination can actually be satisfied — see [Trigger conditions](/docs/alerting/unified-alerts/create-rules/#trigger-conditions).
+4. **Has enough time passed?** The rule only evaluates on its **schedule** (log rules) or **evaluation interval** (metric rules). A metric rule also has a **pending period** / **For Duration** — the condition must hold continuously for that long before the alert becomes active.
+5. **Right time window?** Log-rule queries are bounded by the selected **time field**; a wrong or empty time field means no matching documents.
+6. **Right data source selected?** Confirm the alert's data source isn't filtered out of this view.
+
+If the rule *fires* but no notification arrives, the rule is working and the problem is delivery — see [Notifications → Verify delivery](/docs/alerting/notifications/#verify-delivery).
+
+## Related
+
+- [Explore Rules](/docs/alerting/unified-alerts/explore-rules/) — browse the rules catalog and inspect definitions.
+- [Create Rules](/docs/alerting/unified-alerts/create-rules/) — build the log and metric rules that populate this list.
+- [Notifications](/docs/alerting/notifications/) — route firing alerts to Slack, email, PagerDuty, and webhooks.
+- [Unified Alerts View](/docs/alerting/unified-alerts/) — overview, rule types, and classic monitors.

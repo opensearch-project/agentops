@@ -1,11 +1,11 @@
 ---
 title: Unified Alerts View
-description: One place to see every alert and create log and metric rules — OpenSearch monitors and Prometheus alerts together
+description: Create and manage alerting rules, anomaly detectors, and forecasters, and investigate alerts and anomalies in one view
 ---
 
-import { CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-The **Unified Alerts View** (labeled **Alerts** in the OpenSearch Dashboards side navigation) brings every alert in the stack into a single screen and is where you **create** new alert rules. Whether an alert came from an OpenSearch log query or a Prometheus metric, responders see it in one list, filter it the same way, and never have to know which engine produced it.
+The **Unified Alerts View** (labeled **Alerts** in the OpenSearch Dashboards side navigation) brings alerting, anomaly detection, and forecasting into one experience. Use it to create and manage alert rules, anomaly detectors, and forecasters, and to investigate alerts and detected anomalies without switching between plugin dashboards.
 
 ![The Unified Alerts View Alerts tab, showing the severity-colored alert timeline and a list of active alerts from both data sources](/docs/images/alerting/unified-alerts-overview.png)
 
@@ -13,40 +13,42 @@ The **Unified Alerts View** (labeled **Alerts** in the OpenSearch Dashboards sid
 
 | Tab | What it shows | Where to read more |
 |---|---|---|
-| **Alerts** | Every currently firing (and, where available, historical) alert across the selected data sources. | [Explore Alerts](/docs/alerting/unified-alerts/explore-alerts/) |
-| **Rules** | Every rule definition (plus the anomaly detectors and forecasters defined elsewhere), with status, severity, type, and health. Also where you **create** rules. | [Create Rules](/docs/alerting/unified-alerts/create-rules/) · [Explore Rules](/docs/alerting/unified-alerts/explore-rules/) |
+| **Alerts** | Currently firing and historical alerts, where available, plus anomaly results across the selected data sources. | [Explore Alerts](/docs/alerting/unified-alerts/explore-alerts/) |
+| **Rules** | Alerting rules, anomaly detectors, and forecasters, with their current status, type, health, and data source. Also where you create and manage them. | [Create Rules](/docs/alerting/unified-alerts/create-rules/) · [Explore Rules](/docs/alerting/unified-alerts/explore-rules/) |
 | **Routing** | The Prometheus Alertmanager routing tree — which receiver each metric alert is sent to. | [Routing](/docs/alerting/unified-alerts/routing/) |
 
-## Rule types
+## Resource types
 
-The **Rules** tab lists every alerting rule from both engines side by side. The **Type** facet classifies each by the data it runs on:
+The **Rules** tab lists alerting rules and machine-learning resources side by side. The **Type** facet identifies how each resource evaluates data:
 
-![The Rules tab listing OpenSearch and Prometheus rules together, with a Type column tagging each as Log, Metric, APM, or Cluster Metrics, and a Create alert rule button](/docs/images/alerting/unified-alerts-rules.png)
+![The Rules tab listing resources with their status, severity, type, health, and data source](/docs/images/alerting/unified-alerts-rules.png)
 
-| Type | Runs on | Written in |
+| Type | Purpose | Defined with |
 |---|---|---|
-| **Log** | OpenSearch indices — logs and traces | **PPL** |
-| **Metric** | Prometheus time series | PromQL |
-| **APM** | Trace/span data (classic monitors) | Query DSL |
-| **Cluster Metrics** | OpenSearch cluster health (classic monitors) | API calls |
+| **Log** | Alert on logs and traces in OpenSearch indices | **PPL** |
+| **Metric** | Alert on Prometheus time series | PromQL |
+| **Anomaly Detector** | Learn normal behavior and identify unusual values in OpenSearch time-series data | One or more aggregation features |
+| **Forecaster** | Predict future values from OpenSearch time-series data | An indicator, forecast interval, and horizon |
+| **APM** | Alert on trace and span data (classic monitors) | Query DSL |
+| **Cluster Metrics** | Alert on OpenSearch cluster health (classic monitors) | API calls |
 
-The two you create in this view are **log rules** and **metric rules** — those are the only types the **Create alert rule** button builds. See [Create Rules](/docs/alerting/unified-alerts/create-rules/) to build one. `APM` and `Cluster Metrics` rules also appear here but are [classic monitors](#classic-monitors-previous-experience) created in the standalone Alerting app.
+The **Create** menu builds **log rules**, **metric rules**, **anomaly detection rules**, and **forecasting rules**. See [Create Rules](/docs/alerting/unified-alerts/create-rules/) for each workflow. `APM` and `Cluster Metrics` rules also appear here but are [classic monitors](#classic-monitors-previous-experience) created in the standalone Alerting app.
 
-The catalog also surfaces the **anomaly detectors** and **forecasters** you define elsewhere in the stack, so their alerts sit alongside your rules. Set those up in [Anomaly Detection](/docs/anomaly-detection/) and [Forecasting](/docs/forecasting/).
+Anomaly detector results appear as anomalies in the **Alerts** tab. Forecasters do not create alert rows by themselves; use the **Rules** tab to check their runtime status and inspect their configuration. For more background on the models, see [Anomaly Detection](/docs/anomaly-detection/) and [Forecasting](/docs/forecasting/).
 
 ## In this section
 
 <CardGrid>
-  <LinkCard title="Create Rules" href="/docs/alerting/unified-alerts/create-rules/" description="Build log rules (PPL) and metric rules (PromQL), with step-by-step walkthroughs and examples." />
+  <LinkCard title="Create Rules" href="/docs/alerting/unified-alerts/create-rules/" description="Build log and metric alert rules, anomaly detectors, and forecasters." />
   <LinkCard title="Notifications" href="/docs/alerting/notifications/" description="Route firing alerts to Slack, email, PagerDuty, and webhooks." />
-  <LinkCard title="Explore Alerts" href="/docs/alerting/unified-alerts/explore-alerts/" description="Triage what's firing — filter the alert list, read the severity timeline, and scope data sources." />
-  <LinkCard title="Explore Rules" href="/docs/alerting/unified-alerts/explore-rules/" description="Browse the rules catalog by type, status, and health." />
+  <LinkCard title="Explore Alerts" href="/docs/alerting/unified-alerts/explore-alerts/" description="Triage alerts and anomalies, inspect occurrences, and review detector context." />
+  <LinkCard title="Explore Rules" href="/docs/alerting/unified-alerts/explore-rules/" description="Browse and manage alerting rules, anomaly detectors, and forecasters." />
   <LinkCard title="Routing" href="/docs/alerting/unified-alerts/routing/" description="View the live Prometheus Alertmanager route tree and receivers." />
 </CardGrid>
 
 ## Classic monitors (previous experience)
 
-The Unified Alerts View is the new, default alerting experience. If you're coming from the older OpenSearch Alerting UI, choose **Switch to the classic experience** in the banner to return to the standalone **Alerting** app.
+The Unified Alerts View is the new, default alerting experience. The standalone **Alerting** app continues to provide classic monitor workflows that are not available in the unified creation forms.
 
 The classic app offers monitor types that the log-rule form doesn't cover, defined with a visual editor or an extraction (query DSL) query rather than PPL:
 

@@ -257,6 +257,7 @@ export default defineConfig({
 						},
 						{ label: 'Function Reference', link: '/ppl/functions/' },
 						{ label: 'Observability Examples', link: '/ppl/examples/' },
+						{ label: 'PPL Inspect Query', link: '/ppl/inspect-query/' },
 						{ label: 'PPL for DQL/Lucene Users', link: '/ppl/dql-lucene-users/' },
 						{ label: 'PPL for SPL Users', link: '/ppl/spl-users/' },
 					],

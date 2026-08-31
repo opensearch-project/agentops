@@ -114,7 +114,7 @@ groups:
         expr: >
           sum by (service) (rate(latency_seconds_count{
             namespace="span_derived",
-            service=~"ad|cart|checkout|currency|email|payment|product-catalog|product-reviews|recommendation|shipping|quote"
+            service=~"ad|cart|checkout|currency|email|payment|product-catalog|recommendation|shipping|quote"
           }[5m])) > 0
         for: 1m
         labels:
@@ -130,7 +130,7 @@ groups:
           histogram_quantile(0.99,
             sum by (le, service) (rate(latency_seconds_bucket{
               namespace="span_derived",
-              service=~"ad|cart|checkout|currency|email|payment|product-catalog|product-reviews|recommendation|shipping|quote"
+              service=~"ad|cart|checkout|currency|email|payment|product-catalog|recommendation|shipping|quote"
             }[5m]))
           ) > 0.01
         for: 1m
@@ -146,11 +146,11 @@ groups:
       # resource-heavy label sets still land in Cortex (exercises C2b's label cap).
       - alert: OtelDemoAdServiceHighCpu
         expr: >
-          process_memory_usage_bytes{service_name=~"ad|cart|checkout|accounting|recommendation|product-reviews"} / 1024 / 1024 > 20
+          process_memory_usage_bytes{service_name=~"ad|cart|checkout|recommendation"} / 1024 / 1024 > 20
         for: 1m
         labels:
           severity: warning
           component: otel-demo
         annotations:
           summary: "OTel Demo service {{ $labels.service_name }} memory above 20MB"
-          description: "Service memory usage elevated. The accounting service typically uses ~150MB."
+          description: "Service memory usage elevated."

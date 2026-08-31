@@ -23,7 +23,7 @@ The GenAI SDKs add:
 | Language | Package | Status |
 |---|---|---|
 | Python | [`opensearch-genai-observability-sdk-py`](https://github.com/opensearch-project/genai-observability-sdk-py) | Available |
-| JavaScript / TypeScript | `opensearch-genai-observability-sdk-js` | Coming soon |
+| JavaScript / TypeScript | [`@opensearch-project/genai-observability-sdk-ts`](https://github.com/opensearch-project/genai-observability-sdk-ts) | Available |
 
 ## Quick example
 
@@ -48,5 +48,6 @@ This produces a trace with `gen_ai.operation.name`, `gen_ai.agent.name`, `gen_ai
 ## Next steps
 
 - [Python SDK reference](/docs/send-data/ai-agents/python/) - full API documentation
+- [TypeScript SDK reference](/docs/send-data/ai-agents/typescript/) - full API documentation
 - [AI Observability - Getting Started](/docs/ai-observability/getting-started/) - end-to-end walkthrough from install to seeing traces
 - [Evaluation & Scoring](/docs/agent-evals/evaluation/) - score traces, run experiments, compare agent versions

@@ -36,7 +36,7 @@ panels:
 
   - id: pipeline-otel-collector-memory
     title: "OTel Collector Memory (bytes)"
-    query: "otelcol_process_memory_rss_bytes"
+    query: "otelcol_process_memory_rss"
     chartType: line
 
   # --- Row 4: OTel Collector CPU & Uptime ---

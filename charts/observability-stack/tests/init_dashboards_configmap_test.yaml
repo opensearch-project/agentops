@@ -22,3 +22,12 @@ tests:
       - equal:
           path: metadata.annotations["helm.sh/hook"]
           value: post-install,post-upgrade
+
+  - it: should use the collector RSS metric exposed by the OTel Collector
+    asserts:
+      - matchRegex:
+          path: data["dashboard-pipeline-health.yaml"]
+          pattern: 'query: "otelcol_process_memory_rss"'
+      - notMatchRegex:
+          path: data["dashboard-pipeline-health.yaml"]
+          pattern: "otelcol_process_memory_rss_bytes"

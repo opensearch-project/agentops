@@ -56,6 +56,32 @@ receivers:
             - target_label: service.name
               replacement: frontend-proxy
 
+  # Cortex internal metrics for the Pipeline Health dashboard.
+  prometheus/cortex:
+    config:
+      scrape_configs:
+        - job_name: cortex
+          scrape_interval: 15s
+          metrics_path: /metrics
+          static_configs:
+            - targets: ["prometheus:9090"]
+          relabel_configs:
+            - target_label: service.name
+              replacement: cortex
+
+  # Data Prepper pipeline metrics for the Pipeline Health dashboard.
+  prometheus/data-prepper:
+    config:
+      scrape_configs:
+        - job_name: data-prepper-pipelines
+          scrape_interval: 15s
+          metrics_path: /metrics/prometheus
+          static_configs:
+            - targets: ["data-prepper:4900"]
+          relabel_configs:
+            - target_label: service.name
+              replacement: data-prepper
+
 processors:
   # Memory limiter prevents OOM by dropping data when memory usage is high
   # Critical for stability under load
@@ -171,9 +197,9 @@ service:
       processors: [resourcedetection, memory_limiter, gen_ai_normalizer, transform, batch]
       exporters: [otlp/opensearch, debug]
 
-    # Metrics pipeline: OTLP + self-scrape + envoy scrape -> processing -> Cortex
+    # Metrics pipeline: OTLP + component scrapes -> processing -> Cortex
     metrics:
-      receivers: [otlp, prometheus/self, prometheus/envoy]
+      receivers: [otlp, prometheus/self, prometheus/envoy, prometheus/cortex, prometheus/data-prepper]
       processors: [resourcedetection, memory_limiter, batch]
       exporters: [prometheusremotewrite/cortex, debug]
 

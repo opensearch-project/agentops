@@ -89,7 +89,7 @@ Restart OpenSearch Dashboards to apply the change. With the setting off, the Dis
 
 ## See also
 
-- [PPL Query Builder](/docs/ppl/query-builder/) - Build queries visually
+- [PPL Query Builder](/docs/investigate/discover-logs/#building-queries-with-the-ppl-query-builder) - Build queries visually
 - [Discover Logs](/docs/investigate/discover-logs/) - The Logs page the inspector lives on
 - [Command Reference](/docs/ppl/commands/) - Full list of PPL commands
 - [Function Reference](/docs/ppl/functions/) - PPL functions

@@ -50,6 +50,25 @@ Each query row has two editor styles, toggled per row:
 
 You can switch between Builder and Code at any time. Switching from Builder to Code reveals the underlying PromQL; the reverse parses your PromQL back into Builder controls when possible.
 
+### Per-row query options
+
+Each query row has a gear popover for options that apply to that row only:
+
+- **Min step** — a lower bound on the resolved step, in seconds. It is also treated as the assumed scrape interval when sizing the `rate()` window.
+- **Series name** — a `{{label}}` template that renames the returned series in the legend. For example, `{{job}} - {{instance}}` formats each series using the values of its `job` and `instance` labels.
+
+Each row also displays the resolved step (`$__interval`) and rate window (`$__rate_interval`) it actually ran with.
+
+### Interval macros
+
+Queries can reference interval macros that are interpolated per query segment at execution time. Autocomplete suggests them in Code mode:
+
+- `$__interval`, `$__interval_ms` — the resolved step, in seconds or milliseconds.
+- `$__rate_interval` — the rate window sized for the resolved step and assumed scrape interval.
+- `$__range`, `$__range_s`, `$__range_ms` — the active time range, as a duration string, seconds, or milliseconds.
+
+For example, `rate(node_cpu_seconds_total[$__rate_interval])` sizes the rate window automatically as you zoom in and out.
+
 ### Writing queries
 
 Write queries using PromQL syntax. For example:
@@ -71,7 +90,11 @@ Each query runs independently. The results are returned together and the visuali
 
 ### Step and resolution
 
-In Explore mode, sparkline and detail queries are generated client-side. The step (data resolution, in seconds) is derived from the active time range — targeting roughly 1440 datapoints with a 15-second floor — and the `rate()` window is sized to be at least four times the assumed 60-second scrape interval and at least one scrape interval larger than the step, so zoomed-out views don't show gaps.
+The step is derived from the active time range, targeting a number of datapoints with a 15-second floor. The `rate()` window is sized to be at least four times the assumed scrape interval and at least one scrape interval larger than the step, so zoomed-out views don't show gaps.
+
+In Query mode, a **Query options** popover on the panel exposes **Max data points**: the datapoint target the step is derived from (default 1440), shared across all query rows. Leave it blank to auto-resolve; the placeholder then reports the resolution used in the last run. Combine it with a row's **Min step** to control resolution precisely.
+
+In Explore mode, sparkline and detail queries are generated using the same resolver, with a 60-second assumed scrape interval.
 
 ## Configuring a Prometheus data source
 

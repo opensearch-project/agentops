@@ -154,8 +154,8 @@ opensearch-dashboards:
 data-prepper:
   enabled: true
   image:
-    repository: "sgguruda62324/opensearch-data-prepper"
-    tag: "2.16.0-SNAPSHOT-rc1"
+    repository: "opensearchproject/data-prepper"
+    tag: "2.16.0"
   # Wait for OpenSearch to be ready before starting Data Prepper.
   # Without this, sink initialization fails and the OTLP source never starts.
   initContainers:

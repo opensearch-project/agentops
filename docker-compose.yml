@@ -103,6 +103,18 @@ services:
       opensearch:
         condition: service_healthy
         required: false
+    healthcheck:
+      # The Core API on 4900 answers while an OpenSearch sink is still retrying
+      # initialisation, so it cannot gate readiness. Probe the OTLP gRPC source
+      # instead: 21890 is the port that stays closed when a sink fails, which is
+      # exactly the state reported in #409.
+      # bash is available in this image - this service's own command already
+      # runs /bin/bash - so no extra tooling is needed for the probe.
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/21890"]
+      start_period: 30s
+      interval: 5s
+      timeout: 5s
+      retries: 20
     networks:
       - observability-stack-network
     restart: unless-stopped

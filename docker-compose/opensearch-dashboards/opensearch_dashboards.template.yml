@@ -87,6 +87,10 @@ queryEnhancements.ppl.lint.enabled: true
 # Surfaces the Alert Manager UI in the Observability plugin, backed by the
 # alertmanager.uri configured on the Prometheus datasource.
 observability.alertManager.enabled: true
+# Enables PPL-based alerting (capabilities.alertingDashboards.pplV2), which
+# surfaces the "Create alert rule" action on the Discover / Explore logs page
+# so users can define PPL alerting monitors directly from their log queries.
+opensearch_alerting.pplAlertingEnabled: true
 workspace.enabled: true
 data_source.enabled: true
 data_source.ssl.verificationMode: none

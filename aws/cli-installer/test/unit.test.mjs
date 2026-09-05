@@ -941,3 +941,83 @@ describe('renderArchitectureDiagram — VPC annotations', () => {
     assert.deepEqual(boxRowWidths(renderArchitectureDiagram(vpc())), boxRowWidths(renderArchitectureDiagram(pub())));
   });
 });
+
+// Profile selection is process-wide so SDK clients and SigV4 signers agree.
+import { parseCli } from '../src/cli.mjs';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+
+const installerDir = fileURLToPath(new URL('..', import.meta.url));
+
+describe('AWS profile selection', () => {
+  it('preserves interactive mode for a profile-only invocation', () => {
+    assert.equal(parseCli(['node', 'cli']), null);
+    for (const args of [['--profile', 'work'], ['--profile=work']]) {
+      assert.deepEqual(parseCli(['node', 'cli', ...args]), { _command: 'repl', profile: 'work' });
+    }
+  });
+
+  it('accepts profiles for creation and destruction without changing their mode', () => {
+    const create = parseCli(['node', 'cli', '--profile', 'work', '--quick', '--region', 'us-east-1']);
+    assert.equal(create.profile, 'work');
+    assert.equal(create.mode, 'quick');
+    const destroy = parseCli(['node', 'cli', 'destroy', '--profile', 'work', '--pipeline-name', 'test']);
+    assert.equal(destroy.profile, 'work');
+    assert.equal(destroy._command, 'destroy');
+  });
+
+  it('applies the profile at CLI startup without contacting AWS on a dry run', () => {
+    const hook = 'process.on("exit", () => { if (process.env.AWS_PROFILE !== "selected") process.exitCode = 1; })';
+    const result = execFileSync(process.execPath, [
+      '--import', `data:text/javascript,${encodeURIComponent(hook)}`,
+      'bin/cli-installer.mjs', '--profile', 'selected', '--region', 'us-east-1', '--dry-run',
+    ], { cwd: installerDir, env: { AWS_PROFILE: 'inherited' }, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    assert.match(result, /source:/);
+  });
+
+  it('rejects empty profiles in every entrypoint before AWS access', () => {
+    for (const args of [
+      ['bin/cli-installer.mjs', '--profile', ''],
+      ['bin/cli-installer.mjs', 'destroy', '--pipeline-name', 'test', '--profile', '   '],
+      ['bin/launch-demo.mjs', '--pipeline-name', 'test', '--region', 'us-east-1', '--profile', ''],
+    ]) {
+      assert.throws(() => execFileSync(process.execPath, args, {
+        cwd: installerDir, env: {}, stdio: 'pipe', timeout: 5000,
+      }), (error) => /Profile name must not be empty/.test(error.stderr.toString()));
+    }
+  });
+
+  it('resolves one selected profile for service clients and signing providers', () => {
+    const temp = mkdtempSync(join(tmpdir(), 'obs-profile-'));
+    try {
+      const credentialsFile = join(temp, 'credentials');
+      const configFile = join(temp, 'config');
+      writeFileSync(credentialsFile, '[inherited]\naws_access_key_id=INHERITED\naws_secret_access_key=fixture\n[selected]\naws_access_key_id=SELECTED\naws_secret_access_key=fixture\n');
+      writeFileSync(configFile, '');
+      const script = `
+        import assert from 'node:assert/strict';
+        import { configureAwsProfile } from './src/aws-profile.mjs';
+        import { STSClient } from '@aws-sdk/client-sts';
+        import { EC2Client } from '@aws-sdk/client-ec2';
+        import { defaultProvider } from '@aws-sdk/credential-provider-node';
+        configureAwsProfile(process.argv[1] === 'inherit' ? undefined : process.argv[1]);
+        const providers = [new STSClient({ region: 'us-east-1' }).config.credentials,
+          new EC2Client({ region: 'us-east-1' }).config.credentials, defaultProvider()];
+        for (const provider of providers) {
+          if (process.argv[1] === 'missing') await assert.rejects(provider());
+          else assert.equal((await provider()).accessKeyId,
+            process.argv[1] === 'inherit' ? 'INHERITED' : 'SELECTED');
+        }
+      `;
+      for (const selection of ['selected', 'inherit', 'missing']) {
+        execFileSync(process.execPath, ['--input-type=module', '-e', script, selection], {
+          cwd: installerDir, stdio: 'pipe', timeout: 10000,
+          env: { AWS_PROFILE: 'inherited', AWS_SHARED_CREDENTIALS_FILE: credentialsFile,
+            AWS_CONFIG_FILE: configFile, AWS_EC2_METADATA_DISABLED: 'true' },
+        });
+      }
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  });
+});

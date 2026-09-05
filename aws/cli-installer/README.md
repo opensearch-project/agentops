@@ -123,6 +123,9 @@ node bin/cli-installer.mjs destroy \
 
 Deletes: EC2 instance, OpenSearch Application, Connected Data Source, OSIS pipeline, IAM roles. OpenSearch domain and AMP workspace are preserved (shared resources).
 
+Use `--profile NAME` to select credentials for create, destroy, or the demo launcher.
+`--profile NAME` alone opens the interactive CLI. See [AWS profile selection](https://observability.opensearch.org/docs/deploy/aws/#select-an-aws-profile) for precedence and examples.
+
 ## Prerequisites
 
 - Node.js 18+
@@ -171,6 +174,7 @@ node --test test/unit.test.mjs
 
 ### Key Patterns
 
+- **AWS profiles** — select once with `configureAwsProfile` before constructing clients or credential providers. All CLI commands use the process-wide SDK profile; do not cache a provider before this boundary.
 - **SigV4 signing** — `opensearch-ui-init.mjs` uses `@aws-sdk/signature-v4` with service `opensearch`. Query params must be in the `query` property of `HttpRequest`, not embedded in the path.
 - **Idempotency** — Every resource creation checks for existence first. Correlations use find-before-create; saved objects with fixed IDs are upserted.
 - **EC2 demo** — User data script installs Docker + Compose, clones the repo, writes a managed-mode collector config, and starts workload services via `docker-compose.managed.yml`.

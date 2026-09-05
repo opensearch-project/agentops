@@ -1,4 +1,5 @@
 import { writeFileSync } from 'node:fs';
+import { configureAwsProfile } from './aws-profile.mjs';
 import { parseCli, applyQuickDefaults, validateConfig, fillDryRunPlaceholders } from './cli.mjs';
 import { renderPipeline } from './render.mjs';
 import {
@@ -33,7 +34,8 @@ export async function run() {
   try {
     // Parse CLI or run interactive REPL
     let cfg = parseCli(process.argv);
-    if (!cfg) {
+    configureAwsProfile(cfg?.profile);
+    if (!cfg || cfg._command === 'repl') {
       const { startRepl } = await import('./repl.mjs');
       return startRepl();
     }

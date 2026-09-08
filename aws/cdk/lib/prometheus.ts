@@ -28,9 +28,18 @@ export class PrometheusConstruct extends Construct {
     this.dqsRole = new iam.Role(this, 'DqsRole', {
       assumedBy: new iam.ServicePrincipal('directquery.opensearchservice.amazonaws.com'),
     });
+    // The data source queries metrics AND manages alerting resources (alerting
+    // rule groups and alert-manager silences) in the workspace. AMP authorizes
+    // rule-groups-namespace CRUD (Put/Delete/DescribeRuleGroupsNamespace) against
+    // the rulegroupsnamespace ARN, NOT the workspace ARN, so granting aps:* only
+    // on the workspace ARN silently denies rule-group create/update/delete.
+    // Alert-manager definitions and silences resolve against the workspace ARN.
     this.dqsRole.addToPolicy(new iam.PolicyStatement({
       actions: ['aps:*'],
-      resources: [this.workspace.attrArn],
+      resources: [
+        this.workspace.attrArn,
+        `arn:${stack.partition}:aps:${stack.region}:${stack.account}:rulegroupsnamespace/${this.workspace.attrWorkspaceId}/*`,
+      ],
     }));
 
     const dqsDataSourceName = `prometheus_${stack.stackName}`.toLowerCase().replace(/[^a-z0-9_]/g, '_');

@@ -1212,11 +1212,26 @@ export async function createConnectedDataSourceRole(cfg) {
     throw new Error('Failed to create Connected Data Source Prometheus role');
   }
 
-  // Attach APS access policy
+  // Attach APS access policy.
+  //
+  // The data source needs to query metrics AND manage alerting resources
+  // (alerting rule groups and alert-manager silences) in the workspace.
+  // AMP authorizes these against two different resource ARNs:
+  //   - Workspace-scoped actions (queries, remote write, alert-manager
+  //     definition + silences) resolve against the workspace ARN.
+  //   - Rule-groups-namespace CRUD (Put/Delete/DescribeRuleGroupsNamespace)
+  //     resolve against the rulegroupsnamespace ARN, NOT the workspace ARN.
+  // Granting aps:* only on the workspace ARN silently denies rule-group
+  // create/update/delete, so we list both resources.
   const apsWorkspaceArn = `arn:aws:aps:${cfg.region}:${cfg.accountId}:workspace/${cfg.apsWorkspaceId}`;
+  const apsRuleGroupsNamespaceArn = `arn:aws:aps:${cfg.region}:${cfg.accountId}:rulegroupsnamespace/${cfg.apsWorkspaceId}/*`;
   const permissionsPolicy = JSON.stringify({
     Version: '2012-10-17',
-    Statement: [{ Effect: 'Allow', Action: 'aps:*', Resource: apsWorkspaceArn }],
+    Statement: [{
+      Effect: 'Allow',
+      Action: 'aps:*',
+      Resource: [apsWorkspaceArn, apsRuleGroupsNamespaceArn],
+    }],
   });
 
   try {

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /**
  * Launch only the EC2 demo workload against an existing OSI pipeline.
- * Usage: AWS_PROFILE=<p> node bin/launch-demo.mjs --pipeline-name <name> --region <r>
+ * Usage: node bin/launch-demo.mjs --profile <p> --pipeline-name <name> --region <r>
  */
 import { Command } from 'commander';
+import { addProfileOption, configureAwsProfile } from '../src/aws-profile.mjs';
 import { OSISClient, GetPipelineCommand } from '@aws-sdk/client-osis';
 import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 import { launchDemoInstance } from '../src/ec2-demo.mjs';
@@ -12,8 +13,10 @@ import { printError, printInfo, printSuccess } from '../src/ui.mjs';
 const program = new Command()
   .requiredOption('--pipeline-name <name>', 'Existing OSI pipeline name')
   .requiredOption('--region <region>', 'AWS region');
+addProfileOption(program);
 program.parse(process.argv);
 const opts = program.opts();
+configureAwsProfile(opts.profile);
 
 try {
   const sts = new STSClient({ region: opts.region });

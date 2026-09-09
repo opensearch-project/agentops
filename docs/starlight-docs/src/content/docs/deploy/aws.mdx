@@ -39,6 +39,30 @@ npx @opensearch-project/observability-stack --serverless
 
 Takes ~15 minutes. See [aws/cli-installer/README.md](https://github.com/opensearch-project/observability-stack/tree/main/aws/cli-installer) for full options.
 
+#### Select an AWS profile
+
+Pass `--profile NAME` to use a named profile from your AWS shared configuration.
+With no other flags, the CLI opens the interactive menu using that profile:
+
+```bash
+npx @opensearch-project/observability-stack --profile development
+```
+
+Combine it with deployment flags for a non-interactive invocation:
+
+```bash
+npx @opensearch-project/observability-stack --profile development --quick --region us-east-1
+```
+
+The profile applies to credential checks, resource operations, and signed OpenSearch
+requests for the command's lifetime. `--profile` overrides `AWS_PROFILE`; omitting
+it preserves the SDK's existing credential selection. Region selection is unchanged.
+The CLI does not edit your AWS configuration files.
+
+Use the same profile when running `destroy --pipeline-name NAME --profile development`
+or the repository's `bin/launch-demo.mjs --profile development` command. If a profile
+uses SSO, sign in with `aws sso login --profile development` first.
+
 #### Deploy into a VPC
 
 Pass `--vpc-id` with `--subnet-ids` and `--security-group-ids` to place the OpenSearch domain, the OSIS ingestion pipeline, and the EC2 demo instance inside a VPC on private endpoints. Omit `--vpc-id` and you get the default public-endpoint deployment. VPC mode requires the managed backend.

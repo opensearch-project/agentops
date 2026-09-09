@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { createRequire } from 'node:module';
 import { DEFAULTS } from './config.mjs';
+import { addProfileOption } from './aws-profile.mjs';
 
 const require = createRequire(import.meta.url);
 const { version: PKG_VERSION } = require('../package.json');
@@ -23,6 +24,8 @@ export function parseCli(argv) {
       'OpenSearch, Prometheus, IAM roles, and ingestion pipelines.'
     )
     .version(PKG_VERSION);
+
+  addProfileOption(program);
 
   // Mode
   program
@@ -94,7 +97,12 @@ export function parseCli(argv) {
 
   program.parse(argv);
 
-  return optsToConfig(program.opts());
+  const opts = program.opts();
+  const onlyProfile = opts.profile !== undefined && program.options.every((option) =>
+    option.name() === 'profile' || program.getOptionValueSource(option.name()) !== 'cli'
+  );
+  if (onlyProfile) return { _command: 'repl', profile: opts.profile };
+  return optsToConfig(opts);
 }
 
 function parseDestroyArgs(argv) {
@@ -106,6 +114,7 @@ function parseDestroyArgs(argv) {
     .option('--opensearch-password <password>', 'Master password (if domain was not created by CLI)')
     .option('--aoss-collection-name <name>', 'Collection name if it differs from the pipeline name');
 
+  addProfileOption(program);
   program.parse(argv.slice(1));
   return { _command: 'destroy', ...program.opts() };
 }
@@ -145,6 +154,7 @@ function optsToConfig(opts) {
 
   return {
     mode,
+    profile: opts.profile,
     pipelineName: opts.pipelineName,
     region: opts.region || '',
     opensearchType,

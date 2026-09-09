@@ -19,7 +19,7 @@
     "starlight-links-validator": "^0.25.3"
   },
   "overrides": {
-    "svgo": "^4.0.2",
+    "svgo": "^4.1.0",
     "postcss": "^8.5.18",
     "sharp": "^0.35.0"
   }

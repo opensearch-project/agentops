@@ -9,6 +9,13 @@ description: Instrument your application to send traces to the Observability Sta
 pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp
 ```
 
+:::tip[OpenTelemetry auto-instrumentation]
+The example below instruments a span by hand so you can see what a trace is made
+of. For a real service, [auto-instrumentation](/docs/send-data/opentelemetry/auto-instrumentation/)
+is usually the faster path: it emits HTTP, database and framework spans with no
+code changes, and is available for Python, Java, Node.js, Go, .NET and Ruby.
+:::
+
 ## 2. Send traces
 
 ```python
@@ -46,4 +53,5 @@ For other languages, see [Send Data](/docs/send-data/).
 
 - [Create Your First Dashboard](/docs/get-started/quickstart/first-dashboard/) - build custom visualizations
 - [Agent Tracing](/docs/ai-observability/agent-tracing/) - trace AI agent workflows with GenAI semantic conventions
+- [Application Monitoring](/docs/apm/) - service maps and RED metrics built from the traces you just sent
 - [Send Data](/docs/send-data/) - more instrumentation options
